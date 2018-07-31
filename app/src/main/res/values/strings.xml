@@ -1,8 +1,29 @@
 <resources>
-    <string name="app_name">Collect sign language</string>
-    <string name="data_score_btn">数据评分</string>
-    <string name="data_collection_btn">收集数据</string>
+    <string name="app_name">收集手语系统</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- activity_collect_data_menu-->
+    <string name="btn_standard_data">标准数据</string>
+    <string name="btn_test_data">测试数据</string>
+    <string name="title_data_collect">收集数据</string>
+
+    <!-- activity_main -->
+    <string name="btn_data_collection">收集数据</string>
+    <string name="btn_data_socre">数据评分</string>
+
+    <!-- fragment_standard_data -->
+    <string name="btn_from_thesaurus">从词库选名词</string>
+    <string name="btn_define_name">定义名词</string>
+
+    <!-- fragment_test_data -->
+    <string name="btn_add_video">添加视频</string>
+    <string name="tv_data_name">名称:</string>
+    <string name="btn_upload">上传</string>
+    <string name="dialog_upload_success">上传成功</string>
+    <string name="toast_url_not_empty">地址不能为空</string>
+    <string name="toast_file_not_exist">文件不存在</string>
+    <string name="toast_name_not_empty">名称不能为空</string>
+
+    <!-- back_title -->
+    <string name="btn_back">返回</string>
 </resources>

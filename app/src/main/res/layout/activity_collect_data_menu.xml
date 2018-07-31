@@ -13,6 +13,7 @@
             android:layout_height="30dp">
         </include>
         <FrameLayout
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="520dp"
             android:background="@color/colorPrimary">
@@ -26,12 +27,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="标准数据"/>
+                android:text="@string/btn_standard_data"/>
             <Button
                 android:id="@+id/test_data_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="测试数据"/>
+                android:text="@string/btn_test_data"/>
         </LinearLayout>
 </LinearLayout>

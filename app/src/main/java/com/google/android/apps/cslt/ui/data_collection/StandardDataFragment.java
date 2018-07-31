@@ -1,39 +1,30 @@
 package com.google.android.apps.cslt.ui.data_collection;
 
-import android.content.Context;
-import android.net.Uri;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.google.android.apps.cslt.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link StandardDataFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link StandardDataFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
+
 public class StandardDataFragment extends Fragment {
 
 
+    @BindView(R.id.from_thesaurus_btn)
+    Button fromThesaurusBtn;
+    @BindView(R.id.define_name_btn)
+    Button defineNameBtn;
 
-    private OnFragmentInteractionListener mListener;
-
-    public StandardDataFragment() {
-        // Required empty public constructor
-    }
-
-
-    // TODO: Rename and change types and number of parameters
-    public static StandardDataFragment newInstance() {
-        StandardDataFragment fragment = new StandardDataFragment();
-        return fragment;
-    }
+    Unbinder unbinder;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,45 +35,27 @@ public class StandardDataFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_standard_data, container, false);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+        View view = inflater.inflate(R.layout.fragment_standard_data, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
+    @OnClick({R.id.from_thesaurus_btn, R.id.define_name_btn})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.from_thesaurus_btn:
+                //TODO(zhichongh): Fill from_thesaurus_btn button click handler here.
+                break;
+            case R.id.define_name_btn:
+                //TODO(zhichongh): Fill define_name_btn button click handler here.
+                break;
+                default:
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

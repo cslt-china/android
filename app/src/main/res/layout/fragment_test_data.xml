@@ -4,11 +4,50 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.data_collection.TestDataFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
-
+        android:orientation="vertical">
+        <VideoView
+            android:id="@+id/show_video_vv"
+            android:layout_marginTop="30dp"
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center_horizontal" />
+        <Button
+            android:id="@+id/add_video_btn"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_add_video"/>
+        <LinearLayout
+            android:layout_gravity="center_horizontal"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tv_data_name"/>
+            <EditText
+                android:id="@+id/data_name_et"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <Button
+            android:id="@+id/upload_btn"
+            android:layout_marginTop="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_upload"/>
+        <ProgressBar
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/upload_progress_bar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="300dp"
+            android:layout_marginTop="30dp"
+            android:visibility="gone"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </FrameLayout>

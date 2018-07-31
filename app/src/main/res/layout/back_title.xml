@@ -6,12 +6,12 @@
         android:id="@+id/back_btn"
         android:layout_width="50dp"
         android:layout_height="match_parent"
-        android:text="返回"/>
+        android:text="@string/btn_back"/>
     <TextView
         android:layout_centerHorizontal="true"
         android:id="@+id/back_title_tv"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:textSize="20dp"
-        android:text="huchong"/>
+        />
 </RelativeLayout>
