@@ -6,6 +6,7 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceView;
 import android.widget.Button;
 
@@ -31,14 +32,19 @@ public class CameraActivity extends AppCompatActivity {
     private static String TAG = CameraActivity.class.getSimpleName();
     private boolean isRecording = false;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         ButterKnife.bind(this);
         prepareVideoRecorder();
-        mCamera.setPreviewCallback();
-        mCamera.set
+        mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(byte[] bytes, Camera camera) {
+            }
+        });
         mCamera.startPreview();
 
     }

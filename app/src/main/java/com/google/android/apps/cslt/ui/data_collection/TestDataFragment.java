@@ -128,12 +128,21 @@ public class TestDataFragment extends Fragment implements TestDataContract.View 
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.add_video_btn:
-                //TODO(zhichongh): Fill add_video button click handler here.
+                startActivity(CameraActivity.class);
                 break;
             case R.id.upload_btn:
                 mPresenter.uploadFile();
                 break;
             default:
+        }
+    }
+
+    public void startActivity(Class target)
+    {
+        if(target!=null)
+        {
+            Intent intent=new Intent(getContext(),target);
+            startActivity(intent);
         }
     }
 

@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 
 import com.google.android.apps.cslt.R;
-import com.google.android.apps.cslt.ui.data_collection.CameraActivity;
 import com.google.android.apps.cslt.ui.data_collection.CollectDataMenuActivity;
 import com.google.android.apps.cslt.ui.data_score.DataListActivity;
 import com.google.android.apps.cslt.ui.user.LoginActivity;
@@ -46,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                     startActivity(CollectDataMenuActivity.class);
                     break;
                 case R.id.data_socre_btn:
-                    startActivity(CameraActivity.class);
+                    startActivity(DataListActivity.class);
                     break;
                 default:
             }
