@@ -27,7 +27,6 @@
         </activity>
         <activity android:name=".ui.data_score.DataListActivity" />
         <activity android:name=".ui.data_score.WatchVideoActivity" />
-        <activity android:name=".ui.data_score.ScoreActivity" />
         <activity android:name=".ui.data_collection.CollectDataMenuActivity" />
         <activity android:name=".ui.user.RegisterActivity" />
         <activity android:name=".ui.user.LoginActivity" />
