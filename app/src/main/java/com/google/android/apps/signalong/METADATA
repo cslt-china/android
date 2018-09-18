@@ -1,0 +1,35 @@
+# Format: google3/devtools/metadata/metadata.proto (go/google3metadata)
+
+# Basic checks on the CL
+presubmit: {
+  path_expression: "..."
+  review_notify: "cslt-team"
+  check_do_not_submit: {}
+  check_tests: {
+    review_results_age_limit: 86400
+    failure_status: ERROR
+    ignore_existing_failures: true
+  }
+
+}
+
+# Basic checks on file contents
+presubmit: {
+  path_expression: "..."
+  path_expression_exclusion: "....svg"
+  check_lint: {}
+  check_tabs: {}
+  check_terminating_newline: {}
+  check_trailing_whitespace: {}
+}
+
+# Enforce google-java-format on Java files.
+presubmit: {
+  path_expression: "...java"
+  check_presubmit_service: {
+    base: { id: "CheckJavaFormat" }
+    address: "blade:fmtserver-presubmit"
+    options: "Java"
+    failure_status: ERROR
+  }
+}

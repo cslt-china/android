@@ -1,0 +1,187 @@
+package com.google.android.apps.signalong;
+
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.paging.DataSource;
+import android.arch.paging.PagedList;
+import android.arch.paging.PagedList.Config;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.NonNull;
+import com.google.android.apps.signalong.api.ApiHelper;
+import com.google.android.apps.signalong.api.UserApi;
+import com.google.android.apps.signalong.api.VideoApi;
+import com.google.android.apps.signalong.jsonentities.AuthResponse;
+import com.google.android.apps.signalong.jsonentities.ProfileResponse;
+import com.google.android.apps.signalong.jsonentities.RefreshRequest;
+import com.google.android.apps.signalong.jsonentities.VideoListResponse;
+import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList.DataBean;
+import com.google.android.apps.signalong.utils.LoginSharedPreferences;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+/**
+ * SignAlongViewModel implements display profile and unreviewed videos data and check login logic.
+ */
+public class SignAlongViewModel extends AndroidViewModel {
+
+  private static final Integer PAGE_SIZE = 10;
+  /* This is used as a parameter for the request to get all the videos.*/
+  private static final String SELF_ALL_VIDEO_STATUS = "all";
+  /* This is used as a parameter for the request to get the not approve videos.*/
+  private static final String SELF_NOT_APPROVE_VIDEO_STATUS = "rejected";
+  private final UserApi userApi;
+  private final VideoApi videoApi;
+  private final MutableLiveData<Boolean> isLoginLiveData;
+  private final MutableLiveData<PagedList<DataBean>> unreviewedVideosLiveData;
+
+  public SignAlongViewModel(@NonNull Application application) {
+    super(application);
+    userApi = ApiHelper.getRetrofit().create(UserApi.class);
+    videoApi = ApiHelper.getRetrofit().create(VideoApi.class);
+    isLoginLiveData = new MutableLiveData<>();
+    unreviewedVideosLiveData = new MutableLiveData<>();
+  }
+
+  private boolean verifyTime(long time) {
+    return System.currentTimeMillis() / 1000 < time;
+  }
+
+  public MutableLiveData<Boolean> checkLogin() {
+    if (verifyTime(LoginSharedPreferences.getAccessExp(getApplication()))) {
+      isLoginLiveData.setValue(true);
+    } else if (verifyTime(LoginSharedPreferences.getRefreshExp(getApplication()))) {
+      userApi
+          .refresh(new RefreshRequest(LoginSharedPreferences.getRefreshToken(getApplication())))
+          .enqueue(
+              new Callback<AuthResponse>() {
+                @Override
+                public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                  if (response.isSuccessful()
+                      && response.body() != null
+                      && response.body().getData() != null
+                      && response.body().getCode() == 0) {
+                    LoginSharedPreferences.saveAccessUserData(
+                        getApplication(), response.body().getData().getAccess());
+                    isLoginLiveData.setValue(true);
+                    return;
+                  }
+                  onFailure(call, null);
+                }
+
+                @Override
+                public void onFailure(Call<AuthResponse> call, Throwable t) {
+                  isLoginLiveData.setValue(false);
+                }
+              });
+    } else {
+      isLoginLiveData.setValue(false);
+    }
+    return isLoginLiveData;
+  }
+
+  public MutableLiveData<ProfileResponse> getCurrentPointAndUsernameLiveData() {
+    MutableLiveData<ProfileResponse> currentPointAndUsernameLiveData = new MutableLiveData<>();
+    userApi
+        .getProfile(LoginSharedPreferences.getAccessToken(getApplication()))
+        .enqueue(
+            new Callback<ProfileResponse>() {
+              @Override
+              public void onResponse(
+                  Call<ProfileResponse> call, Response<ProfileResponse> response) {
+                if (response.isSuccessful() && response.body().getCode() == 0) {
+                  currentPointAndUsernameLiveData.setValue(response.body());
+                  return;
+                }
+                onFailure(call, null);
+              }
+
+              @Override
+              public void onFailure(Call<ProfileResponse> call, Throwable t) {
+                currentPointAndUsernameLiveData.setValue(null);
+              }
+            });
+    return currentPointAndUsernameLiveData;
+  }
+
+  public MutableLiveData<PagedList<DataBean>> getUnreviewedVideoList() {
+    DataSource<Integer, DataBean> dataSource =
+        new UnreviewedVideoDataSource(
+            videoApi, LoginSharedPreferences.getAccessToken(getApplication()));
+    PagedList<DataBean> unreviewedVideoList =
+        new android.arch.paging.PagedList.Builder<Integer, DataBean>(
+                dataSource,
+                new Config.Builder()
+                    .setPageSize(PAGE_SIZE)
+                    .setInitialLoadSizeHint(5)
+                    .setPrefetchDistance(2)
+                    .setEnablePlaceholders(false)
+                    .build())
+            .setFetchExecutor(Executors.newFixedThreadPool(5))
+            .setNotifyExecutor(
+                new Executor() {
+                  private final Handler handler = new Handler(Looper.getMainLooper());
+
+                  @Override
+                  public void execute(@NonNull Runnable command) {
+                    handler.post(command);
+                  }
+                })
+            .build();
+    unreviewedVideosLiveData.setValue(unreviewedVideoList);
+    return unreviewedVideosLiveData;
+  }
+
+  public MutableLiveData<Integer> getPersonalVideoCount() {
+    MutableLiveData<Integer> personalVideoCountLiveData = new MutableLiveData<>();
+    videoApi
+        .getPersonalVideoList(
+            LoginSharedPreferences.getAccessToken(getApplication()), SELF_ALL_VIDEO_STATUS)
+        .enqueue(new WrapCallBack(personalVideoCountLiveData));
+    return personalVideoCountLiveData;
+  }
+
+  public MutableLiveData<Integer> getPersonalUnapprovedVideoCount() {
+    MutableLiveData<Integer> personalUnapprovedVideoCountLiveData = new MutableLiveData<>();
+    videoApi
+        .getPersonalVideoList(
+            LoginSharedPreferences.getAccessToken(getApplication()), SELF_NOT_APPROVE_VIDEO_STATUS)
+        .enqueue(new WrapCallBack(personalUnapprovedVideoCountLiveData));
+    return personalUnapprovedVideoCountLiveData;
+  }
+
+  public MutableLiveData<Integer> getUnreviewVideoCount() {
+    MutableLiveData<Integer> unreviewVideoCountLiveData = new MutableLiveData<>();
+    videoApi
+        .getUnreviewedVideoList(LoginSharedPreferences.getAccessToken(getApplication()), 0, 0)
+        .enqueue(new WrapCallBack(unreviewVideoCountLiveData));
+    return unreviewVideoCountLiveData;
+  }
+
+  /** WrapCallBack is used to add extra function to Retrofit Callback for reuse. */
+  private static class WrapCallBack implements Callback<VideoListResponse> {
+    private final MutableLiveData<Integer> liveData;
+
+    public WrapCallBack(MutableLiveData<Integer> liveData) {
+      this.liveData = liveData;
+    }
+
+    @Override
+    public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
+      if (response.isSuccessful() && response.body() != null && response.body().getCode() == 0) {
+        liveData.setValue(response.body().getDataBeanList().getTotal());
+        return;
+      }
+      onFailure(call, null);
+    }
+
+    @Override
+    public void onFailure(Call<VideoListResponse> call, Throwable t) {
+      liveData.setValue(null);
+    }
+  }
+}
