@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.util.AttributeSet;
 import android.widget.Button;
+import com.google.android.apps.signalong.R;
 
 /** RecordButton provides display record status. */
 public class RecordButton extends Button {
@@ -21,9 +22,11 @@ public class RecordButton extends Button {
   private Integer currentStatus;
   private Integer currentProgress;
   private int currentTime;
-  /** DialogListener be call after recording end. */
+  /** DialogListener be call after recording end and cancel recording. */
   public interface RecordListener {
-    void onRecordEnd();
+    void onRecordingEnd();
+
+    void onCancelRecording();
   }
 
   public RecordButton setRecordEndListener(RecordListener recordEndListener) {
@@ -61,7 +64,11 @@ public class RecordButton extends Button {
             if (recordListener == null) {
               return;
             }
-            recordListener.onRecordEnd();
+            if (currentStatus.equals(PREVIEW_STATUS)) {
+              recordListener.onCancelRecording();
+              return;
+            }
+            recordListener.onRecordingEnd();
           }
 
           @Override
@@ -90,7 +97,11 @@ public class RecordButton extends Button {
     paint.setTextAlign(Paint.Align.CENTER);
     paint.setColor(Color.WHITE);
     paint.setTextAlign(Align.CENTER);
-    canvas.drawText(String.format("%ds", currentTime), cx, cy + 15, paint);
+    canvas.drawText(
+        getResources().getString(R.string.label_recording_time, currentTime),
+        cx,
+        cy + 15,
+        paint);
     paint.setStyle(Paint.Style.STROKE);
     paint.setStrokeWidth((float) 20.0);
     canvas.drawArc(cx - outSize, cy - outSize, cx + outSize, cy + outSize, 0, 360, false, paint);
@@ -108,6 +119,11 @@ public class RecordButton extends Button {
     currentStatus = RECORDING_STATUS;
     setVisibility(VISIBLE);
     valueAnimator.start();
+  }
+
+  public void intoCancelRecordingStatus() {
+    currentStatus = PREVIEW_STATUS;
+    valueAnimator.cancel();
   }
 
   public RecordButton setRecordingDuration(long time) {

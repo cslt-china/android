@@ -1,11 +1,13 @@
 package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 import com.google.android.apps.signalong.MyVideoViewModel.PersonalVideoStatus;
+import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.ScoresBean;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.common.collect.ImmutableMap;
@@ -49,7 +51,7 @@ public class MyVideoActivity extends BaseActivity {
     findViewById(R.id.setting_button)
         .setOnClickListener(
             view -> {
-              // TODO(zhichongh): Fill jump to the setting activity handler here.
+              startActivity(new Intent(getApplicationContext(), SettingActivity.class));
             });
     recyclerViewMap =
         ImmutableMap.of(
@@ -61,9 +63,9 @@ public class MyVideoActivity extends BaseActivity {
             (RecyclerView) findViewById(R.id.rejected_video_recycler_view));
     textViewMap =
         ImmutableMap.of(
-            PersonalVideoStatus.ALL, (TextView) findViewById(R.id.personal_video_count_textview),
+            PersonalVideoStatus.ALL, (TextView) findViewById(R.id.personal_video_count_text_view),
             PersonalVideoStatus.APPROVED,
-                (TextView) findViewById(R.id.personal_approved_video_count_textview));
+                (TextView) findViewById(R.id.personal_approved_video_count_text_view));
     videoAdapterMap = new HashMap<>();
     for (PersonalVideoStatus personalVideoStatus : recyclerViewMap.keySet()) {
       videoAdapterMap.put(personalVideoStatus, new VideoGridAdapter());
@@ -72,6 +74,41 @@ public class MyVideoActivity extends BaseActivity {
     }
     initVideoCount(PersonalVideoStatus.ALL);
     initVideoCount(PersonalVideoStatus.APPROVED);
+    myVideoViewModel
+        .getProfileResponseLiveData()
+        .observe(
+            this,
+            profileResponse -> {
+              if (profileResponse == null) {
+                ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
+                return;
+              }
+              if (profileResponse.isSuccessful()
+                  && profileResponse.body() != null
+                  && profileResponse.body().getCode() == 0) {
+                ((TextView) findViewById(R.id.username_text_view))
+                    .setText(
+                        String.format(
+                            getString(R.string.label_current_points),
+                            profileResponse.body().getData().getUsername()));
+                ScoresBean scoresBean = profileResponse.body().getData().getScores();
+                ((TextView) findViewById(R.id.points_text_view))
+                    .setText(
+                        String.valueOf(
+                            scoresBean.getVideoQualityScore()
+                                + scoresBean.getGlossCreationScore()
+                                + scoresBean.getVideoCreationScore()
+                                + scoresBean.getVideoReviewScore()));
+                return;
+              }
+              ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
+            });
+  }
+
+  @Override
+  protected void onResume() {
+    myVideoViewModel.getProfile();
+    super.onResume();
   }
 
   private void initRecyclerView(PersonalVideoStatus personalVideoStatus) {

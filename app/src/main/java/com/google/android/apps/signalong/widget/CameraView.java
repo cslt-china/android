@@ -1,5 +1,7 @@
 package com.google.android.apps.signalong.widget;
 
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -13,6 +15,8 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaRecorder;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -27,7 +31,6 @@ import java.util.List;
 public class CameraView extends TextureView implements TextureView.SurfaceTextureListener {
 
   private static final String TAG = "CameraActivity";
-  private static final int FRONT_CAMERA_CODE = 1;
   private final Context context;
   private CameraDevice cameraDevice;
   private MediaRecorder mediaRecorder;
@@ -35,6 +38,8 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
   private CallBack callBack;
   private Size videoSize;
   private Size previewSize;
+  private HandlerThread backgroundThread;
+  private Handler backgroundHandler;
 
   public CameraView(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -75,7 +80,8 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
             public void onConfigured(@NonNull CameraCaptureSession session) {
               cameraCaptureSession = session;
               try {
-                cameraCaptureSession.setRepeatingRequest(captureRequestBuilder.build(), null, null);
+                cameraCaptureSession.setRepeatingRequest(
+                    captureRequestBuilder.build(), null, backgroundHandler);
                 if (captureRequestTemplateType == CameraDevice.TEMPLATE_RECORD) {
                   callBack.onRecording();
                   mediaRecorder.start();
@@ -90,7 +96,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
             @Override
             public void onConfigureFailed(@NonNull CameraCaptureSession session) {}
           },
-          null);
+          backgroundHandler);
 
     } catch (CameraAccessException | IOException e) {
       Log.d(TAG, e.getMessage());
@@ -125,8 +131,26 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     mediaRecorder.prepare();
   }
 
+  private void startBackgroundThread() {
+    backgroundThread = new HandlerThread(TAG);
+    backgroundThread.start();
+    backgroundHandler = new Handler(backgroundThread.getLooper());
+  }
+
+  private void stopBackgroundThread() {
+    backgroundThread.quitSafely();
+    try {
+      backgroundThread.join();
+      backgroundThread = null;
+      backgroundHandler = null;
+    } catch (InterruptedException e) {
+      Log.d(TAG, e.getMessage());
+    }
+  }
+
   @Override
   public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+    startBackgroundThread();
     openCamera();
   }
 
@@ -145,7 +169,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
   private void openCamera() {
     CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
     try {
-      String cameraId = manager.getCameraIdList()[FRONT_CAMERA_CODE];
+      String cameraId = manager.getCameraIdList()[LENS_FACING_BACK];
       StreamConfigurationMap map =
           manager
               .getCameraCharacteristics(cameraId)
@@ -162,6 +186,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
             @Override
             public void onOpened(@NonNull CameraDevice camera) {
               cameraDevice = camera;
+              callBack.onCameraOpened();
             }
 
             @Override
@@ -173,7 +198,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
               cameraDevice = null;
             }
           },
-          null);
+          backgroundHandler);
     } catch (CameraAccessException e) {
       Log.d(TAG, e.getMessage());
     }
@@ -189,6 +214,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
       mediaRecorder.release();
       mediaRecorder = null;
     }
+    stopBackgroundThread();
   }
 
   public void startPreview() {
@@ -215,6 +241,8 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     void onRecording();
 
     void onPreview();
+
+    void onCameraOpened();
 
     String onOutVideoPath();
   }

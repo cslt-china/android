@@ -56,7 +56,7 @@ public class UnreviewedVideoDataSource extends PositionalDataSource<DataBean> {
       @NonNull LoadRangeParams loadRangeParams,
       @NonNull LoadRangeCallback<DataBean> loadRangeCallback) {
 
-    if (loadRangeParams.startPosition > totalCount) {
+    if (loadRangeParams.startPosition >= totalCount) {
       return;
     }
     videoApi

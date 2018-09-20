@@ -41,7 +41,7 @@ public class FileUtils {
 
   public static void clearFile(String filePath) {
     File file = new File(filePath);
-    if (file.exists() && file.isFile()) {
+    if (!TextUtils.isEmpty(filePath) && file.exists() && file.isFile()) {
       file.delete();
     }
   }

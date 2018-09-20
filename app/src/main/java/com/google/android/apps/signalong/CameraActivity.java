@@ -1,6 +1,6 @@
 package com.google.android.apps.signalong;
 
-import static com.google.android.apps.signalong.CameraActivity.RecordState.PREPARE;
+import static com.google.android.apps.signalong.CameraActivity.RecordState.PREVIEW;
 import static com.google.android.apps.signalong.CameraActivity.RecordState.RECORDING;
 
 import android.arch.lifecycle.ViewModelProviders;
@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import com.google.android.apps.signalong.broadcast.NetworkReceiver;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
+import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences.TimingType;
@@ -21,6 +22,7 @@ import com.google.android.apps.signalong.widget.CameraView.CallBack;
 import com.google.android.apps.signalong.widget.LearnVideoDialog;
 import com.google.android.apps.signalong.widget.LearnVideoDialog.DialogListener;
 import com.google.android.apps.signalong.widget.RecordButton;
+import com.google.android.apps.signalong.widget.RecordButton.RecordListener;
 import java.io.File;
 import java.util.List;
 
@@ -33,7 +35,7 @@ public class CameraActivity extends BaseActivity {
   /** The state of RecordState that this object specifies. */
   public enum RecordState {
     RECORDING,
-    PREPARE
+    PREVIEW
   }
 
   private static final String TAG = "CameraActivity";
@@ -60,7 +62,6 @@ public class CameraActivity extends BaseActivity {
   private LearnVideoDialog learnVideoDialog;
   private Thread countDownThread;
   private boolean isCountDownThreadExit;
-  private boolean isRerecord;
 
   @Override
   public int getContentView() {
@@ -71,8 +72,7 @@ public class CameraActivity extends BaseActivity {
   public void init() {
     cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
     counter = 0;
-    isRerecord = false;
-    currentState = PREPARE;
+    currentState = PREVIEW;
   }
 
   @Override
@@ -101,34 +101,42 @@ public class CameraActivity extends BaseActivity {
             VideoRecordingSharedPreferences.getTiming(
                 getApplicationContext(), TimingType.RECORD_TIME))
         .setRecordEndListener(
-            () -> {
-              if (currentState == RECORDING && !isRerecord) {
+            new RecordListener() {
+              @Override
+              public void onRecordingEnd() {
                 cameraView.stopRecording();
                 cameraViewModel.saveVideoUploadTask(videoFilePath, currentSignPrompt.getId());
                 signPromptList.remove(currentSignPrompt);
-                cameraView.startPreview();
+                nextRecordingPrompt();
+              }
+
+              @Override
+              public void onCancelRecording() {
+                cameraView.stopRecording();
+                FileUtils.clearFile(videoFilePath);
               }
             });
     cameraView.setCallBack(
         new CallBack() {
+          @Override
+          public void onCameraOpened() {
+            cameraViewModel.getSignPromptBatch();
+          }
 
           @Override
           public void onRecording() {
             currentState = RECORDING;
-            countDownTextView.setVisibility(View.GONE);
-            recordStartButton.intoRecordingStatus();
+            runOnUiThread(
+                () -> {
+                  countDownTextView.setVisibility(View.GONE);
+                  recordStartButton.intoRecordingStatus();
+                });
           }
 
           @Override
           public void onPreview() {
-            currentState = PREPARE;
-            refreshButton.setVisibility(View.GONE);
-            if (!isRerecord) {
-              nextRecordingPrompt();
-            } else {
-              isRerecord = false;
-              updateViewContent();
-            }
+            currentState = PREVIEW;
+            runOnUiThread(() -> recordStartButton.intoPreviewStatus());
           }
 
           @Override
@@ -150,7 +158,7 @@ public class CameraActivity extends BaseActivity {
                   && signPromptBatchResponse.body().getCode() == 0
                   && signPromptBatchResponse.body().getData() != null) {
                 signPromptList = signPromptBatchResponse.body().getData();
-                cameraView.startPreview();
+                nextRecordingPrompt();
               } else {
                 ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
                 finish();
@@ -160,7 +168,8 @@ public class CameraActivity extends BaseActivity {
         new DialogListener() {
           @Override
           public void onRerecordClick() {
-            cameraView.startPreview();
+            refreshButton.setVisibility(View.GONE);
+            showLargeWordForTime();
           }
 
           @Override
@@ -173,17 +182,15 @@ public class CameraActivity extends BaseActivity {
         });
     realRecordLayout.setOnClickListener(
         view -> {
-          isRerecord = true;
           if (currentState == RECORDING) {
-            cameraView.stopRecording();
-            recordStartButton.intoPreviewStatus();
+            recordStartButton.intoCancelRecordingStatus();
+            cameraView.startPreview();
           } else {
             isCountDownThreadExit = true;
           }
           learnVideoDialog.show(getFragmentManager(), LearnVideoDialog.class.getName());
           refreshButton.setVisibility(View.VISIBLE);
         });
-    cameraViewModel.getSignPromptBatch();
     networkReceiver = new NetworkReceiver(() -> cameraViewModel.startUploadThread());
     registerReceiver(networkReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
   }
@@ -191,7 +198,6 @@ public class CameraActivity extends BaseActivity {
   @Override
   protected void onDestroy() {
     isCountDownThreadExit = true;
-    isRerecord = true;
     cameraView.closeCamera();
     cameraViewModel.stopUploadThread();
     if (networkReceiver != null) {
@@ -209,7 +215,9 @@ public class CameraActivity extends BaseActivity {
     return videoFilePath;
   }
 
+  /** Start the countdown and display it on the screen. */
   private void startPreviewCountDown() {
+    countDownTextView.setVisibility(View.VISIBLE);
     isCountDownThreadExit = false;
     countDownThread =
         new Thread(
@@ -238,21 +246,26 @@ public class CameraActivity extends BaseActivity {
       counter++;
       currentSignPrompt = signPromptList.get(0);
       updateViewContent();
+      cameraView.startPreview();
+      showLargeWordForTime();
     } else {
       ToastUtils.show(getApplicationContext(), getString(R.string.tip_finish));
       finish();
     }
   }
 
+  /** Update the contents of the view. */
   private void updateViewContent() {
-    realRecordLayout.setVisibility(View.GONE);
+    if (currentSignPrompt != null) {
     largeWordTextView.setText(currentSignPrompt.getText());
-    largeWordPromptLayout.setVisibility(View.VISIBLE);
     wordTextView.setText(currentSignPrompt.getText());
-    recordStartButton.intoPreviewStatus();
-    countDownTextView.setText(String.valueOf(timeStart));
-    countDownTextView.setVisibility(View.VISIBLE);
     counterTextView.setText(String.format(getString(R.string.label_counter), counter));
+    }
+  }
+  /** Show large word for a period of time. */
+  private void showLargeWordForTime() {
+    realRecordLayout.setVisibility(View.GONE);
+    largeWordPromptLayout.setVisibility(View.VISIBLE);
     new Thread(
             () -> {
               try {

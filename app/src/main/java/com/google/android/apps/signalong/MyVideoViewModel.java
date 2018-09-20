@@ -5,7 +5,9 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import com.google.android.apps.signalong.api.ApiHelper;
+import com.google.android.apps.signalong.api.UserApi;
 import com.google.android.apps.signalong.api.VideoApi;
+import com.google.android.apps.signalong.jsonentities.ProfileResponse;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import java.util.HashMap;
@@ -32,16 +34,20 @@ public class MyVideoViewModel extends AndroidViewModel {
   }
 
   private final VideoApi videoApi;
+  private final UserApi userApi;
   private final Map<PersonalVideoStatus, MutableLiveData<Response<VideoListResponse>>>
       personalVideoList;
+  private final MutableLiveData<Response<ProfileResponse>> profileResponseLiveData;
 
   public MyVideoViewModel(@NonNull Application application) {
     super(application);
     videoApi = ApiHelper.getRetrofit().create(VideoApi.class);
+    userApi = ApiHelper.getRetrofit().create(UserApi.class);
     personalVideoList = new HashMap<>();
     for (PersonalVideoStatus personalVideoStatus : PersonalVideoStatus.values()) {
       personalVideoList.put(personalVideoStatus, new MutableLiveData<>());
     }
+    profileResponseLiveData = new MutableLiveData<>();
   }
 
   public MutableLiveData<Response<VideoListResponse>> getPersonalVideoList(
@@ -64,5 +70,27 @@ public class MyVideoViewModel extends AndroidViewModel {
               }
             });
     return personalVideoList.get(videoStatus);
+  }
+
+  public void getProfile() {
+    userApi
+        .getProfile(LoginSharedPreferences.getAccessToken(getApplication()))
+        .enqueue(
+            new Callback<ProfileResponse>() {
+              @Override
+              public void onResponse(
+                  Call<ProfileResponse> call, Response<ProfileResponse> response) {
+                profileResponseLiveData.setValue(response);
+              }
+
+              @Override
+              public void onFailure(Call<ProfileResponse> call, Throwable t) {
+                profileResponseLiveData.setValue(null);
+              }
+            });
+  }
+
+  public MutableLiveData<Response<ProfileResponse>> getProfileResponseLiveData() {
+    return profileResponseLiveData;
   }
 }
