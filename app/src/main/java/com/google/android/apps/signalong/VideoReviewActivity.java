@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
@@ -20,7 +21,7 @@ public class VideoReviewActivity extends BaseActivity {
   private VideoReviewViewModel videoReviewViewModel;
   private List<VideoListResponse.DataBeanList.DataBean> unreviewedVideoList;
   private VideoListResponse.DataBeanList.DataBean currentUnreviewedVideoData;
-  private ViewGroup approveRejectButtonsLayout;
+  private RelativeLayout approveRejectButtonsLayout;
   private Integer counter;
   private VideoView videoView;
 
@@ -43,7 +44,7 @@ public class VideoReviewActivity extends BaseActivity {
 
   @Override
   public void initViews() {
-    approveRejectButtonsLayout = findViewById(R.id.approve_reject_buttons_layout);
+    approveRejectButtonsLayout = (RelativeLayout) findViewById(R.id.approve_reject_buttons_layout);
     videoView = (VideoView) findViewById(R.id.video_view);
     findViewById(R.id.ok_button).setOnClickListener(view -> finish());
     findViewById(R.id.reject_button).setOnClickListener(view -> reviewVideo(REVIEW_REJECT));

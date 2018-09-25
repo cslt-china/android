@@ -11,9 +11,8 @@ import com.google.android.apps.signalong.db.dbentities.VideoUploadTask;
  * AppDatabase as the main access point for the underlying connection to your app's persisted,
  * relational data.
  */
-@Database(
-    entities = {VideoUploadTask.class},
-    version = 1)
+@Database(entities = {VideoUploadTask.class},
+    version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
   public abstract VideoUploadTaskDao videoUploadTaskDao();
 

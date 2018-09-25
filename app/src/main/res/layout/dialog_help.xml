@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="370dp">
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="370dp"
+      android:orientation="vertical">
+    <TextView
+        android:paddingTop="20dp"
+        android:paddingBottom="12dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:textSize="20dp"
+        android:text="@string/label_help_title"/>
+    <android.support.v4.widget.NestedScrollView
+        android:paddingRight="16dp"
+        android:paddingLeft="24dp"
+        android:paddingBottom="12dp"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:layout_width="match_parent"
+        android:layout_height="250dp">
+      <TextView
+          android:textSize="14sp"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="@string/label_help_content"/>
+    </android.support.v4.widget.NestedScrollView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+      android:background="#FF909090"/>
+    <Button
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/mtrl_btn_transparent_bg_color"
+        android:id="@+id/dialog_ok_button"
+        android:layout_gravity="right"
+        android:layout_width="wrap_content"
+        android:text="@string/btn_dialog_help_ok"
+        android:layout_height="wrap_content"/>
+  </LinearLayout>
+</RelativeLayout>
