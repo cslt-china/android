@@ -88,4 +88,13 @@
   <string name="btn_ok">好的</string>
   <string name="label_on_number">第%1$d题</string>
   <string name="tip_connect_fail">连接失败</string>
+  <!-- fragment_intro -->
+  <string name="button_ok">ok</string>
+  <string name="button_back">back</string>
+  <string name="label_content_intro_check_list">需要录制的词条将自动派发给你,将以\n10个为一组,每个单词手势录制时间为\n5秒。系统会自动进入下一个词条。</string>
+  <string name="label_title_intro_check_list">自动发放录制任务</string>
+  <string name="label_content_intro_align_body">将手机稳定放在30-40厘米的水平位\n置,确保身体在识别区域内，不然会\n\t\t\t\t\t\t\t\t\t\t\t白做工的。</string>
+  <string name="label_title_intro_align_body">留意动作录制范围</string>
+  <string name="label_content_intro_review">根据视频中手语的对错给出判断，判断\n完成的视频会以积分形式出现在您个人\n\t\t\t\t账户里。接下来就看你的啦。</string>
+  <string name="label_title_intro_review">判断手语视频</string>
 </resources>

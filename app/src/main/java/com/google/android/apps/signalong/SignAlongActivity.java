@@ -13,6 +13,8 @@ import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.ScoresBean;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList.DataBean;
+import com.google.android.apps.signalong.utils.IntroSharedPreferences;
+import com.google.android.apps.signalong.utils.IntroSharedPreferences.IntroType;
 import com.google.android.apps.signalong.utils.ToastUtils;
 import java.util.ArrayList;
 
@@ -113,7 +115,7 @@ public class SignAlongActivity extends BaseActivity {
 
   private void startCameraActivity() {
     if (isHavePermission(RECORD_VIDEO_PERMISSIONS)) {
-      startActivity(new Intent(getApplicationContext(), CameraActivity.class));
+      isFirstAppToIntroActivity(IntroType.RECORD);
     } else {
       requestPermissions(RECORD_VIDEO_PERMISSIONS, REQUEST_RECORD_VIDEO_PERMISSIONS);
     }
@@ -121,9 +123,36 @@ public class SignAlongActivity extends BaseActivity {
 
   private void startVideoReviewActivity() {
     if (isHavePermission(REVIEW_VIDEO_PERMISSIONS)) {
-      startActivity(intentToVideoReview);
+      isFirstAppToIntroActivity(IntroType.REVIEW);
     } else {
       requestPermissions(REVIEW_VIDEO_PERMISSIONS, REQUEST_REVIEW_VIDEO_PERMISSIONS);
+    }
+  }
+
+  private void isFirstAppToIntroActivity(IntroType introType) {
+    Intent targetIntent = null;
+    if (!IntroSharedPreferences.getIntroValue(getApplicationContext(), introType)) {
+      IntroSharedPreferences.saveIntroValue(getApplicationContext(), introType, true);
+      switch (introType) {
+        case RECORD:
+          targetIntent = new Intent(getApplicationContext(), IntroRecordActivity.class);
+          break;
+        case REVIEW:
+          targetIntent = new Intent(getApplicationContext(), IntroReviewActivity.class);
+          break;
+      }
+    } else {
+      switch (introType) {
+        case RECORD:
+          targetIntent = new Intent(getApplicationContext(), CameraActivity.class);
+          break;
+        case REVIEW:
+          targetIntent = new Intent(getApplicationContext(), VideoReviewActivity.class);
+          break;
+      }
+    }
+    if (targetIntent != null) {
+      startActivity(targetIntent);
     }
   }
 
@@ -230,13 +259,13 @@ public class SignAlongActivity extends BaseActivity {
 
     if (requestCode == REQUEST_RECORD_VIDEO_PERMISSIONS) {
       if (isHavePermission(permissions)) {
-        startActivity(new Intent(getApplicationContext(), CameraActivity.class));
+        isFirstAppToIntroActivity(IntroType.RECORD);
       } else {
         ToastUtils.show(getApplicationContext(), getString(R.string.tip_refuse_permission));
       }
     } else if (requestCode == REQUEST_REVIEW_VIDEO_PERMISSIONS) {
       if (isHavePermission(permissions)) {
-        startActivity(intentToVideoReview);
+        isFirstAppToIntroActivity(IntroType.REVIEW);
       } else {
         ToastUtils.show(getApplicationContext(), getString(R.string.tip_refuse_permission));
       }

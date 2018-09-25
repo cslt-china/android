@@ -39,5 +39,9 @@
     </activity>
     <activity android:name=".VideoReviewActivity">
     </activity>
+    <activity android:name=".IntroRecordActivity">
+    </activity>
+    <activity android:name=".IntroReviewActivity">
+    </activity>
   </application>
 </manifest>

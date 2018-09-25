@@ -42,6 +42,7 @@ android_library(
         "//third_party/java/android/android_sdk_linux/extras/android/compatibility/v4",
         "//third_party/java/android/android_sdk_linux/extras/android/compatibility/v7/appcompat",
         "//third_party/java/android/android_sdk_linux/extras/android/compatibility/v7/recyclerview",
+        "//third_party/java/android/android_sdk_linux/extras/android/compatibility/viewpager",
         "//third_party/java/android_libs/glide",
         "//third_party/java/android_libs/guava_jdk5",
         "//third_party/java/android_libs/guava_jdk5:base",
