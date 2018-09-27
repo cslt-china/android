@@ -39,7 +39,11 @@
           android:layout_height="match_parent"/>
     </LinearLayout>
   </RelativeLayout>
-  <View style="@style/Spacer"/>
+
+  <View
+      style="@style/Spacer"
+      android:background="@color/light_grey"/>
+
   <RelativeLayout
       android:layout_marginBottom="18dp"
       android:layout_marginTop="18dp"
@@ -73,7 +77,11 @@
           android:layout_height="match_parent"/>
     </LinearLayout>
   </RelativeLayout>
-  <View style="@style/Spacer"/>
+
+  <View
+      style="@style/Spacer"
+      android:background="@color/light_grey"/>
+
   <Button
       android:gravity="center_vertical"
       android:background="@android:color/transparent"
@@ -83,15 +91,20 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="@string/btn_help"/>
-  <View style="@style/Spacer"/>
+
+  <View
+      style="@style/Spacer"
+      android:background="@color/light_grey"/>
+
   <Button
-      android:gravity="center_vertical"
-      android:background="@android:color/transparent"
+      android:gravity="center"
+      android:layout_gravity="right"
+      android:background="@drawable/rounded_rect"
       android:layout_marginBottom="15dp"
       android:layout_marginTop="15dp"
       android:id="@+id/logout_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="@string/btn_logout"/>
-  <View style="@style/Spacer"/>
+
 </LinearLayout>

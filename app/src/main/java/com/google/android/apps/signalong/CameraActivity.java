@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import com.google.android.apps.signalong.broadcast.NetworkReceiver;
@@ -73,6 +74,7 @@ public class CameraActivity extends BaseActivity {
     cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
     counter = 0;
     currentState = PREVIEW;
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
   }
 
   @Override

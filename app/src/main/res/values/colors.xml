@@ -12,4 +12,5 @@
     <color name="dialogBackground">#F2F3F4</color>
     <color name="dark">#797D7F </color>
     <color name="back">#000000</color>
+    <color name="light_grey">#DCDCDC</color>
 </resources>

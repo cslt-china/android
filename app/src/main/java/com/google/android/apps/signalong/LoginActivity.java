@@ -2,6 +2,8 @@ package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.text.TextUtils;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import com.google.android.apps.signalong.jsonentities.User;
 import com.google.android.apps.signalong.utils.ToastUtils;
@@ -22,39 +24,50 @@ public class LoginActivity extends BaseActivity {
     loginViewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
   }
 
+  private void login() {
+    String username =
+        ((TextView) findViewById(R.id.username_edit_text)).getText().toString();
+    String password =
+        ((TextView) findViewById(R.id.password_edit_text)).getText().toString();
+    if (TextUtils.isEmpty(username)) {
+      ToastUtils.show(getApplicationContext(), getString(R.string.tip_username_empty));
+      return;
+    }
+    if (TextUtils.isEmpty(password)) {
+      ToastUtils.show(getApplicationContext(), getString(R.string.tip_password_empty));
+      return;
+    }
+    loginViewModel
+        .login(new User(username.trim(), password.trim()))
+        .observe(
+            this,
+            authResponseResponse -> {
+              if (authResponseResponse == null) {
+                ToastUtils.show(
+                    getApplicationContext(), getString(R.string.tip_login_fail));
+                return;
+              }
+              ToastUtils.show(
+                  getApplicationContext(), getString(R.string.tip_login_success));
+              this.setResult(LOGIN_SUCCESS);
+              finish();
+            });
+
+  }
+
   @Override
   public void initViews() {
-    findViewById(R.id.login_button)
-        .setOnClickListener(
-            view -> {
-              String username =
-                  ((TextView) findViewById(R.id.username_edit_text)).getText().toString();
-              String password =
-                  ((TextView) findViewById(R.id.password_edit_text)).getText().toString();
-              if (TextUtils.isEmpty(username)) {
-                ToastUtils.show(getApplicationContext(), getString(R.string.tip_username_empty));
-                return;
-              }
-              if (TextUtils.isEmpty(password)) {
-                ToastUtils.show(getApplicationContext(), getString(R.string.tip_password_empty));
-                return;
-              }
-              loginViewModel
-                  .login(new User(username.trim(), password.trim()))
-                  .observe(
-                      this,
-                      authResponseResponse -> {
-                        if (authResponseResponse == null) {
-                          ToastUtils.show(
-                              getApplicationContext(), getString(R.string.tip_login_fail));
-                          return;
-                        }
-                        ToastUtils.show(
-                            getApplicationContext(), getString(R.string.tip_login_success));
-                        this.setResult(LOGIN_SUCCESS);
-                        finish();
-                      });
-            });
+    findViewById(R.id.login_button).setOnClickListener(view -> login());
+
+    ((TextView) findViewById(R.id.password_edit_text)).setOnEditorActionListener(
+      (TextView textView, int actionId, KeyEvent keyEvent) -> {
+        if (actionId == EditorInfo.IME_ACTION_GO) {
+          login();
+          return true;
+        }
+        return false;
+      }
+    );
   }
 
   @Override
