@@ -24,7 +24,7 @@
         android:layout_height="20dp">
       <SeekBar
           android:layout_width="0dp"
-          android:layout_weight="9.3"
+          android:layout_weight="9"
           android:layout_height="match_parent"
           android:id="@+id/prepare_time_seek_bar"
           android:progressBackgroundTint="@color/aliceBlue"
@@ -35,7 +35,8 @@
           android:textSize="15sp"
           android:id="@+id/textview_prepare_time"
           android:layout_width="0dp"
-          android:layout_weight="0.7"
+          android:layout_weight="1"
+          android:textAlignment="viewEnd"
           android:layout_height="match_parent"/>
     </LinearLayout>
   </RelativeLayout>
@@ -58,18 +59,20 @@
         android:layout_height="20dp">
       <SeekBar
           android:layout_width="0dp"
-          android:layout_weight="9.3"
+          android:layout_weight="9"
           android:layout_height="match_parent"
           android:id="@+id/record_time_seek_bar"
           android:progressBackgroundTint="@color/aliceBlue"
           android:tickMark="@drawable/circle"
           android:tickMarkTint="@color/highLight"
-          android:max="10"/>
+          android:min="5"
+          android:max="20"/>
       <TextView
           android:textSize="15sp"
           android:id="@+id/textview_record_time"
           android:layout_width="0dp"
-          android:layout_weight="0.7"
+          android:layout_weight="1"
+          android:textAlignment="viewEnd"
           android:layout_height="match_parent"/>
     </LinearLayout>
   </RelativeLayout>

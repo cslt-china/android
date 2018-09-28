@@ -33,8 +33,8 @@ public class SignPromptBatchResponse {
     private int id;
     private String text;
 
-    @SerializedName("sign_type")
-    private int signType;
+    @SerializedName("gloss_type")
+    private int glossType;
 
     @SerializedName("video_count")
     private Object videoCount;
@@ -42,18 +42,11 @@ public class SignPromptBatchResponse {
     @SerializedName("sample_video")
     private SampleVideoBean sampleVideo;
 
-    public SampleVideoBean getSampleVideo() {
-      return sampleVideo;
-    }
-
-    public void setSampleVideo(SampleVideoBean sampleVideo) {
-      this.sampleVideo = sampleVideo;
-    }
+    private int duration;
 
     public int getId() {
       return id;
     }
-
     public void setId(int id) {
       this.id = id;
     }
@@ -61,26 +54,30 @@ public class SignPromptBatchResponse {
     public String getText() {
       return text;
     }
-
     public void setText(String text) {
       this.text = text;
     }
 
-    public int getSignType() {
-      return signType;
+    public int getGlossType() {
+      return glossType;
     }
-
-    public void setSignType(int signType) {
-      this.signType = signType;
+    public void setGlossType(int glossType) {
+      this.glossType = glossType;
     }
 
     public Object getVideoCount() {
       return videoCount;
     }
-
     public void setVideoCount(Object videoCount) {
       this.videoCount = videoCount;
     }
+
+    public int getDuration() { return duration; }
+    public void setDuration(int duration) { this.duration = duration; }
+
+    public SampleVideoBean getSampleVideo() { return sampleVideo; }
+    public void setSampleVideo(SampleVideoBean sampleVideo) { this.sampleVideo = sampleVideo; }
+
     /** The SampleVideoBean class is real data, that contains video path. */
     public static class SampleVideoBean {
 

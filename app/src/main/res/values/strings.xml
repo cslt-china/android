@@ -62,7 +62,7 @@
   <string name="label_number_question">第%1$d题</string>
   <!-- activity_setting -->
   <string name="tv_prepare_time">录制间隔</string>
-  <string name="tv_record_time">录制时长</string>
+  <string name="tv_record_time">录制时长调整</string>
   <string name="btn_help"> 积分规则介绍</string>
   <string name="btn_logout">退出帐号</string>
   <string name="title_activity_help">HelpActivity</string>
