@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import com.google.android.apps.signalong.broadcast.NetworkReceiver;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
@@ -51,7 +50,6 @@ public class CameraActivity extends BaseActivity {
   private RecordButton recordStartButton;
   private ViewGroup largeWordPromptLayout;
   private ViewGroup realRecordLayout;
-  private ImageButton refreshButton;
   private NetworkReceiver networkReceiver;
   private String videoFilePath;
   private CameraViewModel cameraViewModel;
@@ -63,6 +61,7 @@ public class CameraActivity extends BaseActivity {
   private LearnVideoDialog learnVideoDialog;
   private Thread countDownThread;
   private boolean isCountDownThreadExit;
+  private int finished_count = 0;
 
   @Override
   public int getContentView() {
@@ -93,11 +92,6 @@ public class CameraActivity extends BaseActivity {
     recordStartButton = (RecordButton) findViewById(R.id.record_start_button);
     largeWordPromptLayout = (ViewGroup) findViewById(R.id.large_word_prompt_layout);
     realRecordLayout = (ViewGroup) findViewById(R.id.real_record_layout);
-    refreshButton = (ImageButton) findViewById(R.id.refresh_button);
-    refreshButton.setOnClickListener(
-        view -> {
-          cameraView.startPreview();
-        });
     recordStartButton
         .setRecordEndListener(
             new RecordListener() {
@@ -107,6 +101,7 @@ public class CameraActivity extends BaseActivity {
                 cameraViewModel.saveVideoUploadTask(videoFilePath, currentSignPrompt.getId());
                 signPromptList.remove(currentSignPrompt);
                 nextRecordingPrompt();
+                finished_count++;
               }
 
               @Override
@@ -166,17 +161,18 @@ public class CameraActivity extends BaseActivity {
     learnVideoDialog.setDialogListener(
         new DialogListener() {
           @Override
-          public void onRerecordClick() {
-            refreshButton.setVisibility(View.GONE);
+          public void onCloseClick() {
             showLargeWordForTime();
           }
 
           @Override
-          public void onCancelClick() {}
-
-          @Override
           public String getVideoPath() {
             return currentSignPrompt.getSampleVideo().getVideoPath();
+          }
+
+          @Override
+          public String getThumbnail() {
+            return currentSignPrompt.getSampleVideo().getThumbnail();
           }
         });
     realRecordLayout.setOnClickListener(
@@ -187,8 +183,14 @@ public class CameraActivity extends BaseActivity {
           } else {
             isCountDownThreadExit = true;
           }
+
+          //make the dialog align to camereVieo
+          int[] location = new int[2];
+          cameraView.getLocationInWindow(location);
+          learnVideoDialog.setPosition(location[0], location[1],
+              cameraView.getWidth(), cameraView.getHeight());
+
           learnVideoDialog.show(getFragmentManager(), LearnVideoDialog.class.getName());
-          refreshButton.setVisibility(View.VISIBLE);
         });
     networkReceiver = new NetworkReceiver(() -> cameraViewModel.startUploadThread());
     registerReceiver(networkReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
@@ -240,6 +242,11 @@ public class CameraActivity extends BaseActivity {
                 int recordingTime = (int)Math.ceil(
                     currentSignPrompt.getDuration() / 1000.0 * scale / 100.0);
 
+                //Prevent RuntimeException when recording time is less than 1 second
+                if (recordingTime < 2) {
+                  recordingTime = 2;
+                }
+
                 recordStartButton.setRecordingDuration(recordingTime);
                 runOnUiThread(() -> cameraView.startRecord());
               }
@@ -259,6 +266,14 @@ public class CameraActivity extends BaseActivity {
       ToastUtils.show(getApplicationContext(), getString(R.string.tip_finish));
       finish();
     }
+  }
+
+  @Override
+  protected void onStop() {
+    if (finished_count > 0) {
+      ToastUtils.show(getApplication(), String.format("这次你录制了%d个视频，谢谢啦！", finished_count));
+    }
+    super.onStop();
   }
 
   /** Update the contents of the view. */

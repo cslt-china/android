@@ -49,6 +49,7 @@
   <string name="label_counter">第\t\t%1$d\t\t题</string>
   <string name="btn_rerecord">重新录制</string>
   <string name="btn_cancel">关闭</string>
+  <string name="demonstration">示范</string>
   <!-- back_title -->
   <string name="btn_back">返回</string>
   <!-- sign_along_camera -->
