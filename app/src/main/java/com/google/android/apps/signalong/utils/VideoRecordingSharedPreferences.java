@@ -11,7 +11,7 @@ public class VideoRecordingSharedPreferences {
     // The count down timing for user to get ready for the next sign recording.
     PREPARE_TIME,
     // The designated recording time per sign video.
-    RECORD_TIME,
+    RECORD_TIME_SCALE,
   }
 
   private static final String PACKAGE_NAME = "RecordVideoConfig";

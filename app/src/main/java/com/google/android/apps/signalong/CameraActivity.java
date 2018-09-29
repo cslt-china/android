@@ -99,9 +99,6 @@ public class CameraActivity extends BaseActivity {
           cameraView.startPreview();
         });
     recordStartButton
-        .setRecordingDuration(
-            VideoRecordingSharedPreferences.getTiming(
-                getApplicationContext(), TimingType.RECORD_TIME))
         .setRecordEndListener(
             new RecordListener() {
               @Override
@@ -237,9 +234,17 @@ public class CameraActivity extends BaseActivity {
                 }
               }
               if (!isCountDownThreadExit) {
+                int scale = VideoRecordingSharedPreferences.getTiming(
+                        getApplicationContext(), TimingType.RECORD_TIME_SCALE);
+
+                int recordingTime = (int)Math.ceil(
+                    currentSignPrompt.getDuration() / 1000.0 * scale / 100.0);
+
+                recordStartButton.setRecordingDuration(recordingTime);
                 runOnUiThread(() -> cameraView.startRecord());
               }
             });
+
     countDownThread.start();
   }
 
