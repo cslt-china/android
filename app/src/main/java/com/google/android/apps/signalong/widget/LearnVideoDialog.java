@@ -40,11 +40,11 @@ public class LearnVideoDialog extends DialogFragment {
     this.width = width;
     this.height = height;
   }
+  private Uri videoUri;
+  private Uri thumbnailUri;
   /** DialogListener for user to click rerecord and cancel button and get video path. */
   public interface DialogListener {
-    void onCloseClick();
-    String getVideoPath();
-    public String getThumbnail();
+    void onRerecordClick();
   }
 
   public void setDialogListener(DialogListener dialogListener) {
@@ -81,7 +81,7 @@ public class LearnVideoDialog extends DialogFragment {
     videoView.setZOrderOnTop(true);
 
     ImageView button = contentView.findViewById(R.id.play_button);
-    Glide.with(button.getContext()).load(dialogListener.getThumbnail()).into(button);
+    Glide.with(button.getContext()).load(thumbnailUri).into(button);
     button
         .findViewById(R.id.play_button)
         .setOnClickListener(
@@ -91,7 +91,7 @@ public class LearnVideoDialog extends DialogFragment {
                 if (videoView.isPlaying()) {
                   videoView.stopPlayback();
                 }
-                videoView.setVideoURI(Uri.parse(dialogListener.getVideoPath()));
+                videoView.setVideoURI(videoUri);
                 videoView.start();
 
                 //Prevent video and thumbnail cross, whenthe sizes of video and thumbernail are
@@ -101,6 +101,11 @@ public class LearnVideoDialog extends DialogFragment {
             });
 
     dialogBuilder.setView(contentView);
+    dialogBuilder
+        .setNegativeButton(
+            getString(R.string.btn_rerecord), (dialog, which) -> dialogListener.onRerecordClick())
+        .setPositiveButton(
+            getString(R.string.btn_cancel), (dialog, which) -> dialogListener.onRerecordClick());
 
     Dialog dialog = dialogBuilder.create();
 
@@ -109,7 +114,7 @@ public class LearnVideoDialog extends DialogFragment {
 
     Button closeButton = contentView.findViewById(R.id.close_button);
     closeButton.setOnClickListener((view)-> {
-      dialogListener.onCloseClick();
+      dialogListener.onRerecordClick();
       dialog.cancel();
     });
 
@@ -117,7 +122,7 @@ public class LearnVideoDialog extends DialogFragment {
                     KeyEvent event) -> {
                 // TODO Auto-generated method stub
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
-                  dialogListener.onCloseClick();
+                  dialogListener.onRerecordClick();
                   dialog.cancel();
                 }
                 return true;
@@ -128,8 +133,9 @@ public class LearnVideoDialog extends DialogFragment {
   }
 
   //https://blog.csdn.net/X1876631/article/details/53392880
-  @Override
-  public void show(FragmentManager manager, String tag) {
+  public void show(FragmentManager manager, String tag, String videoPath, String thumbnailPath) {
+    videoUri = Uri.parse(videoPath);
+    thumbnailUri = Uri.parse(thumbnailPath);
     try {
       //在每个add事务前增加一个remove事务，防止连续的add
       manager.beginTransaction().remove(this).commit();
@@ -139,6 +145,4 @@ public class LearnVideoDialog extends DialogFragment {
       e.printStackTrace();
     }
   }
-
-
 }
