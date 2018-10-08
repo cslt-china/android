@@ -28,4 +28,5 @@ public interface UserApi {
    */
   @GET("/api/profile/")
   Call<ProfileResponse> getProfile(@Header("Authorization") String authenticate);
+
 }
