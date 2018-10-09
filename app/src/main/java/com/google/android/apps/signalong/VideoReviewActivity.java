@@ -1,6 +1,7 @@
 package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.media.MediaPlayer;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -46,9 +47,17 @@ public class VideoReviewActivity extends BaseActivity {
   public void initViews() {
     approveRejectButtonsLayout = (RelativeLayout) findViewById(R.id.approve_reject_buttons_layout);
     videoView = (VideoView) findViewById(R.id.video_view);
+    videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+      @Override
+      public void onCompletion(MediaPlayer mp) {
+        approveRejectButtonsLayout.setVisibility(View.VISIBLE);
+      }
+    });
     findViewById(R.id.ok_button).setOnClickListener(view -> finish());
-    findViewById(R.id.reject_button).setOnClickListener(view -> reviewVideo(REVIEW_REJECT));
-    findViewById(R.id.approve_button).setOnClickListener(view -> reviewVideo(REVIEW_APPROVE));
+    findViewById(R.id.review_result_reject_button).setOnClickListener(
+        view -> reviewVideo(REVIEW_REJECT));
+    findViewById(R.id.review_result_approve_button).setOnClickListener(
+        view -> reviewVideo(REVIEW_APPROVE));
     findViewById(R.id.back_button)
         .setOnClickListener(
             view -> {
@@ -105,14 +114,17 @@ public class VideoReviewActivity extends BaseActivity {
     if (!unreviewedVideoList.isEmpty()) {
       counter++;
       currentUnreviewedVideoData = unreviewedVideoList.get(0);
-      ((TextView) findViewById(R.id.word_textview))
-          .setText(currentUnreviewedVideoData.getGlossText());
-      ((TextView) findViewById(R.id.on_number_textview))
-          .setText(String.format(getString(R.string.label_on_number), counter));
+      ((TextView) findViewById(R.id.task_number_textview))
+          .setText(String.format(getString(R.string.label_task_number), counter));
+      ((TextView) findViewById(R.id.review_word_textview))
+          .setText(
+              String.format(
+                  getString(R.string.label_review_word_prompt),
+                  currentUnreviewedVideoData.getGlossText()));
       if (videoView.isPlaying()) {
         videoView.stopPlayback();
       }
-      approveRejectButtonsLayout.setVisibility(View.VISIBLE);
+      approveRejectButtonsLayout.setVisibility(View.INVISIBLE);
       ProgressBar loadingProgressBar = (ProgressBar) findViewById(R.id.loading_progressbar);
       String localVideoPath =
           FileUtils.buildLocalVideoFilePath(

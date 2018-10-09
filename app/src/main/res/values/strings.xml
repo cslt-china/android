@@ -53,6 +53,7 @@
   <string name="btn_back">返回</string>
   <!-- sign_along_camera -->
   <string name="btn_open_camera">进入录制视频</string>
+
   <!-- activity_sign_along -->
   <string name="label_current_points">%1$s,你目前的积分是</string>
   <string name="label_personal_video_count">已经录制视频 %1$d段</string>
@@ -60,6 +61,7 @@
   <string name="label_unreview_video_count">待评视频 %1$d段</string>
   <string name="button_record_video">录制视频</string>
   <string name="label_number_question">第%1$d题</string>
+
   <!-- activity_setting -->
   <string name="tv_prepare_time">录制间隔</string>
   <string name="tv_record_time">录制时长调整</string>
@@ -70,6 +72,7 @@
   <string name="label_help_content">sign</string>
   <string name="label_help_title">积分规则</string>
   <string name="btn_dialog_help_ok">OK</string>
+
   <!-- activity_my_video -->
   <string name="title_my_video">我的视频</string>
   <string name="label_personal_rejected">未通过审核</string>
@@ -77,14 +80,17 @@
   <string name="label_personal_approved">通过审核</string>
   <string name="tip_request_fail">请求失败</string>
   <string name="label_personal_approved_video_count">审阅视频 %1$d段</string>
+
   <!-- activity_video_review -->
-  <string name="btn_true">对</string>
+  <string name="button_review_result_approve">正确</string>
+  <string name="button_review_result_reject">错误</string>
+  <string name="label_review_word_prompt">请审查\"%1$s\"手语视频</string>
+  <string name="label_task_number">任务%1$d</string>
   <string name="tip_finish_count_task"> 你已经完成了%1$d次评论，辛苦你了！</string>
   <string name="tip_no_task"> 你没打过评分！</string>
-  <string name="btn_false">错</string>
-  <string name="label_finish_all">你太给力啦！\n所有视频都被你审核过了，明天再来！</string>
+  <string name="label_finish_all">你太给力啦！所有视频都被你审核过了，明天再来！</string>
   <string name="btn_ok">好的</string>
-  <string name="label_on_number">第%1$d题</string>
+
   <!-- fragment_intro -->
   <string name="button_ok">ok</string>
   <string name="button_back">back</string>
