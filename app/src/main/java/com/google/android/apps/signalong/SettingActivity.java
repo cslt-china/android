@@ -1,6 +1,10 @@
 package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -35,13 +39,21 @@ public class SettingActivity extends BaseActivity {
 
   @Override
   public void initViews() {
+    Toolbar toolbar = findViewById(R.id.setting_toolbar);
+    setSupportActionBar(toolbar);
+    final Drawable upArrow = getResources().getDrawable(R.drawable.back);
+
+    getSupportActionBar().setHomeAsUpIndicator(upArrow);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    toolbar.setNavigationOnClickListener(v -> finish());
+
     initSeekBar(
-        (SeekBar) findViewById(R.id.prepare_time_seek_bar),
-        (TextView) findViewById(R.id.textview_prepare_time),
+      findViewById(R.id.prepare_time_seek_bar),
+      findViewById(R.id.textview_prepare_time),
         TimingType.PREPARE_TIME);
     initSeekBar(
-        (SeekBar) findViewById(R.id.record_time_seek_bar),
-        (TextView) findViewById(R.id.textview_record_time),
+      findViewById(R.id.record_time_seek_bar),
+      findViewById(R.id.textview_record_time),
         TimingType.RECORD_TIME_SCALE);
     findViewById(R.id.logout_button)
         .setOnClickListener(
@@ -62,6 +74,10 @@ public class SettingActivity extends BaseActivity {
             view -> {
               showHelpDialog();
             });
+    findViewById(R.id.change_password_button)
+      .setOnClickListener(
+        view -> startActivityForResult(new Intent(getApplicationContext(), ChangePasswordActivity.class), 0)
+      );
   }
 
   private void showHelpDialog() {

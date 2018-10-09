@@ -1,113 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="18dp">
-  <RelativeLayout
-      android:layout_marginBottom="18dp"
-      android:layout_marginTop="18dp"
+    android:orientation="vertical">
+
+  <android.support.v7.widget.Toolbar
+      android:id="@+id/setting_toolbar"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content">
-    <TextView
-        android:layout_marginEnd="20dp"
-        android:id="@+id/setting_prepare_time_textview"
+      android:layout_height="wrap_content"
+      android:background="?attr/colorPrimary"
+      android:minHeight="?attr/actionBarSize"
+      android:theme="?attr/actionBarTheme"
+      app:title="@string/title_setting"
+      app:titleTextColor="@color/white" />
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical"
+      android:padding="18dp">
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/tv_prepare_time"
-        android:layout_marginBottom="14dp"/>
-    <LinearLayout
-        android:layout_below="@id/setting_prepare_time_textview"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="20dp">
-      <SeekBar
-          android:layout_width="0dp"
-          android:layout_weight="9"
-          android:layout_height="match_parent"
-          android:id="@+id/prepare_time_seek_bar"
-          android:progressBackgroundTint="@color/aliceBlue"
-          android:tickMark="@drawable/circle"
-          android:tickMarkTint="@color/highLight"
-          android:max="10"/>
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="18dp">
+
       <TextView
-          android:textSize="15sp"
-          android:id="@+id/textview_prepare_time"
-          android:layout_width="0dp"
-          android:layout_weight="1"
-          android:textAlignment="viewEnd"
-          android:layout_height="match_parent"/>
-    </LinearLayout>
-  </RelativeLayout>
+          android:id="@+id/setting_prepare_time_textview"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="20dp"
+          android:layout_marginBottom="14dp"
+          android:text="@string/tv_prepare_time" />
 
-  <View
-      style="@style/Spacer"
-      android:background="@color/light_grey"/>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="20dp"
+          android:layout_below="@id/setting_prepare_time_textview"
+          android:orientation="horizontal">
 
-  <RelativeLayout
-      android:layout_marginBottom="18dp"
-      android:layout_marginTop="18dp"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content">
-    <TextView
-        android:id="@+id/setting_record_time_textview"
+        <SeekBar
+            android:id="@+id/prepare_time_seek_bar"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="9"
+            android:max="10"
+            android:progressBackgroundTint="@color/aliceBlue"
+            android:tickMark="@drawable/circle"
+            android:tickMarkTint="@color/highLight" />
+
+        <TextView
+            android:id="@+id/textview_prepare_time"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textAlignment="viewEnd"
+            android:textSize="15sp" />
+      </LinearLayout>
+    </RelativeLayout>
+
+    <View
+        style="@style/Spacer"
+        android:background="@color/light_grey" />
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/tv_record_time"
-        android:layout_marginBottom="14dp"/>
-    <LinearLayout
-        android:layout_below="@id/setting_record_time_textview"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="20dp">
-      <SeekBar
-          android:layout_width="0dp"
-          android:layout_weight="9"
-          android:layout_height="match_parent"
-          android:id="@+id/record_time_seek_bar"
-          android:progressBackgroundTint="@color/aliceBlue"
-          android:tickMark="@drawable/circle"
-          android:tickMarkTint="@color/highLight"
-          android:min="5"
-          android:max="20"/>
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="18dp">
+
       <TextView
-          android:textSize="15sp"
-          android:id="@+id/textview_record_time"
-          android:layout_width="0dp"
-          android:layout_weight="1"
-          android:textAlignment="viewEnd"
-          android:layout_height="match_parent"/>
-    </LinearLayout>
-  </RelativeLayout>
+          android:id="@+id/setting_record_time_textview"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="14dp"
+          android:text="@string/tv_record_time" />
 
-  <View
-      style="@style/Spacer"
-      android:background="@color/light_grey"/>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="20dp"
+          android:layout_below="@id/setting_record_time_textview"
+          android:orientation="horizontal">
 
-  <Button
-      android:gravity="center_vertical"
-      android:background="@android:color/transparent"
-      android:layout_marginBottom="15dp"
-      android:layout_marginTop="15dp"
-      android:id="@+id/help_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/btn_help"/>
+        <SeekBar
+            android:id="@+id/record_time_seek_bar"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="9"
+            android:max="20"
+            android:min="5"
+            android:progressBackgroundTint="@color/aliceBlue"
+            android:tickMark="@drawable/circle"
+            android:tickMarkTint="@color/highLight" />
 
-  <View
-      style="@style/Spacer"
-      android:background="@color/light_grey"/>
+        <TextView
+            android:id="@+id/textview_record_time"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textAlignment="viewEnd"
+            android:textSize="15sp" />
+      </LinearLayout>
+    </RelativeLayout>
 
-  <Button
-      android:gravity="center"
-      android:layout_gravity="right"
-      android:background="@drawable/rounded_rect"
-      android:layout_marginBottom="15dp"
-      android:layout_marginTop="15dp"
-      android:id="@+id/logout_button"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/btn_logout"/>
+    <View
+        style="@style/Spacer"
+        android:background="@color/light_grey" />
+
+    <Button
+        android:id="@+id/help_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@android:color/transparent"
+        android:gravity="center_vertical"
+        android:text="@string/btn_help" />
+
+    <View
+        style="@style/Spacer"
+        android:background="@color/light_grey" />
+
+    <Button
+        android:id="@+id/change_password_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@android:color/transparent"
+        android:gravity="center_vertical"
+        android:text="@string/btn_change_password" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.1" />
+
+    <Button
+        android:id="@+id/logout_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@android:color/holo_red_dark"
+        android:gravity="center"
+        android:text="@string/btn_logout"
+        android:textColor="@color/white" />
+
+  </LinearLayout>
 
 </LinearLayout>

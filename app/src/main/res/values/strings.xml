@@ -64,11 +64,16 @@
   <string name="tv_prepare_time">录制间隔</string>
   <string name="tv_record_time">录制时长调整</string>
   <string name="btn_help"> 积分规则介绍</string>
+  <string name="btn_change_password"> 修改密码</string>
   <string name="btn_logout">退出帐号</string>
   <string name="title_activity_help">HelpActivity</string>
   <string name="label_time">%1$ds</string>
   <string name="label_help_content">sign</string>
   <string name="label_help_title">积分规则</string>
+  <string name="label_change_password">修改密码</string>
+  <string name="label_old_password">原密码</string>
+  <string name="label_new_password">新密码</string>
+  <string name="label_confirm_password">确认密码</string>
   <string name="btn_dialog_help_ok">OK</string>
   <!-- activity_my_video -->
   <string name="title_my_video">我的视频</string>
@@ -97,4 +102,10 @@
   <string name="label_content_intro_review">请判断手语视频是否符合国家通用手语的规范，您的视频审查工作会以积分形式出现在您个人账户里。接下来就看你的啦。</string>
   <string name="label_title_intro_review">审查手语视频</string>
   <string name="label_recording_time">录制时间</string>
+  <string name="tip_change_password_successful">成功修改密码</string>
+  <string name="tip_change_password_failed">修改密码失败</string>
+  <string name="tip_passwords_not_equal">两次新密码不同</string>
+  <string name="tip_new_password_is_equal_to_old">新旧密码不能一样</string>
+  <string name="password_is_less_6_chars">密码不能少于 6 位</string>
+  <string name="title_setting">设置</string>
 </resources>
