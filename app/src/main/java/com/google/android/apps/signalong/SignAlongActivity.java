@@ -82,11 +82,6 @@ public class SignAlongActivity extends BaseActivity {
             view -> {
               startCameraActivity();
             });
-    findViewById(R.id.floatingactionbutton_record_activty)
-        .setOnClickListener(
-            view -> {
-              startCameraActivity();
-            });
     unreviewedVideoGridAdapter.setItemListener(
         (position, pagedList) -> {
           ArrayList<DataBean> unreviewedVideoList = new ArrayList<>();
