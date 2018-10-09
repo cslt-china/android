@@ -46,7 +46,7 @@
   <string name="label_select_multi_items">请选择项目！！！</string>
   <string name="btn_start_learn">开始学习</string>
   <string name="btn_start_record">开始录制</string>
-  <string name="label_counter">第\t\t%1$d\t\t题</string>
+  <string name="label_counter">第%1$d题</string>
   <string name="btn_rerecord">重新录制</string>
   <string name="btn_cancel">关闭</string>
   <!-- back_title -->
@@ -88,11 +88,13 @@
   <!-- fragment_intro -->
   <string name="button_ok">ok</string>
   <string name="button_back">back</string>
-  <string name="label_content_intro_check_list">需要录制的词条将自动派发给你,将以\n10个为一组,每个单词手势录制时间为\n5秒。系统会自动进入下一个词条。</string>
+  <string name="label_content_intro_check_list">需要录制的手语提示文字将自动派发给你,将以10个为一组。您可以根据个人手语语速在设置中调整录制的快慢。</string>
   <string name="label_title_intro_check_list">自动发放录制任务</string>
-  <string name="label_content_intro_align_body">将手机稳定放在30-40厘米的水平位\n置,确保身体在识别区域内，不然会\n\t\t\t\t\t\t\t\t\t\t\t白做工的。</string>
+  <string name="label_content_intro_pause_recording">您可以在任何时候暂停录制，系统会调出相应的通用手语规范视频供您查看学习。您也可以在任何时候返回主界面，已经完成的录制视频会保留在服务器上。</string>
+  <string name="label_title_intro_pause_recording">暂停或退出录制</string>
+  <string name="label_content_intro_align_body">将手机稳定放在30-40厘米的水平位置,确保身体在识别区域内，不然会白做工的。</string>
   <string name="label_title_intro_align_body">留意动作录制范围</string>
-  <string name="label_content_intro_review">根据视频中手语的对错给出判断，判断\n完成的视频会以积分形式出现在您个人\n\t\t\t\t账户里。接下来就看你的啦。</string>
-  <string name="label_title_intro_review">判断手语视频</string>
+  <string name="label_content_intro_review">请判断手语视频是否符合国家通用手语的规范，您的视频审查工作会以积分形式出现在您个人账户里。接下来就看你的啦。</string>
+  <string name="label_title_intro_review">审查手语视频</string>
   <string name="label_recording_time">录制时间</string>
 </resources>

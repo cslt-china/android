@@ -10,21 +10,22 @@ import android.widget.TextView;
 /** IntroFragment shows three introductions. */
 public class IntroFragment extends android.support.v4.app.Fragment {
   private static final String ARG_PARAM = "param";
-  /** Check list introduction. */
-  public static final int FRAGMENT_INTRO_CHECKLIST = 1;
-  /** Align body introduction. */
-  public static final int FRAGMENT_INTRO_ALIGN_BODY = 2;
-  /** Review introduction. */
-  public static final int FRAGMENT_INTRO_REVIEW = 3;
 
-  private int param;
+  public enum IntroFragmentType {
+    RECORDING_LIST,
+    PAUSE_RECORDING,
+    ALIGN_BODY,
+    REVIEW
+  }
+
+  private IntroFragmentType param;
   private FragmentListener listener;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     if (getArguments() != null) {
-      param = getArguments().getInt(ARG_PARAM);
+      param = IntroFragmentType.values()[(int)getArguments().get(ARG_PARAM)];
     }
   }
 
@@ -39,7 +40,7 @@ public class IntroFragment extends android.support.v4.app.Fragment {
     TextView titleTextView = (TextView) viewContainer.findViewById(R.id.title_text_view);
     ImageView centerImageView = (ImageView) viewContainer.findViewById(R.id.center_image_view);
     switch (param) {
-      case FRAGMENT_INTRO_CHECKLIST:
+      case RECORDING_LIST:
         ((ImageView) viewContainer.findViewById(R.id.left_circle_image_view))
             .setImageResource(R.drawable.select_circle);
         contentTextView.setText(getString(R.string.label_content_intro_check_list));
@@ -47,14 +48,23 @@ public class IntroFragment extends android.support.v4.app.Fragment {
         centerImageView.setImageResource(R.drawable.illustration_checklist);
         viewContainer.findViewById(R.id.ok_button).setVisibility(View.GONE);
         break;
-      case FRAGMENT_INTRO_ALIGN_BODY:
+      case PAUSE_RECORDING:
+        ((ImageView) viewContainer.findViewById(R.id.middle_circle_image_view))
+            .setImageResource(R.drawable.select_circle);
+        contentTextView.setText(getString(R.string.label_content_intro_pause_recording));
+        titleTextView.setText(getString(R.string.label_title_intro_pause_recording));
+        // TODO(jxue): Add a drawable image for pause recording.
+        centerImageView.setImageResource(R.drawable.illustration_checklist);
+        viewContainer.findViewById(R.id.ok_button).setVisibility(View.GONE);
+        break;
+      case ALIGN_BODY:
         ((ImageView) viewContainer.findViewById(R.id.right_circle_image_view))
             .setImageResource(R.drawable.select_circle);
         contentTextView.setText(getString(R.string.label_content_intro_align_body));
         titleTextView.setText(getString(R.string.label_title_intro_align_body));
         centerImageView.setImageResource(R.drawable.illustration_align_body);
         break;
-      case FRAGMENT_INTRO_REVIEW:
+      case REVIEW:
         viewContainer.findViewById(R.id.circles_layout).setVisibility(View.GONE);
         contentTextView.setText(getString(R.string.label_content_intro_review));
         titleTextView.setText(getString(R.string.label_title_intro_review));
@@ -72,10 +82,10 @@ public class IntroFragment extends android.support.v4.app.Fragment {
     listener = null;
   }
 
-  public static IntroFragment newInstance(Integer param, FragmentListener listener) {
+  public static IntroFragment newInstance(IntroFragmentType param, FragmentListener listener) {
     IntroFragment fragment = new IntroFragment();
     Bundle args = new Bundle();
-    args.putInt(ARG_PARAM, param);
+    args.putInt(ARG_PARAM, param.ordinal());
     fragment.setArguments(args);
     fragment.setListener(listener);
     return fragment;

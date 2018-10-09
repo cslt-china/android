@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import com.google.android.apps.signalong.IntroFragment.FragmentListener;
+import com.google.android.apps.signalong.IntroFragment.IntroFragmentType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +38,11 @@ public class IntroRecordActivity extends BaseActivity {
         };
     List<Fragment> fragmentList = new ArrayList<>();
     fragmentList.add(
-        IntroFragment.newInstance(IntroFragment.FRAGMENT_INTRO_CHECKLIST, fragmentListener));
+        IntroFragment.newInstance(IntroFragmentType.RECORDING_LIST, fragmentListener));
     fragmentList.add(
-        IntroFragment.newInstance(IntroFragment.FRAGMENT_INTRO_ALIGN_BODY, fragmentListener));
+        IntroFragment.newInstance(IntroFragmentType.PAUSE_RECORDING, fragmentListener));
+    fragmentList.add(
+        IntroFragment.newInstance(IntroFragmentType.ALIGN_BODY, fragmentListener));
     ((ViewPager) findViewById(R.id.intro_view_pager))
         .setAdapter(new IntroRecordFragmentAdapter(getSupportFragmentManager(), fragmentList));
   }
