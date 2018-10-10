@@ -75,9 +75,9 @@
 
   <!-- activity_my_video -->
   <string name="title_my_video">我的视频</string>
-  <string name="label_personal_rejected">未通过审核</string>
-  <string name="label_personal_pending_approval">等待审核</string>
-  <string name="label_personal_approved">通过审核</string>
+  <string name="label_personal_rejected">未通过审核(共%1$d段)</string>
+  <string name="label_personal_pending_approval">等待审核(共%1$d段)</string>
+  <string name="label_personal_approved">通过审核(共%1$d段)</string>
   <string name="tip_request_fail">请求失败</string>
   <string name="label_personal_approved_video_count">审阅视频 %1$d段</string>
   <string name="label_empty_video_list">\(暂无\)</string>
