@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences.TimingType;
 import com.google.android.apps.signalong.widget.HelpDialog;
+import com.google.common.collect.ImmutableMap;
 
 /** SettingActivity is be used to set multiple information by user. */
 public class SettingActivity extends BaseActivity {
@@ -19,6 +20,14 @@ public class SettingActivity extends BaseActivity {
   private static final String TAG = "SettingActivity";
   private SettingViewModel settingViewModel;
   private HelpDialog helpDialog;
+
+  private static final ImmutableMap<TimingType, Integer> TIMING_SETTING_MIN_VALUE = ImmutableMap.of(
+    TimingType.RECORD_TIME_SCALE, 50,
+    TimingType.PREPARE_TIME, 1);
+
+  private static final ImmutableMap<TimingType, Integer> TIMING_SETTING_LABEL_IDS = ImmutableMap.of(
+      TimingType.RECORD_TIME_SCALE, R.string.label_setting_recording_scale,
+      TimingType.PREPARE_TIME, R.string.label_setting_prepare_time);
 
   @Override
   public int getContentView() {
@@ -50,11 +59,12 @@ public class SettingActivity extends BaseActivity {
     initSeekBar(
       findViewById(R.id.prepare_time_seek_bar),
       findViewById(R.id.textview_prepare_time),
-        TimingType.PREPARE_TIME);
+      TimingType.PREPARE_TIME);
     initSeekBar(
       findViewById(R.id.record_time_seek_bar),
       findViewById(R.id.textview_record_time),
-        TimingType.RECORD_TIME_SCALE);
+      TimingType.RECORD_TIME_SCALE);
+
     findViewById(R.id.logout_button)
         .setOnClickListener(
             view -> {
@@ -85,29 +95,25 @@ public class SettingActivity extends BaseActivity {
   }
 
   private void setTextView(TextView textView, TimingType timingType, int value) {
-    if (timingType == TimingType.RECORD_TIME_SCALE) {
-      textView.setText(String.format("%d%%", value));
-    } else {
-      textView.setText(String.format(getString(R.string.label_time), value));
-    }
+    textView.setText(String.format(getString(TIMING_SETTING_LABEL_IDS.get(timingType)), value));
   }
 
   private void initSeekBar(SeekBar seekBar, TextView textView, TimingType timingType) {
+    int progress = VideoRecordingSharedPreferences.getTiming(getApplicationContext(), timingType);
 
-    int value = VideoRecordingSharedPreferences.getTiming(getApplicationContext(), timingType);
-    int progress = value / (timingType == TimingType.RECORD_TIME_SCALE ? 10 : 1);
-
-    setTextView(textView, timingType, value);
-    seekBar.setProgress(progress);
-
+    setTextView(textView, timingType, progress);
+    // Note that SeekBar min value is always 0, so here we must offset the progress by
+    // the corresponding min value.
+    seekBar.setProgress(progress - TIMING_SETTING_MIN_VALUE.get(timingType));
     seekBar.setOnSeekBarChangeListener(
         new OnSeekBarChangeListener() {
           @Override
           public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            int value = progress * (timingType == TimingType.RECORD_TIME_SCALE ? 10 : 1);
-
+            // Here we restore the value from progress by adding up the minimum value.
+            int value = progress + TIMING_SETTING_MIN_VALUE.get(timingType);
             setTextView(textView, timingType, value);
-            VideoRecordingSharedPreferences.saveTiming(getApplicationContext(), timingType, value);
+            VideoRecordingSharedPreferences.saveTiming(
+                getApplicationContext(), timingType, value);
           }
 
           @Override

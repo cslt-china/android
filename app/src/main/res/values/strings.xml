@@ -8,6 +8,7 @@
   <!-- activity_main -->
   <string name="btn_data_collection">收集数据</string>
   <string name="btn_data_socre">数据评分</string>
+
   <!-- fragment_standard_data -->
   <string name="btn_from_thesaurus">从词库选名词</string>
   <string name="btn_define_name">定义名词</string>
@@ -19,6 +20,7 @@
   <string name="toast_url_not_empty">地址不能为空</string>
   <string name="toast_file_not_exist">文件不存在</string>
   <string name="toast_name_not_empty">名称不能为空</string>
+
   <!-- activity_login -->
   <string name="title_login">登录</string>
   <string name="tv_username">用户名</string>
@@ -30,6 +32,7 @@
   <string name="tip_login_fail">登陆失败</string>
   <string name="tip_login_success">登陆成功</string>
   <string name="tip_network_error">网络错误</string>
+
   <!-- activity_camera -->
   <string name="btn_record_start">开始录制</string>
   <string name="btn_record_stop">停止录制</string>
@@ -50,8 +53,10 @@
   <string name="btn_rerecord">重新录制</string>
   <string name="btn_cancel">关闭</string>
   <string name="demonstration">示范</string>
+
   <!-- back_title -->
   <string name="btn_back">返回</string>
+
   <!-- sign_along_camera -->
   <string name="btn_open_camera">进入录制视频</string>
 
@@ -70,8 +75,9 @@
   <string name="btn_change_password"> 修改密码</string>
   <string name="btn_logout">退出帐号</string>
   <string name="title_activity_help">HelpActivity</string>
-  <string name="label_time">%1$ds</string>
-  <string name="label_help_content">sign</string>
+  <string name="label_setting_prepare_time">%1$d秒</string>
+  <string name="label_setting_recording_scale">%1$d%%</string>
+  <string name="label_help_content">您的积分反映了您的录制和评审任务执行的综合质量。\n您录制的手语训练视频如果评判为符合通用手语规范，则会加分，否则减分。所以请您在录制前尽量熟悉通用手语的规范。\n您对其他用户录入的手语视频的审查结果将被抽查，抽查的评审正确率将会对评审数量加权为积分。所以也请您在评审时做出谨慎的判断。\n如果有任何疑问或反馈意见，欢迎联系\nsignalong-feedback@google.com!</string>
   <string name="label_help_title">积分规则</string>
   <string name="label_change_password">修改密码</string>
   <string name="label_old_password">原密码</string>
@@ -110,6 +116,8 @@
   <string name="label_content_intro_review">请判断手语视频是否符合国家通用手语的规范，您的视频审查工作会以积分形式出现在您个人账户里。接下来就看你的啦。</string>
   <string name="label_title_intro_review">审查手语视频</string>
   <string name="label_recording_time">录制时间</string>
+
+  <!-- activity_change_password -->
   <string name="tip_change_password_successful">成功修改密码</string>
   <string name="tip_change_password_failed">修改密码失败</string>
   <string name="tip_passwords_not_equal">两次新密码不同</string>
