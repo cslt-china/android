@@ -45,16 +45,6 @@
         android:layout_marginBottom="50dp"
         android:layout_width="100dp"
         android:layout_height="100dp" />
-    <ImageButton
-        android:visibility="gone"
-        android:id="@+id/refresh_button"
-        android:layout_marginBottom="50dp"
-        android:background="@drawable/refresh"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/refresh_btn_circle"/>
     <Button
         android:visibility="gone"
         android:id="@+id/back_button"
@@ -70,6 +60,7 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
+      android:visibility="gone"
       android:gravity="center">
     <TextView
         android:id="@+id/counter_text_view"

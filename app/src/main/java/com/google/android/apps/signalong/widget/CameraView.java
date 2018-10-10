@@ -227,7 +227,21 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
   public void stopRecording() {
     if (mediaRecorder != null) {
-      mediaRecorder.stop();
+      try {
+        //Prevent RuntimeException when recording time is less than 1 second
+        //see: https://www.cnblogs.com/over140/p/3811084.html
+        mediaRecorder.setOnErrorListener(null);
+        mediaRecorder.setPreviewDisplay(null);
+
+        mediaRecorder.stop();
+      } catch (IllegalStateException e) {
+        Log.w("Exception", Log.getStackTraceString(e));
+      } catch(RuntimeException e) {
+        Log.w("Exception", Log.getStackTraceString(e));
+      } catch (Exception e) {
+        Log.w("Exception", Log.getStackTraceString(e));
+      }
+
       mediaRecorder.reset();
     }
   }

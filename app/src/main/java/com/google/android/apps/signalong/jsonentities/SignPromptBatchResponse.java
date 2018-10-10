@@ -18,7 +18,10 @@ public class SignPromptBatchResponse extends BaseResponse {
   public void setData(List<DataBean> data) {
     this.data = data;
   }
-  /** The DataBean class is real data, that contains id and sample text. */
+
+  /**
+   * The DataBean class is real data, that contains id and sample text.
+   */
   public static class DataBean {
 
     private int id;
@@ -38,6 +41,7 @@ public class SignPromptBatchResponse extends BaseResponse {
     public int getId() {
       return id;
     }
+
     public void setId(int id) {
       this.id = id;
     }
@@ -45,6 +49,7 @@ public class SignPromptBatchResponse extends BaseResponse {
     public String getText() {
       return text;
     }
+
     public void setText(String text) {
       this.text = text;
     }
@@ -52,6 +57,7 @@ public class SignPromptBatchResponse extends BaseResponse {
     public int getGlossType() {
       return glossType;
     }
+
     public void setGlossType(int glossType) {
       this.glossType = glossType;
     }
@@ -59,21 +65,36 @@ public class SignPromptBatchResponse extends BaseResponse {
     public Object getVideoCount() {
       return videoCount;
     }
+
     public void setVideoCount(Object videoCount) {
       this.videoCount = videoCount;
     }
 
-    public int getDuration() { return duration; }
-    public void setDuration(int duration) { this.duration = duration; }
+    public int getDuration() {
+      return duration;
+    }
 
-    public SampleVideoBean getSampleVideo() { return sampleVideo; }
-    public void setSampleVideo(SampleVideoBean sampleVideo) { this.sampleVideo = sampleVideo; }
+    public void setDuration(int duration) {
+      this.duration = duration;
+    }
 
-    /** The SampleVideoBean class is real data, that contains video path. */
+    public SampleVideoBean getSampleVideo() {
+      return sampleVideo;
+    }
+
+    public void setSampleVideo(SampleVideoBean sampleVideo) {
+      this.sampleVideo = sampleVideo;
+    }
+
+    /**
+     * The SampleVideoBean class is real data, that contains video path.
+     */
     public static class SampleVideoBean {
 
       @SerializedName("video_path")
       private String videoPath;
+
+      private String thumbnail;
 
       public String getVideoPath() {
         return videoPath;
@@ -81,6 +102,14 @@ public class SignPromptBatchResponse extends BaseResponse {
 
       public void setVideoPath(String videoPath) {
         this.videoPath = videoPath;
+      }
+
+      public String getThumbnail() {
+        return thumbnail;
+      }
+
+      public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
       }
     }
   }

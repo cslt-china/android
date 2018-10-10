@@ -171,4 +171,5 @@ public class VideoReviewActivity extends BaseActivity {
       ToastUtils.show(getApplicationContext(), getString(R.string.tip_no_task));
     }
   }
+
 }
