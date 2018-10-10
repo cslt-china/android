@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.TextView;
 import com.google.android.apps.signalong.MyVideoViewModel.PersonalVideoStatus;
 import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.ScoresBean;
@@ -30,7 +31,8 @@ public class MyVideoActivity extends BaseActivity {
           R.string.label_personal_approved_video_count);
   private Map<PersonalVideoStatus, VideoGridAdapter> videoAdapterMap;
   private ImmutableMap<PersonalVideoStatus, RecyclerView> recyclerViewMap;
-  private ImmutableMap<PersonalVideoStatus, TextView> textViewMap;
+  private ImmutableMap<PersonalVideoStatus, TextView> videoCountTextViewMap;
+  private ImmutableMap<PersonalVideoStatus, TextView> emptyVideoListTextViewMap;
   private MyVideoViewModel myVideoViewModel;
 
   @Override
@@ -53,6 +55,14 @@ public class MyVideoActivity extends BaseActivity {
             view -> {
               startActivity(new Intent(getApplicationContext(), SettingActivity.class));
             });
+    emptyVideoListTextViewMap =
+        ImmutableMap.of(
+            PersonalVideoStatus.APPROVED,
+            (TextView) findViewById(R.id.empty_approved_video_text_view),
+            PersonalVideoStatus.PENDING_APPROVAL,
+            (TextView) findViewById(R.id.empty_pending_approval_video_text_view),
+            PersonalVideoStatus.REJECTED,
+            (TextView) findViewById(R.id.empty_rejected_video_text_view));
     recyclerViewMap =
         ImmutableMap.of(
             PersonalVideoStatus.APPROVED,
@@ -61,16 +71,17 @@ public class MyVideoActivity extends BaseActivity {
             (RecyclerView) findViewById(R.id.pending_approval_video_recycler_view),
             PersonalVideoStatus.REJECTED,
             (RecyclerView) findViewById(R.id.rejected_video_recycler_view));
-    textViewMap =
+    videoCountTextViewMap =
         ImmutableMap.of(
-            PersonalVideoStatus.ALL, (TextView) findViewById(R.id.personal_video_count_text_view),
+            PersonalVideoStatus.ALL,
+                (TextView) findViewById(R.id.personal_video_count_text_view),
             PersonalVideoStatus.APPROVED,
                 (TextView) findViewById(R.id.personal_approved_video_count_text_view));
     videoAdapterMap = new HashMap<>();
     for (PersonalVideoStatus personalVideoStatus : recyclerViewMap.keySet()) {
       videoAdapterMap.put(personalVideoStatus, new VideoGridAdapter());
       initRecyclerView(personalVideoStatus);
-      initVideoData(personalVideoStatus);
+      initVideoDataAndEmptyListTextView(personalVideoStatus);
     }
     initVideoCount(PersonalVideoStatus.ALL);
     initVideoCount(PersonalVideoStatus.APPROVED);
@@ -124,7 +135,7 @@ public class MyVideoActivity extends BaseActivity {
     recyclerViewMap.get(personalVideoStatus).setAdapter(videoAdapterMap.get(personalVideoStatus));
   }
 
-  private void initVideoData(PersonalVideoStatus videoStatus) {
+  private void initVideoDataAndEmptyListTextView(PersonalVideoStatus videoStatus) {
     myVideoViewModel
         .getPersonalVideoList(videoStatus)
         .observe(
@@ -133,6 +144,11 @@ public class MyVideoActivity extends BaseActivity {
               handleVideoListResponse(
                   videoListResponse,
                   videoListData -> {
+                    Log.i("initVideoDataAndEmpty",
+                        String.valueOf(videoListData.getDataBeanList().getTotal()));
+                    emptyVideoListTextViewMap
+                        .get(videoStatus)
+                        .setVisibility(videoListData.getDataBeanList().getTotal());
                     videoAdapterMap
                         .get(videoStatus)
                         .addItems(videoListData.getDataBeanList().getData());
@@ -149,7 +165,7 @@ public class MyVideoActivity extends BaseActivity {
               handleVideoListResponse(
                   videoListResponse,
                   videoListData -> {
-                    textViewMap
+                    videoCountTextViewMap
                         .get(personalVideoStatus)
                         .setText(
                             String.format(

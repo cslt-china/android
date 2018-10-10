@@ -84,30 +84,50 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical">
-    <TextView
-        android:text="@string/label_personal_rejected"
-        style="@style/label_list_title"
-        android:id="@+id/rejected_video_text_view"/>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rejected_video_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-    </android.support.v7.widget.RecyclerView>
     <TextView
         android:text="@string/label_personal_pending_approval"
         style="@style/label_list_title"
         android:id="@+id/pending_approval_video_text_view" />
+    <TextView
+	      android:text="@string/label_empty_video_list"
+	      android:id="@+id/empty_pending_approval_video_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+	      android:visibility="invisible" />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/pending_approval_video_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
     </android.support.v7.widget.RecyclerView>
+
+    <TextView
+        android:text="@string/label_personal_rejected"
+        style="@style/label_list_title"
+        android:id="@+id/rejected_video_text_view"/>
+    <TextView
+        android:text="@string/label_empty_video_list"
+        android:id="@+id/empty_rejected_video_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rejected_video_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </android.support.v7.widget.RecyclerView>
+
     <TextView
         android:text="@string/label_personal_approved"
         style="@style/label_list_title"
         android:id="@+id/approved_video_text_view" />
+    <TextView
+	      android:text="@string/label_empty_video_list"
+	      android:id="@+id/empty_approved_video_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/approved_video_recycler_view"
         android:layout_width="match_parent"
