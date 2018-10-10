@@ -124,7 +124,8 @@ public class MyVideoActivity extends BaseActivity {
             this,
             profileResponse -> {
               if (profileResponse == null) {
-                ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
+                ((TextView) findViewById(R.id.username_text_view))
+                    .setText(getString(R.string.label_loading));
                 return;
               }
               if (profileResponse.isSuccessful()

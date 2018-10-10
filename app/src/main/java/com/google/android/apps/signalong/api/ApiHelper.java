@@ -11,6 +11,8 @@ public class ApiHelper {
 
   private static final String API_URL = "https://cslt-211408.appspot.com/";
 
+  public static final String STATIC_URL = "https://storage.googleapis.com/cslt-211408.appspot.com/static/agreements";
+
   static {
     new ApiHelper();
   }

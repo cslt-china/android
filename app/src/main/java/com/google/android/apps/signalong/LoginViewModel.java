@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.google.android.apps.signalong.api.ApiHelper;
 import com.google.android.apps.signalong.api.UserApi;
 import com.google.android.apps.signalong.jsonentities.AuthResponse;
+import com.google.android.apps.signalong.jsonentities.BaseResponse;
 import com.google.android.apps.signalong.jsonentities.User;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import retrofit2.Call;
@@ -49,5 +50,23 @@ public class LoginViewModel extends AndroidViewModel {
               }
             });
     return loginLiveData;
+  }
+
+  public MutableLiveData<Boolean> confirmAgreement() {
+    MutableLiveData<Boolean> confirmResult = new MutableLiveData<>();
+    userApi.confirmAgreement(LoginSharedPreferences.getAccessToken(getApplication())).enqueue(
+      new Callback<BaseResponse>() {
+        @Override
+        public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+          confirmResult.setValue(true);
+        }
+
+        @Override
+        public void onFailure(Call<BaseResponse> call, Throwable t) {
+          confirmResult.setValue(false);
+        }
+      }
+    );
+    return confirmResult;
   }
 }

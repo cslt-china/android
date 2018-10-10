@@ -70,7 +70,6 @@ public class VideoReviewActivity extends BaseActivity {
             this,
             unreviewedResponse -> {
               if (unreviewedResponse == null) {
-                ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
                 finish();
                 return;
               }

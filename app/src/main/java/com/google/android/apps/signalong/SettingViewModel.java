@@ -17,7 +17,8 @@ public class SettingViewModel extends AndroidViewModel {
   }
 
   public MutableLiveData<Boolean> logOut() {
-    logOutLiveData.setValue(LoginSharedPreferences.clearUserData(getApplication()));
+    LoginSharedPreferences.clearUserData(getApplication());
+    logOutLiveData.setValue(true);
     return logOutLiveData;
   }
 }

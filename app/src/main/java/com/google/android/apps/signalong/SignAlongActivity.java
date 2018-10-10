@@ -4,6 +4,7 @@ import android.Manifest;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +16,7 @@ import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.S
 import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList.DataBean;
 import com.google.android.apps.signalong.utils.IntroSharedPreferences;
 import com.google.android.apps.signalong.utils.IntroSharedPreferences.IntroType;
+import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import com.google.android.apps.signalong.utils.ToastUtils;
 import java.util.ArrayList;
 
@@ -56,6 +58,10 @@ public class SignAlongActivity extends BaseActivity {
             isLogin -> {
               if (isLogin != null && isLogin) {
                 initUserData();
+                String username = LoginSharedPreferences.getCurrentUsername(getApplicationContext());
+                if(!LoginSharedPreferences.getConfirmedAgreement(getApplicationContext(), username)) {
+                  startConfirmAgreementActivity();
+                }
               } else {
                 startLoginActivity();
               }
@@ -64,9 +70,8 @@ public class SignAlongActivity extends BaseActivity {
 
   @Override
   public void initViews() {
-    RecyclerView unreviewedVideoListRecyclerView =
-        (RecyclerView) findViewById(R.id.unvote_video_list_recyclerview);
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    RecyclerView unreviewedVideoListRecyclerView = findViewById(R.id.unvote_video_list_recyclerview);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     unreviewedVideoGridAdapter = new UnreviewedVideoGridAdapter();
     unreviewedVideoListRecyclerView.setLayoutManager(
@@ -103,6 +108,8 @@ public class SignAlongActivity extends BaseActivity {
       initUserData();
     } else if (resultCode == LoginActivity.LOGIN_FAIL) {
       finish();
+    } else if (resultCode == LoginActivity.CONFIRM_AGREEMENT) {
+      startConfirmAgreementActivity();
     } else if (resultCode == SettingActivity.LOGOUT_SUCCESS) {
       startLoginActivity();
     }
@@ -122,6 +129,11 @@ public class SignAlongActivity extends BaseActivity {
     } else {
       requestPermissions(REVIEW_VIDEO_PERMISSIONS, REQUEST_REVIEW_VIDEO_PERMISSIONS);
     }
+  }
+
+  private void startConfirmAgreementActivity() {
+    Intent intent = new Intent(getApplicationContext(), AgreementActivity.class);
+    startActivity(intent);
   }
 
   private void isFirstAppToIntroActivity(IntroType introType) {
@@ -158,7 +170,8 @@ public class SignAlongActivity extends BaseActivity {
             this,
             currentPointAndUsername -> {
               if (currentPointAndUsername == null) {
-                ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
+                ((TextView) findViewById(R.id.username_textview))
+                  .setText(getString(R.string.label_loading));
                 return;
               }
               ((TextView) findViewById(R.id.username_textview))
@@ -181,7 +194,8 @@ public class SignAlongActivity extends BaseActivity {
             this,
             personalNotApproveVideoCount -> {
               if (personalNotApproveVideoCount == null) {
-                ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
+                ((TextView) findViewById(R.id.personal_unapproved_video_count_textview))
+                .setText(getString(R.string.label_loading));
                 return;
               }
               ((TextView) findViewById(R.id.personal_unapproved_video_count_textview))
@@ -196,7 +210,8 @@ public class SignAlongActivity extends BaseActivity {
             this,
             personalVideoCount -> {
               if (personalVideoCount == null) {
-                ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
+                ((TextView) findViewById(R.id.personal_video_count_textview))
+                  .setText(getString(R.string.label_loading));
                 return;
               }
               ((TextView) findViewById(R.id.personal_video_count_textview))
@@ -210,7 +225,8 @@ public class SignAlongActivity extends BaseActivity {
             this,
             unreviewedVideoCount -> {
               if (unreviewedVideoCount == null) {
-                ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
+                ((TextView) findViewById(R.id.unreview_video_count_textview))
+                  .setText(getString(R.string.label_loading));
                 return;
               }
               ((TextView) findViewById(R.id.unreview_video_count_textview))

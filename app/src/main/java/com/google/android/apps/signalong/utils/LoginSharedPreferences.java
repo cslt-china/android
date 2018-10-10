@@ -6,12 +6,14 @@ import android.util.Base64;
 import com.google.android.apps.signalong.jsonentities.Token;
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** LoginSharedPreferences class manages token information for authenticated user data access. */
 public class LoginSharedPreferences {
 
-  private static final String TAG = "LoginSharedPreferences";
   private static final String ACCESS_TOKEN_EXPIRATION_TIMESTAMP = "access_exp";
   private static final String REFRESH_TOKEN_EXPIRATION_TIMESTAMP = "refresh_exp";
   /* Token user ID.*/
@@ -20,6 +22,13 @@ public class LoginSharedPreferences {
   private static final String ACCESS_TOKEN = "access_token";
   /* REFRESH_TOKEN is used to renew the access time.*/
   private static final String REFRESH_TOKEN = "refresh_token";
+
+  /* CONFIRMED_AGREEMENT is used to flag the user has confirmed the agreement doc. */
+  private static final String CONFIRMED_AGREEMENT = "confirmed_agreement";
+
+  /* CURRENT_USERNAME is used to identity current username info. */
+  private static final String CURRENT_USERNAME = "current_username";
+
   /* Package names.*/
   private static final String PACKAGE_NAME = "LoginSharedPreferences";
   /* Used to maintain this format for normal request verification.*/
@@ -60,7 +69,14 @@ public class LoginSharedPreferences {
         .putString(ACCESS_TOKEN, HEADER_TOKEN_PREFIX + content)
         .putLong(ACCESS_TOKEN_EXPIRATION_TIMESTAMP, token.getTokenExpirationTimestamp())
         .putInt(ACCESS_USER_ID, token.getUserId())
-        .commit();
+        .apply();
+  }
+
+  public static void saveCurrentUserName(Context context, String username) {
+    getSharedPreferences(context)
+      .edit()
+      .putString(CURRENT_USERNAME, username)
+      .apply();
   }
 
   public static void saveRefreshUserData(Context context, String content) {
@@ -72,7 +88,17 @@ public class LoginSharedPreferences {
         .edit()
         .putString(REFRESH_TOKEN, HEADER_TOKEN_PREFIX + content)
         .putLong(REFRESH_TOKEN_EXPIRATION_TIMESTAMP, token.getTokenExpirationTimestamp())
-        .commit();
+        .apply();
+  }
+
+
+  public static void saveConfirmedAgreement(Context context, String value) {
+    Set<String> agreements = getSharedPreferences(context).getStringSet(CONFIRMED_AGREEMENT, new HashSet<>());
+    agreements.add(value);
+    getSharedPreferences(context)
+      .edit()
+      .putStringSet(CONFIRMED_AGREEMENT, agreements)
+      .apply();
   }
 
   public static long getAccessExp(Context context) {
@@ -87,6 +113,10 @@ public class LoginSharedPreferences {
     return getSharedPreferences(context).getInt(ACCESS_USER_ID, -1);
   }
 
+  public static String getCurrentUsername(Context context) {
+    return getSharedPreferences(context).getString(CURRENT_USERNAME, "");
+  }
+
   public static String getAccessToken(Context context) {
     return getSharedPreferences(context).getString(ACCESS_TOKEN, "");
   }
@@ -95,7 +125,16 @@ public class LoginSharedPreferences {
     return getSharedPreferences(context).getString(REFRESH_TOKEN, "");
   }
 
-  public static boolean clearUserData(Context context) {
-    return getSharedPreferences(context).edit().clear().commit();
+  public static boolean getConfirmedAgreement(Context context, String value) {
+    return getSharedPreferences(context).getStringSet(CONFIRMED_AGREEMENT, new HashSet<>()).contains(value);
+  }
+
+  public static void clearUserData(Context context) {
+    Set<String> agreements = getSharedPreferences(context).getStringSet(CONFIRMED_AGREEMENT, new HashSet<>());
+    getSharedPreferences(context).edit().clear().apply();
+    getSharedPreferences(context)
+      .edit()
+      .putStringSet(CONFIRMED_AGREEMENT, agreements)
+      .apply();
   }
 }

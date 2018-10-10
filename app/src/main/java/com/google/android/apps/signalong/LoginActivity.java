@@ -1,11 +1,13 @@
 package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import com.google.android.apps.signalong.jsonentities.User;
+import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import com.google.android.apps.signalong.utils.ToastUtils;
 
 /** LoginActivity implements the login UI. */
@@ -13,6 +15,8 @@ public class LoginActivity extends BaseActivity {
 
   public static final Integer LOGIN_FAIL = 1;
   public static final Integer LOGIN_SUCCESS = 2;
+  public static final Integer CONFIRM_AGREEMENT = 3;
+
   private LoginViewModel loginViewModel;
   @Override
   public int getContentView() {
@@ -42,14 +46,17 @@ public class LoginActivity extends BaseActivity {
         .observe(
             this,
             authResponseResponse -> {
+              Context context = getApplicationContext();
               if (authResponseResponse == null) {
-                ToastUtils.show(
-                    getApplicationContext(), getString(R.string.tip_login_fail));
+                ToastUtils.show(context, getString(R.string.tip_login_fail));
                 return;
               }
-              ToastUtils.show(
-                  getApplicationContext(), getString(R.string.tip_login_success));
-              this.setResult(LOGIN_SUCCESS);
+              ToastUtils.show(context, getString(R.string.tip_login_success));
+              LoginSharedPreferences.saveCurrentUserName(context, username);
+              Integer result = !LoginSharedPreferences.getConfirmedAgreement(context, username) ?
+                                 CONFIRM_AGREEMENT :
+                                 LOGIN_SUCCESS;
+              setResult(result);
               finish();
             });
 
