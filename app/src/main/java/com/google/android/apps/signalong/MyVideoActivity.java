@@ -144,8 +144,6 @@ public class MyVideoActivity extends BaseActivity {
               handleVideoListResponse(
                   videoListResponse,
                   videoListData -> {
-                    Log.i("initVideoDataAndEmpty",
-                        String.valueOf(videoListData.getDataBeanList().getTotal()));
                     emptyVideoListTextViewMap
                         .get(videoStatus)
                         .setVisibility(videoListData.getDataBeanList().getTotal());
