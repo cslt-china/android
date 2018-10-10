@@ -11,9 +11,11 @@ import com.google.android.apps.signalong.MyVideoViewModel.PersonalVideoStatus;
 import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.ScoresBean;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.utils.ToastUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
+import org.w3c.dom.Text;
 import retrofit2.Response;
 
 /**
@@ -29,11 +31,60 @@ public class MyVideoActivity extends BaseActivity {
           R.string.label_personal_video_count,
           PersonalVideoStatus.APPROVED,
           R.string.label_personal_approved_video_count);
-  private Map<PersonalVideoStatus, VideoGridAdapter> videoAdapterMap;
-  private ImmutableMap<PersonalVideoStatus, RecyclerView> recyclerViewMap;
-  private ImmutableMap<PersonalVideoStatus, TextView> videoCountTextViewMap;
-  private ImmutableMap<PersonalVideoStatus, TextView> emptyVideoListTextViewMap;
+
+  private ImmutableList<VideoListEntity> videoListEntities;
+
   private MyVideoViewModel myVideoViewModel;
+  /**
+   * VideoListEntity is an internal wrapper class to pack all view related objects of
+   * a specific video list.
+   */
+  private class VideoListEntity {
+    private PersonalVideoStatus videoStatus;
+    private int videoCount;
+    private String titleLabelTemplate;
+    private RecyclerView recyclerView;
+    private TextView videoListTitleTextView;
+    private VideoGridAdapter videoGridAdapter;
+
+    /**
+     * The constructor of a VideoListEntity object.
+     * @param status specifies the PersonalVideoStatus of this instance
+     * @param titleLabelStringId specifies the object ID of the title label string pattern.
+     * @param titleTextViewId specifies the object ID of the title TextView object. Its text value
+     *        depends on the above title label pattern and the actual video list count from server.
+     * @param recyclerViewId specifies the object ID of the RecyclerView object. It is the container
+     *        of the videos fetched from server.
+     */
+    VideoListEntity(
+        PersonalVideoStatus status,
+        int titleLabelStringId,
+        int titleTextViewId,
+        int recyclerViewId) {
+      videoStatus = status;
+      videoCount  = 0;
+      titleLabelTemplate = getString(titleLabelStringId);
+      videoListTitleTextView = (TextView) findViewById(titleTextViewId);
+      recyclerView = (RecyclerView) findViewById(recyclerViewId);
+      videoGridAdapter = new VideoGridAdapter();
+      recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), SPAN_COUNT));
+      recyclerView.setAdapter(videoGridAdapter);
+    }
+
+    public PersonalVideoStatus getVideoStatus() {
+      return videoStatus;
+    }
+
+    /**
+     * Update the views according the video list response fetched from server.
+     * @param videoListResponse
+     */
+    public void updateView(VideoListResponse videoListResponse) {
+      this.videoCount = videoListResponse.getDataBeanList().getTotal();
+      videoListTitleTextView.setText(String.format(titleLabelTemplate, videoCount));
+      videoGridAdapter.addItems(videoListResponse.getDataBeanList().getData());
+    }
+  }
 
   @Override
   public int getContentView() {
@@ -55,36 +106,18 @@ public class MyVideoActivity extends BaseActivity {
             view -> {
               startActivity(new Intent(getApplicationContext(), SettingActivity.class));
             });
-    emptyVideoListTextViewMap =
-        ImmutableMap.of(
-            PersonalVideoStatus.APPROVED,
-            (TextView) findViewById(R.id.empty_approved_video_text_view),
-            PersonalVideoStatus.PENDING_APPROVAL,
-            (TextView) findViewById(R.id.empty_pending_approval_video_text_view),
-            PersonalVideoStatus.REJECTED,
-            (TextView) findViewById(R.id.empty_rejected_video_text_view));
-    recyclerViewMap =
-        ImmutableMap.of(
-            PersonalVideoStatus.APPROVED,
-            (RecyclerView) findViewById(R.id.approved_video_recycler_view),
-            PersonalVideoStatus.PENDING_APPROVAL,
-            (RecyclerView) findViewById(R.id.pending_approval_video_recycler_view),
-            PersonalVideoStatus.REJECTED,
-            (RecyclerView) findViewById(R.id.rejected_video_recycler_view));
-    videoCountTextViewMap =
-        ImmutableMap.of(
-            PersonalVideoStatus.ALL,
-                (TextView) findViewById(R.id.personal_video_count_text_view),
-            PersonalVideoStatus.APPROVED,
-                (TextView) findViewById(R.id.personal_approved_video_count_text_view));
-    videoAdapterMap = new HashMap<>();
-    for (PersonalVideoStatus personalVideoStatus : recyclerViewMap.keySet()) {
-      videoAdapterMap.put(personalVideoStatus, new VideoGridAdapter());
-      initRecyclerView(personalVideoStatus);
-      initVideoDataAndEmptyListTextView(personalVideoStatus);
-    }
-    initVideoCount(PersonalVideoStatus.ALL);
-    initVideoCount(PersonalVideoStatus.APPROVED);
+    initProfileView();
+    initVideoListSummary();
+    initVideoListEntites();
+  }
+
+  @Override
+  protected void onResume() {
+    myVideoViewModel.getProfile();
+    super.onResume();
+  }
+
+  private void initProfileView() {
     myVideoViewModel
         .getProfileResponseLiveData()
         .observe(
@@ -114,47 +147,19 @@ public class MyVideoActivity extends BaseActivity {
               }
               ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
             });
+
   }
 
-  @Override
-  protected void onResume() {
-    myVideoViewModel.getProfile();
-    super.onResume();
+  private void initVideoListSummary(){
+    initVideoListSummaryPerStatus(PersonalVideoStatus.ALL,
+        (TextView) findViewById(R.id.personal_video_count_text_view));
+    initVideoListSummaryPerStatus(PersonalVideoStatus.APPROVED,
+        (TextView) findViewById(R.id.personal_approved_video_count_text_view));
+
   }
 
-  private void initRecyclerView(PersonalVideoStatus personalVideoStatus) {
-    recyclerViewMap
-        .get(personalVideoStatus)
-        .setLayoutManager(new GridLayoutManager(getApplicationContext(), SPAN_COUNT));
-    videoAdapterMap
-        .get(personalVideoStatus)
-        .setItemListener(
-            videoData -> {
-              // TODO(zhichongh): Fill jump to the video activity handler here.
-            });
-    recyclerViewMap.get(personalVideoStatus).setAdapter(videoAdapterMap.get(personalVideoStatus));
-  }
-
-  private void initVideoDataAndEmptyListTextView(PersonalVideoStatus videoStatus) {
-    myVideoViewModel
-        .getPersonalVideoList(videoStatus)
-        .observe(
-            this,
-            videoListResponse -> {
-              handleVideoListResponse(
-                  videoListResponse,
-                  videoListData -> {
-                    emptyVideoListTextViewMap
-                        .get(videoStatus)
-                        .setVisibility(videoListData.getDataBeanList().getTotal());
-                    videoAdapterMap
-                        .get(videoStatus)
-                        .addItems(videoListData.getDataBeanList().getData());
-                  });
-            });
-  }
-
-  private void initVideoCount(PersonalVideoStatus personalVideoStatus) {
+  private void initVideoListSummaryPerStatus(
+      PersonalVideoStatus personalVideoStatus, TextView videoListSummaryPerStatusTextView) {
     myVideoViewModel
         .getPersonalVideoList(personalVideoStatus)
         .observe(
@@ -163,14 +168,40 @@ public class MyVideoActivity extends BaseActivity {
               handleVideoListResponse(
                   videoListResponse,
                   videoListData -> {
-                    videoCountTextViewMap
-                        .get(personalVideoStatus)
+                    videoListSummaryPerStatusTextView
                         .setText(
                             String.format(
                                 getString(LABEL_STRING_MAP.get(personalVideoStatus)),
                                 videoListData.getDataBeanList().getTotal()));
                   });
             });
+  }
+
+  private void initVideoListEntites() {
+    videoListEntities =  ImmutableList.of(
+        new VideoListEntity(PersonalVideoStatus.APPROVED,
+            R.string.label_personal_approved,
+            R.id.approved_video_text_view,
+            R.id.approved_video_recycler_view),
+        new VideoListEntity(PersonalVideoStatus.PENDING_APPROVAL,
+            R.string.label_personal_pending_approval,
+            R.id.pending_approval_video_text_view,
+            R.id.pending_approval_video_recycler_view),
+        new VideoListEntity(PersonalVideoStatus.REJECTED,
+            R.string.label_personal_rejected,
+            R.id.rejected_video_text_view,
+            R.id.rejected_video_recycler_view));
+    for(VideoListEntity entity : videoListEntities) {
+      myVideoViewModel
+          .getPersonalVideoList(entity.getVideoStatus())
+          .observe(
+              this,
+              videoListResponse -> {
+                handleVideoListResponse(videoListResponse, videoListResponseData -> {
+                  entity.updateView(videoListResponseData);
+                });
+              });
+    }
   }
 
   private void handleVideoListResponse(
