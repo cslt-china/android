@@ -3,7 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="selectFragment">#F2050C</color>
+    <color name="selectFragment">#f2050c</color>
     <color name="notSelectFragment">#FBFBFA</color>
     <color name="highLight">#5677FC</color>
     <color name="aliceBlue">#B0C4DE</color>
