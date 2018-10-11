@@ -62,11 +62,10 @@
 
   <!-- activity_sign_along -->
   <string name="label_current_points">%1$s,你目前的积分是</string>
-  <string name="label_personal_video_count">已经录制视频 %1$d 段</string>
-  <string name="label_personal_unapproved_video_count">未审阅视频 %1$d 段</string>
   <string name="label_unreview_video_count">待评视频 %1$d 段</string>
   <string name="button_record_video">录制视频</string>
   <string name="label_number_question">第 %1$d 题</string>
+
   <!-- activity_setting -->
   <string name="tv_prepare_time">录制间隔</string>
   <string name="tv_record_time">录制时长调整</string>
@@ -86,11 +85,12 @@
 
   <!-- activity_my_video -->
   <string name="title_my_video">我的视频</string>
+  <string name="label_personal_video_count">已经录制视频%1$d段</string>
+  <string name="label_personal_approved_video_count">审阅视频%1$d段</string>
   <string name="label_personal_rejected">未通过审核(共%1$d段)</string>
   <string name="label_personal_pending_approval">等待审核(共%1$d段)</string>
   <string name="label_personal_approved">通过审核(共%1$d段)</string>
   <string name="tip_request_fail">请求失败</string>
-  <string name="label_personal_approved_video_count">审阅视频 %1$d段</string>
   <string name="label_empty_video_list">\(暂无\)</string>
 
   <!-- activity_video_review -->

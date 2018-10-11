@@ -184,37 +184,6 @@ public class SignAlongActivity extends BaseActivity {
                   .setText(String.valueOf(scoresBean.getTotalScore()));
             });
     signAlongViewModel
-        .getPersonalUnapprovedVideoCount()
-        .observe(
-            this,
-            personalNotApproveVideoCount -> {
-              if (personalNotApproveVideoCount == null) {
-                ((TextView) findViewById(R.id.personal_unapproved_video_count_textview))
-                .setText(getString(R.string.label_loading));
-                return;
-              }
-              ((TextView) findViewById(R.id.personal_unapproved_video_count_textview))
-                  .setText(
-                      String.format(
-                          getString(R.string.label_personal_unapproved_video_count),
-                          personalNotApproveVideoCount));
-            });
-    signAlongViewModel
-        .getPersonalVideoCount()
-        .observe(
-            this,
-            personalVideoCount -> {
-              if (personalVideoCount == null) {
-                ((TextView) findViewById(R.id.personal_video_count_textview))
-                  .setText(getString(R.string.label_loading));
-                return;
-              }
-              ((TextView) findViewById(R.id.personal_video_count_textview))
-                  .setText(
-                      String.format(
-                          getString(R.string.label_personal_video_count), personalVideoCount));
-            });
-    signAlongViewModel
         .getUnreviewVideoCount()
         .observe(
             this,
