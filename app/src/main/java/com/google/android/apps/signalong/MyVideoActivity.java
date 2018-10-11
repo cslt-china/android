@@ -138,12 +138,7 @@ public class MyVideoActivity extends BaseActivity {
                             profileResponse.body().getData().getUsername()));
                 ScoresBean scoresBean = profileResponse.body().getData().getScores();
                 ((TextView) findViewById(R.id.points_text_view))
-                    .setText(
-                        String.valueOf(
-                            scoresBean.getVideoQualityScore()
-                                + scoresBean.getGlossCreationScore()
-                                + scoresBean.getVideoCreationScore()
-                                + scoresBean.getVideoReviewScore()));
+                    .setText(String.valueOf(scoresBean.getTotalScore()));
                 return;
               }
               ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));

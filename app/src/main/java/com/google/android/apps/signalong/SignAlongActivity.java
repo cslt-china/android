@@ -181,12 +181,7 @@ public class SignAlongActivity extends BaseActivity {
                           currentPointAndUsername.getData().getUsername()));
               ScoresBean scoresBean = currentPointAndUsername.getData().getScores();
               ((TextView) findViewById(R.id.points_textview))
-                  .setText(
-                      String.valueOf(
-                          scoresBean.getVideoQualityScore()
-                              + scoresBean.getGlossCreationScore()
-                              + scoresBean.getVideoCreationScore()
-                              + scoresBean.getVideoReviewScore()));
+                  .setText(String.valueOf(scoresBean.getTotalScore()));
             });
     signAlongViewModel
         .getPersonalUnapprovedVideoCount()

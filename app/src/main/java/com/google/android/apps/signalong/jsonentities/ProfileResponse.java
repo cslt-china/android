@@ -54,7 +54,7 @@ public class ProfileResponse extends BaseResponse{
      */
     public static class ScoresBean {
 
-      @SerializedName("video_review_score")
+      @SerializedName("review_video_score")
       private int videoReviewScore;
       /* Video is a video file that is uploaded by the user based on the value of the gloss.*/
       @SerializedName("create_video_score")
@@ -66,36 +66,30 @@ public class ProfileResponse extends BaseResponse{
       @SerializedName("video_quality_score")
       private int videoQualityScore;
 
+      @SerializedName("upload_sample_score")
+      private int uploadSampleScore;
+
       public int getVideoReviewScore() {
         return videoReviewScore;
-      }
-
-      public void setVideoReviewScore(int videoReviewScore) {
-        this.videoReviewScore = videoReviewScore;
       }
 
       public int getVideoCreationScore() {
         return videoCreationScore;
       }
 
-      public void setVideoCreationScore(int videoCreationScore) {
-        this.videoCreationScore = videoCreationScore;
-      }
-
       public int getGlossCreationScore() {
         return glossCreationScore;
-      }
-
-      public void setGlossCreationScore(int glossCreationScore) {
-        this.glossCreationScore = glossCreationScore;
       }
 
       public int getVideoQualityScore() {
         return videoQualityScore;
       }
 
-      public void setVideoQualityScore(int videoQualityScore) {
-        this.videoQualityScore = videoQualityScore;
+      public int getUploadSampleScore() { return  uploadSampleScore; }
+
+      public int getTotalScore() {
+        return videoCreationScore + videoQualityScore + videoReviewScore +
+          glossCreationScore + uploadSampleScore;
       }
     }
   }
