@@ -23,13 +23,13 @@ import retrofit2.Response;
 public class MyVideoViewModel extends AndroidViewModel {
   /** The type of PersonalVideoStatus that this object specifies. */
   public enum PersonalVideoStatus {
-    /* The request to get all videos.*/
+    /* The request to get all videos of current user.*/
     ALL,
-    /* The request to get rejected videos.*/
+    /* The request to get of rejected videos current user.*/
     REJECTED,
-    /* The request to get approved videos.*/
+    /* The request to get approved videos of current user.*/
     APPROVED,
-    /* The request to get pending approval videos.*/
+    /* The request to get pending approval videos of current user.*/
     PENDING_APPROVAL
   }
 
