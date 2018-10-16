@@ -101,11 +101,6 @@ public class LearnVideoDialog extends DialogFragment {
             });
 
     dialogBuilder.setView(contentView);
-    dialogBuilder
-        .setNegativeButton(
-            getString(R.string.btn_rerecord), (dialog, which) -> dialogListener.onRerecordClick())
-        .setPositiveButton(
-            getString(R.string.btn_cancel), (dialog, which) -> dialogListener.onRerecordClick());
 
     Dialog dialog = dialogBuilder.create();
 
