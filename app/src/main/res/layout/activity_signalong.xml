@@ -7,7 +7,7 @@
   <android.support.v7.widget.Toolbar
       app:title=" "
       android:background="@color/highLight"
-      android:id="@+id/toolbar"
+      android:id="@+id/home_toolbar"
       android:layout_width="match_parent"
       android:layout_height="?attr/actionBarSize"
       android:elevation="4dp">
@@ -21,7 +21,7 @@
         android:textSize="20sp"
         android:textStyle="bold" />
     <Button
-        android:id="@+id/setting_button"
+        android:id="@+id/btn_home_setting"
         android:background="@drawable/setting_button"
         android:layout_width="35dp"
         android:layout_height="35dp"
@@ -29,7 +29,7 @@
   </android.support.v7.widget.Toolbar>
     <LinearLayout
         android:id="@+id/statistics_layout"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/my_video_toolbar"
         android:background="#F8F8FF"
         android:orientation="vertical"
         android:layout_width="match_parent"
