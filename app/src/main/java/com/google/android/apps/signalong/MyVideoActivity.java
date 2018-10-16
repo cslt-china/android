@@ -5,17 +5,18 @@ import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 import com.google.android.apps.signalong.MyVideoViewModel.PersonalVideoStatus;
+import com.google.android.apps.signalong.jsonentities.ProfileResponse;
 import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.ScoresBean;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.HashMap;
-import java.util.Map;
-import org.w3c.dom.Text;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Response;
 
 /**
@@ -25,16 +26,28 @@ import retrofit2.Response;
 public class MyVideoActivity extends BaseActivity {
   private static final int SPAN_COUNT = 4;
 
-  private static final ImmutableMap<PersonalVideoStatus, Integer> LABEL_STRING_MAP =
-      ImmutableMap.of(
-          PersonalVideoStatus.ALL,
-          R.string.label_personal_video_count,
-          PersonalVideoStatus.APPROVED,
-          R.string.label_personal_approved_video_count);
-
   private ImmutableList<VideoListEntity> videoListEntities;
 
   private MyVideoViewModel myVideoViewModel;
+
+  @BindView(R.id.my_video_toolbar)
+  protected Toolbar toolbar;
+
+  @BindView(R.id.btn_my_video_setting)
+  protected Button btnSetting;
+
+  @BindView(R.id.username_text_view)
+  protected TextView tvUsername;
+
+  @BindView(R.id.points_text_view)
+  protected TextView tvPoints;
+
+  @BindView(R.id.self_reviewed_videos_count_text_view)
+  protected TextView tvSelfReviewedVideosCount;
+
+  @BindView(R.id.self_created_videos_count_text_view)
+  protected TextView tvSelfCreatedVideosCount;
+
   /**
    * VideoListEntity is an internal wrapper class to pack all view related objects of
    * a specific video list.
@@ -98,16 +111,15 @@ public class MyVideoActivity extends BaseActivity {
 
   @Override
   public void initViews() {
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    ButterKnife.bind(this);
+
     setSupportActionBar(toolbar);
     toolbar.setNavigationOnClickListener(view -> finish());
-    findViewById(R.id.setting_button)
-        .setOnClickListener(
+    btnSetting.setOnClickListener(
             view -> {
               startActivity(new Intent(getApplicationContext(), SettingActivity.class));
             });
     initProfileView();
-    initVideoListSummary();
     initVideoListEntites();
   }
 
@@ -124,53 +136,29 @@ public class MyVideoActivity extends BaseActivity {
             this,
             profileResponse -> {
               if (profileResponse == null) {
-                ((TextView) findViewById(R.id.username_text_view))
-                    .setText(getString(R.string.label_loading));
+                tvUsername.setText(getString(R.string.label_loading));
                 return;
               }
               if (profileResponse.isSuccessful()
                   && profileResponse.body() != null
                   && profileResponse.body().getCode() == 0) {
-                ((TextView) findViewById(R.id.username_text_view))
-                    .setText(
-                        String.format(
-                            getString(R.string.label_current_points),
-                            profileResponse.body().getData().getUsername()));
-                ScoresBean scoresBean = profileResponse.body().getData().getScores();
-                ((TextView) findViewById(R.id.points_text_view))
-                    .setText(String.valueOf(scoresBean.getTotalScore()));
+                ProfileResponse.DataBean data = profileResponse.body().getData();
+                tvUsername.setText(String.format(getString(R.string.label_current_points), data.getUsername()));
+                ScoresBean scoresBean = data.getScores();
+                tvPoints.setText(String.valueOf(scoresBean.getTotalScore()));
+                tvSelfReviewedVideosCount.setText(String.format(
+                  getString(R.string.label_self_reviewed_videos_count),
+                  scoresBean.getVideoQualityCount()
+                ));
+                tvSelfCreatedVideosCount.setText(String.format(
+                  getString(R.string.label_self_created_videos_count),
+                  scoresBean.getVideoCreationCount()
+                ));
                 return;
               }
               ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
             });
 
-  }
-
-  private void initVideoListSummary(){
-    initVideoListSummaryPerStatus(PersonalVideoStatus.ALL,
-        (TextView) findViewById(R.id.personal_video_count_text_view));
-    initVideoListSummaryPerStatus(PersonalVideoStatus.APPROVED,
-        (TextView) findViewById(R.id.personal_approved_video_count_text_view));
-
-  }
-
-  private void initVideoListSummaryPerStatus(
-      PersonalVideoStatus personalVideoStatus, TextView videoListSummaryPerStatusTextView) {
-    myVideoViewModel
-        .getPersonalVideoList(personalVideoStatus)
-        .observe(
-            this,
-            videoListResponse -> {
-              handleVideoListResponse(
-                  videoListResponse,
-                  videoListData -> {
-                    videoListSummaryPerStatusTextView
-                        .setText(
-                            String.format(
-                                getString(LABEL_STRING_MAP.get(personalVideoStatus)),
-                                videoListData.getDataBeanList().getTotal()));
-                  });
-            });
   }
 
   private void initVideoListEntites() {

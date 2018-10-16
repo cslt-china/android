@@ -85,8 +85,8 @@
 
   <!-- activity_my_video -->
   <string name="title_my_video">我的视频</string>
-  <string name="label_personal_video_count">已经录制视频 %1$d 段</string>
-  <string name="label_personal_approved_video_count">已通过的视频 %1$d 段</string>
+  <string name="label_self_created_videos_count">已经录制视频 %1$d 段</string>
+  <string name="label_self_reviewed_videos_count">审阅视频 %1$d 段</string>
   <string name="label_personal_rejected">未通过审核(共 %1$d 段)</string>
   <string name="label_personal_pending_approval">等待审核(共 %1$d 段)</string>
   <string name="label_personal_approved">通过审核(共 %1$d 段)</string>

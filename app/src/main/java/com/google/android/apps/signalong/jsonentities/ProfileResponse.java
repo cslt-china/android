@@ -69,13 +69,22 @@ public class ProfileResponse extends BaseResponse{
       @SerializedName("upload_sample_score")
       private int uploadSampleScore;
 
+      @SerializedName("review_video_count")
+      private int videoReviewCount;
+      @SerializedName("create_video_count")
+      private int videoCreationCount;
+      @SerializedName("create_gloss_count")
+      private int glossCreationCount;
+      @SerializedName("video_quality_count")
+      private int videoQualityCount;
+      @SerializedName("upload_sample_count")
+      private int uploadSampleCount;
+
       public int getVideoReviewScore() {
         return videoReviewScore;
       }
 
-      public int getVideoCreationScore() {
-        return videoCreationScore;
-      }
+      public int getVideoCreationScore() { return videoCreationScore; }
 
       public int getGlossCreationScore() {
         return glossCreationScore;
@@ -86,6 +95,24 @@ public class ProfileResponse extends BaseResponse{
       }
 
       public int getUploadSampleScore() { return  uploadSampleScore; }
+
+      public int getVideoReviewCount() {
+        return videoReviewCount;
+      }
+
+      public int getVideoCreationCount() {
+        return videoCreationCount;
+      }
+
+      public int getGlossCreationCount() {
+        return glossCreationCount;
+      }
+
+      public int getVideoQualityCount() {
+        return videoQualityCount;
+      }
+
+      public int getUploadSampleCount() { return  uploadSampleCount; }
 
       public int getTotalScore() {
         return videoCreationScore + videoQualityScore + videoReviewScore +

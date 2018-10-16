@@ -4,7 +4,6 @@ import android.Manifest;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -71,13 +70,13 @@ public class SignAlongActivity extends BaseActivity {
   @Override
   public void initViews() {
     RecyclerView unreviewedVideoListRecyclerView = findViewById(R.id.unvote_video_list_recyclerview);
-    Toolbar toolbar = findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.home_toolbar);
     setSupportActionBar(toolbar);
     unreviewedVideoGridAdapter = new UnreviewedVideoGridAdapter();
     unreviewedVideoListRecyclerView.setLayoutManager(
         new GridLayoutManager(getApplicationContext(), SPAN_COUNT));
     unreviewedVideoListRecyclerView.setAdapter(unreviewedVideoGridAdapter);
-    findViewById(R.id.setting_button)
+    findViewById(R.id.btn_home_setting)
         .setOnClickListener(
             view -> {
               startActivityForResult(new Intent(getApplicationContext(), SettingActivity.class), 0);
