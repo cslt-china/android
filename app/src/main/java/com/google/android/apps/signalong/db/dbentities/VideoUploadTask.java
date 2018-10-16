@@ -47,4 +47,12 @@ public class VideoUploadTask {
   public void setVideoPath(String videoPath) {
     this.videoPath = videoPath;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    return this == obj || (
+        obj instanceof VideoUploadTask &&
+        this.id.equals(((VideoUploadTask)obj).id) &&
+        this.videoPath.equals(((VideoUploadTask)obj).videoPath));
+  }
 }

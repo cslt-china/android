@@ -31,6 +31,7 @@ import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import java.io.File;
 import java.util.List;
 
+
 /**
  * CameraActivity implements video recording activity, reference code link
  * https://github.com/googlesamples/android-Camera2Video/blob/master/Application/src/main/java/com/example/android/camera2video/Camera2VideoFragment.java.
@@ -370,11 +371,16 @@ public class CameraActivity extends BaseActivity {
       context.progressBar.setProgress(0);
 
       if (event == FSMEvent.Next) {
+        context.uploadVideo();
         context.currentSignIndex++;
         context.makeVideoPath();
         if (context.currentSignIndex == context.signPromptList.size()) {
           Log.i(fsmTag, "before terminate");
-          this.terminate(context);
+          try {
+            this.terminate(context);
+          } catch (Exception e) {
+            //do nothing, add try to void log4j no appender exception
+          }
           Log.i(fsmTag, "end terminate");
           context.finishWithToastInfo(String.format("今天完成了%d", context.signPromptList.size()));
         }
