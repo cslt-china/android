@@ -23,8 +23,8 @@
     <Button
         android:id="@+id/setting_button"
         android:background="@drawable/setting_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_gravity="end"/>
   </android.support.v7.widget.Toolbar>
     <LinearLayout
