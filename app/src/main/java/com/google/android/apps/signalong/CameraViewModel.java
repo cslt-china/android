@@ -59,21 +59,23 @@ public class CameraViewModel extends AndroidViewModel {
   }
 
   public void saveVideoUploadTask(String videoPath, Integer uuid) {
-    VideoUploadTask videoUploadTaskNew = new VideoUploadTask();
-    videoUploadTaskNew.setVideoPath(videoPath);
-    videoUploadTaskNew.setId(uuid);
-    videoUploadTaskNew.setImagePath(VideoScreenUtils.screenFromVideo(videoPath));
+    assert (videoPath != null);
 
-    //access database on the non-UI thread.
+    //access database and get a frame from video on the non-UI thread.
     new Thread(()->{
-    VideoUploadTask videoUploadTaskOld = videoUploadTaskDao.get(uuid);
-    if (videoUploadTaskOld == null) {
-      Log.i(TAG, "insert video to Dao");
-      videoUploadTaskDao.insert(videoUploadTaskNew);
-    } else {
-      Log.i(TAG, "update video to Dao");
-      videoUploadTaskDao.update(videoUploadTaskNew);
-    }
+      VideoUploadTask videoUploadTaskNew = new VideoUploadTask();
+      videoUploadTaskNew.setVideoPath(videoPath);
+      videoUploadTaskNew.setId(uuid);
+      //VideoScreenUtils.screenFromVideo is a long time task, so move it to new thread
+      videoUploadTaskNew.setImagePath(VideoScreenUtils.screenFromVideo(videoPath));
+      VideoUploadTask videoUploadTaskOld = videoUploadTaskDao.get(uuid);
+      if (videoUploadTaskOld == null) {
+        Log.i(TAG, "insert video to Dao");
+        videoUploadTaskDao.insert(videoUploadTaskNew);
+      } else {
+        Log.i(TAG, "update video to Dao");
+        videoUploadTaskDao.update(videoUploadTaskNew);
+      }
     }).start();
   }
 
@@ -122,8 +124,18 @@ public class CameraViewModel extends AndroidViewModel {
             for (VideoUploadTask videoUploadTask : videoUploadTaskList) {
 
               runingList.add(videoUploadTask);
+              if (videoUploadTask.getVideoPath() == null ||
+                  videoUploadTask.getImagePath() == null) {
+                Log.i(uploadTag, String.format("unvalid task %d, %s %s, remove it",
+                                               videoUploadTask.getId(),
+                                               videoUploadTask.getVideoPath(),
+                                               videoUploadTask.getImagePath()));
+                new Thread(()-> videoUploadTaskDao.delete(videoUploadTask)).start();
+                continue;
+              }
               Log.i(uploadTag, String.format("enqueue task %d %d %s", videoUploadTask.getId(),
-                                             videoUploadTask.hashCode(), videoUploadTask.getVideoPath()));
+                                             videoUploadTask.hashCode(),
+                                             videoUploadTask.getVideoPath()));
 
               try {
                 while (!semaphore.tryAcquire(3, TimeUnit.SECONDS)) {

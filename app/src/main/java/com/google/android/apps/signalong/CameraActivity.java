@@ -11,6 +11,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.github.oxo42.stateless4j.StateMachine;
+import com.github.oxo42.stateless4j.transitions.Transition;
+import com.github.oxo42.stateless4j.StateMachineConfig;
 import com.google.android.apps.signalong.broadcast.NetworkReceiver;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.utils.FileUtils;
@@ -20,13 +24,6 @@ import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences.T
 import com.google.android.apps.signalong.widget.CameraView;
 import com.google.android.apps.signalong.widget.CameraView.CallBack;
 import com.google.android.apps.signalong.widget.LearnVideoDialog;
-
-import org.squirrelframework.foundation.fsm.StateMachineBuilder;
-import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
-import org.squirrelframework.foundation.fsm.StateMachineLogger;
-import org.squirrelframework.foundation.fsm.annotation.Transit;
-import org.squirrelframework.foundation.fsm.annotation.Transitions;
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 import java.io.File;
 import java.util.List;
@@ -38,13 +35,7 @@ import java.util.List;
  */
 public class CameraActivity extends BaseActivity {
 
-  /** The state of RecordState that this object specifies. */
-  public enum RecordState {
-    RECORDING,
-    PREVIEW
-  }
-
-  static private String fsmTag = "RecordFSM";
+  static private String fsmTag = "StateMachine";
 
   private static final int LARGE_WORD_PROMPT_WAIT_TIME = 1500;
   private static final int DISPLAY_START_TIME = 1000;
@@ -66,7 +57,6 @@ public class CameraActivity extends BaseActivity {
   private LearnVideoDialog pausingDialog;
   ValueAnimator progressAnimator = ValueAnimator.ofInt(0, 100);
   ValueAnimator countdownAnimator = new ValueAnimator();
-  MyStateMachine fsm;
 
   @Override
   public int getContentView() {
@@ -80,26 +70,21 @@ public class CameraActivity extends BaseActivity {
     initFSM();
 
     initModel(()-> {
-      networkReceiver = new NetworkReceiver(() -> cameraViewModel.startUploadThread());
-      registerReceiver(networkReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+      cameraViewModel.startUploadThread();
       makeVideoPath();
       startFSM();
     });
   }
 
   private void fireFsmEvent(FSMEvent event) {
-    if (fsm == null || !fsm.isStarted() || fsm.isError()) {
-      return;
-    }
-    fsm.fire(event, this);
-  }
-
-  private void terminateFsm() {
-    if (fsm == null || !fsm.isStarted()) {
-      return;
-    }
-
-    fsm.terminate(this);
+    runOnUiThread(()-> {
+      if (fsm == null || !fsm.canFire(event)) {
+        return;
+      }
+      Log.i(fsmTag, "before fire " + event);
+      fsm.fire(event);
+      Log.i(fsmTag, "after fire " + event);
+    });
   }
 
   @Override
@@ -137,16 +122,8 @@ public class CameraActivity extends BaseActivity {
     initProgressAnimation();
   }
 
-  StateMachineLogger fsmLogger;
-  private void initFSM() {
-    StateMachineBuilder<MyStateMachine, FSMState, FSMEvent, CameraActivity> builder =
-        StateMachineBuilderFactory.create(MyStateMachine.class,
-            FSMState.class, FSMEvent.class, CameraActivity.class);
-    fsm = builder.newStateMachine(FSMState.Countdowning);
-  }
-
   private void startFSM() {
-    fsm.start(this);
+    fireFsmEvent(FSMEvent.Start);
   }
 
   private void fillModel() {
@@ -200,13 +177,19 @@ public class CameraActivity extends BaseActivity {
 
     countdownAnimator.addListener(new AnimatorListener() {
       @Override
-      public void onAnimationStart(Animator animation) {
+      public void onStart(Animator animation) {
         largeWordPromptLayout.setVisibility(View.VISIBLE);
         realRecordLayout.setVisibility(View.GONE);
       }
       @Override
-      public void onAnimationEnd(Animator animation) {
+      public void onEnd(Animator animation) {
+        Log.i("CameraActiviy", "countdown animation end");
         fireFsmEvent(FSMEvent.Record);
+      }
+
+      @Override
+      public void onCancel(Animator animator) {
+        Log.i("CameraActiviy", "countdown animation canceled");
       }
     });
   }
@@ -235,9 +218,19 @@ public class CameraActivity extends BaseActivity {
 
     progressAnimator.addListener(
         new AnimatorListener() {
+          boolean valid;
           @Override
-          public void onAnimationEnd(Animator animator) {
+          public void onStart(Animator animator) {
+            Log.i("CameraActiviy", "progress animation start");
+          }
+          @Override
+          public void onEnd(Animator animator) {
+            Log.i("CameraActiviy", "progress animation end");
             fireFsmEvent(FSMEvent.Next);
+          }
+          @Override
+          public void onCancel(Animator animator) {
+            Log.i("CameraActiviy", "progress animation canceled");
           }
         });
   }
@@ -285,17 +278,10 @@ public class CameraActivity extends BaseActivity {
   }
 
   private void finishWithToastInfo(String info) {
-    ToastUtils.show(getApplicationContext(), info);
-    finish();
-  }
-
-  @Override
-  protected void onStop() {
-    if (currentSignIndex > 0) {
-      ToastUtils.show(getApplication(),
-          String.format(getString(R.string.thanks),  currentSignIndex));
+    if (info != null && info.length() > 0) {
+      ToastUtils.show(getApplicationContext(), info);
     }
-    super.onStop();
+    finish();
   }
 
   /** Update the contents of the view. */
@@ -308,99 +294,29 @@ public class CameraActivity extends BaseActivity {
 
   @Override
   public void onBackPressed() {
-    terminateFsm();
-    finish();
+    if (fsm != null && fsm.getState() != FSMState.Stopped) {
+      fireFsmEvent(FSMEvent.Stop);
+    } else {
+      finish();
+    }
   }
 
   enum FSMEvent {
+    Start,
     Next,
     Record,
     Pause,
     Continue,
+    Stop
   }
 
   enum FSMState {
+    Created,
     Countdowning,
     CountdowningPaused,
     Recording,
     RecordingPaused,
-  }
-
-
-  @Transitions({
-      @Transit(from="Countdowning", on="Pause", to="CountdowningPaused"),
-      @Transit(from="CountdowningPaused", on="Continue", to="Countdowning"),
-      @Transit(from="Countdowning", on="Record", to="Recording"),
-
-      @Transit(from="Recording", on="Pause", to="RecordingPaused"),
-      @Transit(from="RecordingPaused", on="Continue", to="Recording"),
-      @Transit(from="Recording", on="Next", to="Countdowning"),
-  })
-  static class MyStateMachine extends AbstractStateMachine
-                                            <MyStateMachine, FSMState, FSMEvent, CameraActivity> {
-
-    public void entryCountdowning(FSMState from, FSMState to,
-                                  FSMEvent event, CameraActivity context) {
-      Log.i(fsmTag, String.format("entry state: %s -> %s", from, to));
-
-      context.countDownTextView.setVisibility(View.VISIBLE);
-      context.updateViewContent();
-      context.startCountdownAnimation();
-    }
-
-    public void exitCountdowning(FSMState from, FSMState to,
-                                 FSMEvent event, CameraActivity context) {
-      Log.i(fsmTag, String.format("exit state: %s -> %s", from, to));
-      if (event == FSMEvent.Record) {
-        context.countDownTextView.setVisibility(View.GONE);
-      }
-      context.cancelCountdownAnimation();
-    }
-
-    public void entryRecording(FSMState from, FSMState to,
-                               FSMEvent event, CameraActivity context) {
-      Log.i(fsmTag, String.format("entry state: %s -> %s", from, to));
-      context.cameraView.startRecord(context.videoFilePath);
-      context.startProgressAnimation();
-    }
-
-    public void exitRecording(FSMState from, FSMState to, FSMEvent event, CameraActivity context) {
-      Log.i(fsmTag, String.format("exit state: %s -> %s", from, to));
-      context.cameraView.stopRecording();
-      context.cameraView.startPreview();
-      context.progressBar.setProgress(0);
-
-      if (event == FSMEvent.Next) {
-        context.uploadVideo();
-        context.currentSignIndex++;
-        context.makeVideoPath();
-        if (context.currentSignIndex == context.signPromptList.size()) {
-          Log.i(fsmTag, "before terminate");
-          try {
-            this.terminate(context);
-          } catch (Exception e) {
-            //do nothing, add try to void log4j no appender exception
-          }
-          Log.i(fsmTag, "end terminate");
-          context.finishWithToastInfo(String.format("今天完成了%d", context.signPromptList.size()));
-        }
-      } else {
-        FileUtils.clearFile(context.videoFilePath);
-      }
-    }
-
-    public void entryCountdowningPaused(FSMState from, FSMState to,
-                                        FSMEvent event, CameraActivity context) {
-      Log.i(fsmTag, String.format("entry state: %s -> %s", from, to));
-      context.showPausedDialog();
-    }
-
-    public void entryRecordingingPaused(FSMState from, FSMState to,
-                                        FSMEvent event, CameraActivity context) {
-      Log.i(fsmTag, String.format("entry state: %s -> %s", from, to));
-      context.showPausedDialog();
-    }
-
+    Stopped
   }
 
   private void showPausedDialog() {
@@ -415,18 +331,134 @@ public class CameraActivity extends BaseActivity {
         signPromptList.get(currentSignIndex).getSampleVideo().getThumbnail());
   }
 
+  public void entryCountdowning() {
+    Log.i(fsmTag, "entryCountdowning");
+    cameraView.startPreview();
+    countDownTextView.setVisibility(View.VISIBLE);
+    updateViewContent();
+    startCountdownAnimation();
+  }
 
-  static class AnimatorListener implements Animator.AnimatorListener {
+  public void exitCountdowning(Transition<FSMState, FSMEvent> transition) {
+    Log.i(fsmTag, "exitCountdowning");
+    if (transition.getTrigger() == FSMEvent.Record) {
+      countDownTextView.setVisibility(View.GONE);
+    }
+    cancelCountdownAnimation();
+  }
+
+  public void entryRecording() {
+    Log.i(fsmTag, "entryRecording");
+    cameraView.startRecord(videoFilePath);
+    startProgressAnimation();
+  }
+
+  public void onFSMStopped() {
+    finishWithToastInfo(
+        (currentSignIndex > 0) ? String.format(getString(R.string.thanks), currentSignIndex) : null);
+  }
+
+  public void exitRecording(Transition<FSMState, FSMEvent> transition) {
+    Log.i(fsmTag, "exitRecording");
+    cameraView.stopRecording();
+    cancelProgressAnimation();
+    progressBar.setProgress(0);
+
+    if (transition.getTrigger() == FSMEvent.Next) {
+      uploadVideo();
+      currentSignIndex++;
+      makeVideoPath();
+    } else {
+      FileUtils.clearFile(videoFilePath);
+    }
+  }
+
+  public void entryCountdowningPaused() {
+    Log.i(fsmTag, "entryCountdowningPaused");
+    showPausedDialog();
+  }
+
+  public void entryRecordingingPaused() {
+    Log.i(fsmTag, "entryRecordingingPaused");
+    showPausedDialog();
+  }
+
+  StateMachine<FSMState, FSMEvent> fsm;
+
+  void initFSM() {
+
+    StateMachineConfig<FSMState, FSMEvent> config = new StateMachineConfig<>();
+
+    config.configure(FSMState.Created).
+        permit(FSMEvent.Start, FSMState.Countdowning)
+        .permit(FSMEvent.Stop, FSMState.Stopped);
+
+    config.configure(FSMState.Countdowning)
+          .onEntry(this::entryCountdowning)
+          .onExit(this::exitCountdowning)
+          .permit(FSMEvent.Pause, FSMState.CountdowningPaused)
+          .permit(FSMEvent.Record, FSMState.Recording)
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+    config.configure(FSMState.CountdowningPaused)
+          .onEntry(this::entryCountdowningPaused)
+          .permit(FSMEvent.Continue, FSMState.Countdowning)
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+
+    config.configure(FSMState.Recording)
+          .onEntry(this::entryRecording)
+          .onExit(this::exitRecording)
+          .permitDynamic(FSMEvent.Next,
+                         ()-> {
+                           Log.i(fsmTag, String.format("dyamic next: currsignIndex %d", currentSignIndex));
+                           if (currentSignIndex < signPromptList.size() - 1) {
+                             return FSMState.Countdowning;
+                           } else {
+                             return FSMState.Stopped;
+                           }
+                         })
+          .permit(FSMEvent.Pause, FSMState.RecordingPaused)
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+    config.configure(FSMState.RecordingPaused)
+          .onEntry(this::entryRecordingingPaused)
+          .permit(FSMEvent.Continue, FSMState.Countdowning)
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+    config.configure(FSMState.Stopped)
+          .onEntry(this::onFSMStopped);
+
+
+    fsm = new StateMachine<>(FSMState.Created, config);
+  }
+
+  static abstract class AnimatorListener implements Animator.AnimatorListener {
+    private boolean valid;
     @Override
-    public void onAnimationStart(Animator animation) {}
+    final public void onAnimationStart(Animator animation) {
+      valid = true;
+      onStart(animation);
+    }
 
     @Override
-    public void onAnimationEnd(Animator animation) {}
+    final public void onAnimationEnd(Animator animation) {
+      if (valid) {
+        onEnd(animation);
+      }
+    }
 
     @Override
-    public void onAnimationCancel(Animator animation) {}
+    final public void onAnimationCancel(Animator animation) {
+      valid = false;
+      onCancel(animation);
+    }
 
     @Override
-    public void onAnimationRepeat(Animator animation) {}
+    final public void onAnimationRepeat(Animator animation) {}
+
+    abstract public void onStart(Animator animator);
+    abstract public void onEnd(Animator animator);
+    abstract public void onCancel(Animator animator);
   }
 }

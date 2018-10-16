@@ -26,6 +26,10 @@ public class VideoRecordingSharedPreferences {
   }
 
   public static Integer getTiming(Context context, TimingType timingType) {
-    return getSharedPreferences(context).getInt(timingType.name(), 1);
+    if (timingType == TimingType.RECORD_TIME_SCALE) {
+      return getSharedPreferences(context).getInt(timingType.name(), 100);
+    } else {
+      return getSharedPreferences(context).getInt(timingType.name(), 1);
+    }
   }
 }
