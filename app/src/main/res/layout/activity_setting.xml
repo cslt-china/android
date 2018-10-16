@@ -140,10 +140,9 @@
         android:gravity="center_vertical"
         android:text="@string/btn_change_password" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.1" />
+    <View
+        style="@style/Spacer"
+        android:background="@color/light_grey" />
 
     <Button
         android:id="@+id/logout_button"
@@ -152,10 +151,8 @@
         android:layout_gravity="end"
         android:layout_marginTop="15dp"
         android:layout_marginBottom="15dp"
-        android:background="@android:color/holo_red_dark"
         android:gravity="center"
-        android:text="@string/btn_logout"
-        android:textColor="@color/white" />
+        android:text="@string/btn_logout" />
 
   </LinearLayout>
 
