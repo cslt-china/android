@@ -21,7 +21,7 @@ public class ApiHelper {
 
   {
     HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-    logging.setLevel(Level.BODY);
+    logging.setLevel(Level.BASIC);
     OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
     httpClient.addInterceptor(logging);

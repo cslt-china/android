@@ -36,6 +36,7 @@
   <!-- activity_camera -->
   <string name="btn_record_start">开始录制</string>
   <string name="btn_record_stop">停止录制</string>
+  <string name="start">开始</string>
   <string name="btn_record_back">重新录制</string>
   <string name="btn_confirm_submit">确认提交</string>
   <string name="tip_video_no_exist">该视频不存在</string>
@@ -53,7 +54,9 @@
   <string name="btn_rerecord">重新录制</string>
   <string name="btn_cancel">关闭</string>
   <string name="demonstration">示范</string>
-
+  <string name="thanks">"这次你录制了%d个视频，谢谢啦！"</string>
+  <string name="please_sign">请打手势: %s</string>
+  <string name="open_camera_failed">打开相机失败</string>
   <!-- back_title -->
   <string name="btn_back">返回</string>
 
@@ -66,6 +69,7 @@
   <string name="button_record_video">录制视频</string>
   <string name="label_number_question">第 %1$d 题</string>
 
+  <string name="no_new_task">没有新的任务</string>
   <!-- activity_setting -->
   <string name="tv_prepare_time">录制间隔</string>
   <string name="tv_record_time">录制时长调整</string>

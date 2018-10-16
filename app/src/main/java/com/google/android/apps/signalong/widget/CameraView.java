@@ -51,7 +51,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     this.setSurfaceTextureListener(this);
   }
 
-  private void startCameraCaptureSession(final int captureRequestTemplateType) {
+  private void startCameraCaptureSession(final int captureRequestTemplateType, String recordFile) {
     if (null == cameraDevice || !isAvailable()) {
       return;
     }
@@ -67,7 +67,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
       surfaces.add(previewSurface);
       captureRequestBuilder.addTarget(previewSurface);
       if (captureRequestTemplateType == CameraDevice.TEMPLATE_RECORD) {
-        setUpMediaRecorder();
+        setUpMediaRecorder(recordFile);
         Surface recorderSurface = mediaRecorder.getSurface();
         surfaces.add(recorderSurface);
         captureRequestBuilder.addTarget(recorderSurface);
@@ -119,10 +119,10 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     return choices[choices.length - 1];
   }
 
-  private void setUpMediaRecorder() throws IOException {
+  private void setUpMediaRecorder(String outputFile) throws IOException {
     mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
     mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-    mediaRecorder.setOutputFile(callBack.onOutVideoPath());
+    mediaRecorder.setOutputFile(outputFile);
     mediaRecorder.setVideoEncodingBitRate(10000000);
     mediaRecorder.setVideoFrameRate(30);
     mediaRecorder.setVideoSize(videoSize.getWidth(), videoSize.getHeight());
@@ -196,6 +196,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
             public void onError(@NonNull CameraDevice camera, int error) {
               camera.close();
               cameraDevice = null;
+              callBack.onCameraError();
             }
           },
           backgroundHandler);
@@ -218,11 +219,11 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
   }
 
   public void startPreview() {
-    startCameraCaptureSession(CameraDevice.TEMPLATE_PREVIEW);
+    startCameraCaptureSession(CameraDevice.TEMPLATE_PREVIEW, null);
   }
 
-  public void startRecord() {
-    startCameraCaptureSession(CameraDevice.TEMPLATE_RECORD);
+  public void startRecord(String outputFile) {
+    startCameraCaptureSession(CameraDevice.TEMPLATE_RECORD, outputFile);
   }
 
   public void stopRecording() {
@@ -251,13 +252,13 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
   }
 
   /** CallBack is called when entering a state. */
-  public interface CallBack {
-    void onRecording();
+  static public class CallBack {
+    public void onRecording() {}
 
-    void onPreview();
+    public void onPreview() {}
 
-    void onCameraOpened();
+    public void onCameraOpened() {}
 
-    String onOutVideoPath();
+    public void onCameraError() {}
   }
 }
