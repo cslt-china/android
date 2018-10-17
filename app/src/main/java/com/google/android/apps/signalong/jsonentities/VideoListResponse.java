@@ -2,6 +2,8 @@ package com.google.android.apps.signalong.jsonentities;
 
 import android.os.Parcel;
 import android.os.Parcelable.Creator;
+
+import com.google.android.apps.signalong.api.ApiHelper;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
@@ -132,7 +134,11 @@ public class VideoListResponse extends BaseResponse{
       }
 
       public String getVideoPath() {
-        return videoPath;
+        if (videoPath.startsWith(ApiHelper.PROTOCOL)) {
+          return videoPath;
+        } else {
+          return ApiHelper.MEDIA_BASE_URL + videoPath;
+        }
       }
 
       public void setVideoPath(String videoPath) {
@@ -148,7 +154,11 @@ public class VideoListResponse extends BaseResponse{
       }
 
       public String getThumbnail() {
-        return thumbnail;
+        if (thumbnail.startsWith(ApiHelper.PROTOCOL)) {
+          return thumbnail;
+        } else {
+          return ApiHelper.MEDIA_BASE_URL + thumbnail;
+        }
       }
 
       public void setThumbnail(String thumbnail) {

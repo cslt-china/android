@@ -31,7 +31,6 @@ import com.google.android.apps.signalong.utils.ToastUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.google.android.apps.signalong.api.ApiHelper.STATIC_URL;
 
 public class AgreementActivity extends BaseActivity {
 
@@ -65,7 +64,7 @@ public class AgreementActivity extends BaseActivity {
     ButterKnife.bind(this);
     pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
 
-    String pdfUrl = String.format("http://cslt-211408.appspot.com.storage.googleapis.com/static/agreements/%s-agreement.png", username);
+    String pdfUrl = String.format("%s/%s-agreement.png", ApiHelper.AGREEMENTS_BASE_URL, username);
     Glide.with(this).load(pdfUrl).into(pdfView);
 
     btnReject.setOnClickListener(view -> {

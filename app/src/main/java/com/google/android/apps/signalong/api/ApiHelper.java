@@ -8,10 +8,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /** The ApiHelper class provides an api helper in singleton mode. */
 public class ApiHelper {
+  public static final String PROTOCOL = "http";
+  public static final String DOMAIN_NAME = "140.143.180.224";
 
-  private static final String API_URL = "https://cslt-211408.appspot.com/";
+  public static final String API_URL = String.format("%s://%s", PROTOCOL, DOMAIN_NAME);
 
-  public static final String STATIC_URL = "https://storage.googleapis.com/cslt-211408.appspot.com/static/agreements";
+  public static final String MEDIA_BASE_URL = API_URL;
+
+  public static final String AGREEMENTS_BASE_URL = String.format("%s://%s/%s", PROTOCOL, DOMAIN_NAME, "agreements");
 
   static {
     new ApiHelper();
