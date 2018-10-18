@@ -2,19 +2,17 @@ package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.media.MediaPlayer;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.VideoView;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
-import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 import java.util.List;
 
 /** VideoReviewActivity implements review video by user. */
 public class VideoReviewActivity extends BaseActivity {
+  private static final String TAG = "[VideoReviewActivity]";
   /* Review approve for video.*/
   private static final String REVIEW_APPROVE = "approve";
   /* Review reject for video.*/
@@ -24,7 +22,7 @@ public class VideoReviewActivity extends BaseActivity {
   private VideoListResponse.DataBeanList.DataBean currentUnreviewedVideoData;
   private RelativeLayout approveRejectButtonsLayout;
   private Integer counter;
-  private VideoView videoView;
+  private VideoViewFragment videoView;
 
   @Override
   public int getContentView() {
@@ -46,8 +44,9 @@ public class VideoReviewActivity extends BaseActivity {
   @Override
   public void initViews() {
     approveRejectButtonsLayout = (RelativeLayout) findViewById(R.id.approve_reject_buttons_layout);
-    videoView = (VideoView) findViewById(R.id.video_view);
-    videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+    videoView = (VideoViewFragment) getSupportFragmentManager().findFragmentById(
+        R.id.fragment_video_view);
+    videoView.setVideoViewCompletionListener(new MediaPlayer.OnCompletionListener() {
       @Override
       public void onCompletion(MediaPlayer mp) {
         approveRejectButtonsLayout.setVisibility(View.VISIBLE);
@@ -58,12 +57,6 @@ public class VideoReviewActivity extends BaseActivity {
         view -> reviewVideo(REVIEW_REJECT));
     findViewById(R.id.review_result_approve_button).setOnClickListener(
         view -> reviewVideo(REVIEW_APPROVE));
-    findViewById(R.id.back_button)
-        .setOnClickListener(
-            view -> {
-              showDoneCountTask();
-              finish();
-            });
     videoReviewViewModel
         .getUnreviewedVideoResponseLiveData()
         .observe(
@@ -100,6 +93,7 @@ public class VideoReviewActivity extends BaseActivity {
                 nextUnreviewedVideoData();
                 return;
               }
+              Log.e(TAG, "Failed fetching review list.");
               ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
             });
     getUnreviewedVideoDataFromIntent();
@@ -120,33 +114,8 @@ public class VideoReviewActivity extends BaseActivity {
               String.format(
                   getString(R.string.label_review_word_prompt),
                   currentUnreviewedVideoData.getGlossText()));
-      if (videoView.isPlaying()) {
-        videoView.stopPlayback();
-      }
+      videoView.viewVideo(currentUnreviewedVideoData.getVideoPath());
       approveRejectButtonsLayout.setVisibility(View.INVISIBLE);
-      ProgressBar loadingProgressBar = (ProgressBar) findViewById(R.id.loading_progressbar);
-      String localVideoPath =
-          FileUtils.buildLocalVideoFilePath(
-              FileUtils.extractFileName(currentUnreviewedVideoData.getVideoPath()));
-      videoReviewViewModel
-          .getVideoFile(currentUnreviewedVideoData.getVideoPath(), localVideoPath)
-          .observe(
-              this,
-              downloadStatusData -> {
-                switch (downloadStatusData) {
-                  case SUCCESS:
-                    loadingProgressBar.setVisibility(View.GONE);
-                    videoView.setVideoPath(localVideoPath);
-                    videoView.start();
-                    break;
-                  case LOADING:
-                    loadingProgressBar.setVisibility(View.VISIBLE);
-                    break;
-                  case FAIL:
-                    finish();
-                    break;
-                }
-              });
     } else {
       videoReviewViewModel.getUnreviewedVideoList();
     }

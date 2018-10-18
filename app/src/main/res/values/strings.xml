@@ -55,8 +55,9 @@
   <string name="btn_cancel">关闭</string>
   <string name="demonstration">示范</string>
   <string name="thanks">"这次你录制了%d个视频，谢谢啦！"</string>
-  <string name="please_sign">请打手势: %s</string>
+  <string name="please_sign">请打手语: %s</string>
   <string name="open_camera_failed">打开相机失败</string>
+
   <!-- back_title -->
   <string name="btn_back">返回</string>
 
@@ -71,7 +72,7 @@
 
   <string name="no_new_task">没有新的任务</string>
   <!-- activity_setting -->
-  <string name="tv_prepare_time">录制间隔</string>
+  <string name="tv_prepare_time">录制准备时长</string>
   <string name="tv_record_time">录制时长调整</string>
   <string name="btn_help"> 积分规则介绍</string>
   <string name="btn_change_password"> 修改密码</string>
@@ -89,7 +90,7 @@
 
   <!-- activity_my_video -->
   <string name="title_my_video">我的视频</string>
-  <string name="label_self_reviewed_videos_count">已经审阅视频 %1$d 段，</string>
+  <string name="label_self_reviewed_videos_count">已经审核视频 %1$d 段，</string>
   <string name="label_self_created_videos_count">录制视频 %1$d 段， 其中</string>
   <string name="label_personal_rejected">未通过审核(共 %1$d 段)</string>
   <string name="label_personal_pending_approval">等待审核(共 %1$d 段)</string>
@@ -100,9 +101,9 @@
   <!-- activity_video_review -->
   <string name="button_review_result_approve">正确</string>
   <string name="button_review_result_reject">错误</string>
-  <string name="label_review_word_prompt">请审查 \"%1$s\" 手语视频</string>
+  <string name="label_review_word_prompt">审核 \"%1$s\"</string>
   <string name="label_task_number">任务 %1$d</string>
-  <string name="tip_finish_count_task"> 你已经完成了 %1$d 次评论，辛苦你了！</string>
+  <string name="tip_finish_count_task"> 你已经完成了 %1$d 次审核，辛苦你了！</string>
   <string name="tip_no_task"> 你没打过评分！</string>
   <string name="label_finish_all">你太给力啦！所有视频都被你审核过了，明天再来！</string>
   <string name="btn_ok">好的</string>
@@ -127,6 +128,7 @@
   <string name="tip_change_password_failed">修改密码失败</string>
   <string name="tip_passwords_not_equal">两次新密码不同</string>
   <string name="tip_new_password_is_equal_to_old">新旧密码不能一样</string>
+  <string name="tip_video_download_failure">视频下载失败</string>
   <string name="password_is_less_6_chars">密码不能少于 6 位</string>
   <string name="title_setting">设置</string>
     <string name="title_activity_agreement">AgreementActivity</string>
