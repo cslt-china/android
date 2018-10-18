@@ -8,15 +8,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /** The ApiHelper class provides an api helper in singleton mode. */
 public class ApiHelper {
-  public static final String PROTOCOL = "http";
-  public static final String DOMAIN_NAME = "140.143.180.224";
-
+  public static final String PROTOCOL = "https";
+  // Change to 140.143.180.224 once the Qcloud https host is setup;
+  public static final String DOMAIN_NAME = "cslt-211408.appspot.com";
   public static final String API_URL = String.format("%s://%s", PROTOCOL, DOMAIN_NAME);
 
   public static final String MEDIA_BASE_URL = API_URL;
 
-  public static final String AGREEMENTS_BASE_URL = String.format("%s://%s/%s", PROTOCOL, DOMAIN_NAME, "agreements");
-
+  // Change to  String.format("%s://%s/%s", PROTOCOL, DOMAIN_NAME, "agreements"); once
+  // Qcloud https host is setup;
+  public static final String AGREEMENTS_BASE_URL = "https://storage.googleapis.com/cslt-211408.appspot.com/static/agreements";
+  
   static {
     new ApiHelper();
   }
