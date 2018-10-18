@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -63,18 +62,18 @@ public class CameraViewModel extends AndroidViewModel {
 
     //access database and get a frame from video on the non-UI thread.
     new Thread(()->{
-      VideoUploadTask videoUploadTaskNew = new VideoUploadTask();
-      videoUploadTaskNew.setVideoPath(videoPath);
-      videoUploadTaskNew.setId(uuid);
+      VideoUploadTask task = new VideoUploadTask();
+      task.setVideoPath(videoPath);
+      task.setId(uuid);
       //VideoScreenUtils.screenFromVideo is a long time task, so move it to new thread
-      videoUploadTaskNew.setImagePath(VideoScreenUtils.screenFromVideo(videoPath));
+      task.setImagePath(VideoScreenUtils.screenFromVideo(videoPath));
       VideoUploadTask videoUploadTaskOld = videoUploadTaskDao.get(uuid);
       if (videoUploadTaskOld == null) {
-        Log.i(TAG, "insert video to Dao");
-        videoUploadTaskDao.insert(videoUploadTaskNew);
+        Log.i(TAG, "insert video to Dao: " + task);
+        videoUploadTaskDao.insert(task);
       } else {
-        Log.i(TAG, "update video to Dao");
-        videoUploadTaskDao.update(videoUploadTaskNew);
+        Log.i(TAG, "update video to Dao: " + task);
+        videoUploadTaskDao.update(task);
       }
     }).start();
   }
@@ -107,12 +106,30 @@ public class CameraViewModel extends AndroidViewModel {
   private Semaphore semaphore = new Semaphore(UPLOAD_CONCURRENT);
   private volatile boolean threadExitFlag = false;
 
+  private boolean checkTaskFileValid(VideoUploadTask task, String name, String path) {
+    if (path == null) {
+      Log.i(TAG, String.format("unvalid %s, no %s path", task, name));
+      return false;
+    }
+
+    File f = new File(path);
+    if (!f.exists()) {
+      Log.i(TAG, String.format("unvalid %s, %s path not exist %s", task, name, path));
+      return false;
+    }
+
+    return true;
+  }
+
+  private boolean checkTaskValid(VideoUploadTask task) {
+    return checkTaskFileValid(task, "video", task.getVideoPath())
+        && checkTaskFileValid(task, "image", task.getImagePath());
+  }
   /**
    * Used to take out video upload task list from the database and then save them to the
    * LinkedBlockingDeque to continue uploading.
    */
   public void startUploadThread() {
-    String uploadTag = "uploadvideo";
     threadExitFlag = false;
     new Thread(
         () -> {
@@ -123,19 +140,14 @@ public class CameraViewModel extends AndroidViewModel {
 
             for (VideoUploadTask videoUploadTask : videoUploadTaskList) {
 
-              runingList.add(videoUploadTask);
-              if (videoUploadTask.getVideoPath() == null ||
-                  videoUploadTask.getImagePath() == null) {
-                Log.i(uploadTag, String.format("unvalid task %d, %s %s, remove it",
-                                               videoUploadTask.getId(),
-                                               videoUploadTask.getVideoPath(),
-                                               videoUploadTask.getImagePath()));
+              if (!checkTaskValid(videoUploadTask)) {
+                Log.i(TAG, String.format("remove unvalid %s", videoUploadTask));
                 new Thread(()-> videoUploadTaskDao.delete(videoUploadTask)).start();
                 continue;
               }
-              Log.i(uploadTag, String.format("enqueue task %d %d %s", videoUploadTask.getId(),
-                                             videoUploadTask.hashCode(),
-                                             videoUploadTask.getVideoPath()));
+
+              runingList.add(videoUploadTask);
+              Log.i(TAG, String.format("enqueue task %s", videoUploadTask));
 
               try {
                 while (!semaphore.tryAcquire(3, TimeUnit.SECONDS)) {
@@ -148,23 +160,25 @@ public class CameraViewModel extends AndroidViewModel {
                 return;
               }
 
+              Log.i(TAG, String.format("acquired samaphore,  now availablePermits is %d",
+                                       semaphore.availablePermits()));
+
               UploadVideoCallback callback = new UploadVideoCallback() {
                 @Override
                 public void onCreateFailed(VideoUploadTask task, String errorMsg) {
-                  Log.i(uploadTag, String.format("create video failed: task %d  %d, error %s",
-                                                 task.getId(), task.hashCode(), errorMsg));
+                  Log.i(TAG, String.format("create video failed: %s, error %s", task, errorMsg));
+
                   runingList.remove(task);
-                  Log.i(uploadTag, String.format("running task size: %d", videoUploadTaskList.size()));
+                  Log.i(TAG, String.format("running task size: %d", videoUploadTaskList.size()));
                   semaphore.release();
                 }
 
                 @Override
                 public void onUploadFailed(VideoUploadTask task, String videoKey, String errorMsg) {
-                  String logInfo = String.format("task %d %d, error %s",
-                                                 task.getId(), task.hashCode(), errorMsg);
-                  Log.i(uploadTag, "upload video failed: " + logInfo);
+                  Log.i(TAG, String.format("upload video failed: %s, error %s ", task, errorMsg));
+
                   runingList.remove(task);
-                  Log.i(uploadTag, String.format("running task size: %d", videoUploadTaskList.size()));
+                  Log.i(TAG, String.format("running task size: %d", videoUploadTaskList.size()));
                   semaphore.release();
                 }
 
@@ -172,22 +186,20 @@ public class CameraViewModel extends AndroidViewModel {
                 public void onSuccess(VideoUploadTask task, String videoKey) {
                   //the callback is scheduled to UI thread. so start a new thread to access db.
                   new Thread(() -> {
-                    String logInfo = String.format("task %d %d", task.getId(), task.hashCode());
                     FileUtils.clearFile(task.getVideoPath());
                     FileUtils.clearFile(task.getImagePath());
 
                     videoUploadTaskDao.delete(task);
-                    Log.i(uploadTag, "upload video success: " + logInfo);
+                    Log.i(TAG, String.format("upload video success: %s", task));
+
                     runingList.remove(task);
-                    Log.i(uploadTag, String.format("running task size: %d", videoUploadTaskList.size()));
+                    Log.i(TAG, String.format("running task size: %d", videoUploadTaskList.size()));
                     semaphore.release();
                   }).start();
                 }
               };
 
-              Log.i(uploadTag, String.format("start task %d %d", videoUploadTask.getId(),
-                                             videoUploadTask.hashCode()));
-
+              Log.i(TAG, String.format("start task %s", videoUploadTask));
               uploadVideo(videoUploadTask, callback);
             }
 
@@ -226,8 +238,8 @@ public class CameraViewModel extends AndroidViewModel {
               Call<CreateVideoResponse> call, Response<CreateVideoResponse> response) {
             if (response.isSuccessful()) {
               String videoKey = response.body().getData().getUploadKey();
-              Log.i(TAG, String.format("create video success: task %d - video key %s",
-                                       task.getId(),
+              Log.i(TAG, String.format("create video success: %s - video key %s",
+                                       task,
                                        task.getVideoPath(),
                                        videoKey));
 
@@ -241,10 +253,13 @@ public class CameraViewModel extends AndroidViewModel {
                                                Response<UploadVideoResponse> response) {
 
                           if (response.isSuccessful()) {
-                            callback.onSuccess(task, videoKey);
+                            if (response.body().getCode() == 0) {
+                              callback.onSuccess(task, videoKey);
+                            } else {
+                              callback.onUploadFailed(task, videoKey, response.body().getMessage());
+                            }
                           } else {
-                            //TODO:
-                            callback.onUploadFailed(task, videoKey, "server error");
+                            callback.onUploadFailed(task, videoKey, response.message());
                           }
                         }
 

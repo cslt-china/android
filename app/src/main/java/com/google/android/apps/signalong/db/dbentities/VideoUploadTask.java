@@ -55,4 +55,9 @@ public class VideoUploadTask {
         this.id.equals(((VideoUploadTask)obj).id) &&
         this.videoPath.equals(((VideoUploadTask)obj).videoPath));
   }
+
+  @Override
+  public String toString() {
+    return String.format("<UploadTask: %d-%s>", id, videoPath);
+  }
 }
