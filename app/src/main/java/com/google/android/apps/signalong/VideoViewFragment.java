@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
 
@@ -21,9 +22,11 @@ import com.google.android.apps.signalong.utils.ToastUtils;
 
 public class VideoViewFragment extends Fragment {
   private static final String TAG = "[VideoViewFragment]";
+
   private View viewContainer;
   private VideoView videoView;
-  private ProgressBar progressBar;
+  private ProgressBar downloadProgressBar;
+  private MediaController mediaController;
 
   private DownloadFileService downloadFileService;
 
@@ -38,9 +41,14 @@ public class VideoViewFragment extends Fragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     viewContainer = inflater.inflate(R.layout.fragment_video_view, container, false);
+
+    downloadProgressBar = viewContainer.findViewById(R.id.video_loading_progressbar);
+
     videoView = viewContainer.findViewById(R.id.video_view);
     videoView = viewContainer.findViewById(R.id.video_view);
-    progressBar = viewContainer.findViewById(R.id.video_loading_progressbar);
+    mediaController = new MediaController(getActivity());
+    mediaController.setAnchorView(videoView);
+
     return viewContainer;
   }
 
@@ -69,12 +77,13 @@ public class VideoViewFragment extends Fragment {
               downloadStatusData -> {
                 switch (downloadStatusData) {
                   case SUCCESS:
-                    progressBar.setVisibility(View.GONE);
-                    videoView.setVideoPath(localVideoPath);
+                    downloadProgressBar.setVisibility(View.GONE);
+                    videoView.setVideoURI(FileUtils.buildUri(localVideoPath));
+                    videoView.setMediaController(mediaController);
                     videoView.start();
                     break;
                   case LOADING:
-                    progressBar.setVisibility(View.VISIBLE);
+                    downloadProgressBar.setVisibility(View.VISIBLE);
                     break;
                   case FAIL:
                     ToastUtils.show(null, getString(R.string.tip_video_download_failure));

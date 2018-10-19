@@ -1,5 +1,6 @@
 package com.google.android.apps.signalong.utils;
 
+import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 import java.io.File;
@@ -12,11 +13,7 @@ public class FileUtils {
 
   public static String extractFileName(String path) {
     if (!TextUtils.isEmpty(path) && path.endsWith(VIDEO_SUFFIX)) {
-
-      int index = path.lastIndexOf('/');
-      if (index != -1) {
-        return path.substring(index);
-      }
+      return new File(path).getName();
     }
     return null;
   }
@@ -35,8 +32,15 @@ public class FileUtils {
     return TextUtils.isEmpty(fileName)
         ? null
         : Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getPath()
-            + File.separator
-            + fileName;
+           + File.separator + fileName;
+  }
+
+  public static Uri buildUri(String filename) {
+    return Uri.fromFile((new File(filename)));
+  }
+
+  public static Uri buildLocalVideoUri(String filename) {
+    return Uri.fromFile(new File(buildLocalVideoFilePath(filename)));
   }
 
   public static void clearFile(String filePath) {

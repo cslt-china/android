@@ -108,6 +108,9 @@
   <string name="label_finish_all">你太给力啦！所有视频都被你审核过了，明天再来！</string>
   <string name="btn_ok">好的</string>
 
+  <!-- fragment_video_view -->
+  <string name="button_replay">重放</string>
+
   <string name="label_loading">加载中...</string>
 
   <!-- fragment_intro -->
