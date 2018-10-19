@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_centerInParent="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <fragment
+      android:id="@+id/fragment_reference_video_view"
+      android:name="com.google.android.apps.signalong.VideoViewFragment"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginBottom="50dp"/>
+
+    <TextView
+      android:id="@+id/button_start_recording"
+      android:text="@string/btn_start_recording"
+      android:background="@color/red"
+      android:textColor="@color/white"
+      android:layout_width="wrap_content"
+      android:layout_height="50dp"/>
+</LinearLayout>
