@@ -10,8 +10,29 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    signingConfigs {
+        release {
+            keyAlias "release"
+            keyPassword "/!U/S7c8op0d3uOV.DmF"
+            storeFile file("app/release.jks")
+            storePassword "/!yxhUt8dN/KZ,DwjF+0"
+        }
+
+        staging {
+            keyAlias "staging"
+            keyPassword "/!U/S7c8op0d3uOV.DmF"
+            storeFile file("app/staging.jks")
+            storePassword "/!yxhUt8dN/KZ,DwjF+0"
+        }
+    }
+
     buildTypes {
         release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        staging {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

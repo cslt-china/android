@@ -1,5 +1,7 @@
 package com.google.android.apps.signalong.api;
 
+import com.google.android.apps.signalong.utils.ConfigUtils;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
@@ -10,14 +12,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiHelper {
   public static final String PROTOCOL = "https";
   // Change to 140.143.180.224 once the Qcloud https host is setup;
-  public static final String DOMAIN_NAME = "cslt-211408.appspot.com";
+  public static final String DOMAIN_NAME = ConfigUtils.getDomainName();
   public static final String API_URL = String.format("%s://%s", PROTOCOL, DOMAIN_NAME);
 
   public static final String MEDIA_BASE_URL = API_URL;
 
   // Change to  String.format("%s://%s/%s", PROTOCOL, DOMAIN_NAME, "agreements"); once
   // Qcloud https host is setup;
-  public static final String AGREEMENTS_BASE_URL = "https://storage.googleapis.com/cslt-211408.appspot.com/static/agreements";
+  public static final String AGREEMENTS_BASE_URL = ConfigUtils.getAgreementsUrl();
   
   static {
     new ApiHelper();
