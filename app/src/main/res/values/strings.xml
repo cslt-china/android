@@ -58,6 +58,14 @@
   <string name="please_sign">请打手语: %s</string>
   <string name="open_camera_failed">打开相机失败</string>
 
+  <string name="label_recording_session_summary">"这次你录制了%d个视频，谢谢啦！"</string>
+  <!-- Recording session header -->
+  <string name="label_recording_task_title">任务 %1$d： %s</string>
+
+  <!-- fragment_reference_video_view -->
+  <string name="label_reference_video_title">通用手语示范</string>
+  <string name="btn_start_recording">开始录制</string>
+
   <!-- back_title -->
   <string name="btn_back">返回</string>
 
