@@ -15,4 +15,5 @@
     <color name="light_grey">#DCDCDC</color>
     <color name="red">#C43F38</color>
     <color name="green">#66AC5B</color>
+    <color name="disabled_green">#7F66AC5B</color>
 </resources>

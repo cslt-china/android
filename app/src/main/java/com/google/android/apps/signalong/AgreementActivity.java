@@ -2,29 +2,14 @@ package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.apps.signalong.api.ApiHelper;
-import com.google.android.apps.signalong.api.UserApi;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import com.google.android.apps.signalong.utils.ToastUtils;
 
@@ -42,6 +27,9 @@ public class AgreementActivity extends BaseActivity {
 
   @BindView(R.id.btn_confirm_agreement)
   Button btnConfirm;
+
+  @BindView(R.id.cb_agree)
+  CheckBox cbAgree;
 
   private String username;
 
@@ -62,15 +50,20 @@ public class AgreementActivity extends BaseActivity {
   @Override
   public void initViews() {
     ButterKnife.bind(this);
-    pdfView.setScaleType(ImageView.ScaleType.FIT_XY);
 
     String pdfUrl = String.format("%s/%s-agreement.png", ApiHelper.AGREEMENTS_BASE_URL, username);
-    Glide.with(this).load(pdfUrl).into(pdfView);
 
-    btnReject.setOnClickListener(view -> {
-      LoginSharedPreferences.clearUserData(getApplicationContext());
-      this.sendBroadcast(new Intent(EXIT_ACTION));
-    });
+    RequestOptions requestOptions = new RequestOptions()
+      .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
+      .skipMemoryCache(true);
+
+    Glide.with(this).load(pdfUrl).apply(requestOptions).into(pdfView);
+
+    toggleConfirmEnabled(false);
+
+    cbAgree.setOnCheckedChangeListener((compoundButton, b) -> toggleConfirmEnabled(b));
+
+    btnReject.setOnClickListener(view -> onBackPressed());
 
     btnConfirm.setOnClickListener(view -> {
       LoginSharedPreferences.saveConfirmedAgreement(getApplicationContext(), username);
@@ -82,5 +75,17 @@ public class AgreementActivity extends BaseActivity {
         }
       });
     });
+  }
+
+  @Override
+  public void onBackPressed() {
+    LoginSharedPreferences.clearUserData(getApplicationContext());
+    this.sendBroadcast(new Intent(EXIT_ACTION));
+  }
+
+  private void toggleConfirmEnabled(boolean b) {
+    btnConfirm.setEnabled(b);
+    btnConfirm.setBackgroundColor(getColor(b ? R.color.green : R.color.disabled_green));
+
   }
 }
