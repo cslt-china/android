@@ -3,8 +3,9 @@ package com.google.android.apps.signalong;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.IntentFilter;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,6 @@ import android.widget.TextView;
 import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.transitions.Transition;
 import com.github.oxo42.stateless4j.StateMachineConfig;
-import com.google.android.apps.signalong.broadcast.NetworkReceiver;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
@@ -35,20 +35,15 @@ import java.util.List;
  */
 public class CameraActivity extends BaseActivity {
 
-  static private String fsmTag = "StateMachine";
+  static private String fsmTag = "SignAlongStateMachine";
 
   private static final int LARGE_WORD_PROMPT_WAIT_TIME = 1500;
-  private static final int DISPLAY_START_TIME = 1000;
   /* Suffix of video file.*/
   private static final String VIDEO_SUFFIX = ".mp4";
+  private CountdownFragment countdownFragment;
   private CameraView cameraView;
-  private TextView countDownTextView;
-  private TextView wordTextView;
-  private TextView counterTextView;
-  private TextView largeWordTextView;
-  private ViewGroup largeWordPromptLayout;
+  private TextView titleTextView;
   private ViewGroup realRecordLayout;
-  private NetworkReceiver networkReceiver;
   private String videoFilePath;
   private CameraViewModel cameraViewModel;
   private ProgressBar progressBar;
@@ -56,7 +51,6 @@ public class CameraActivity extends BaseActivity {
   private int currentSignIndex;
   private LearnVideoDialog pausingDialog;
   ValueAnimator progressAnimator = ValueAnimator.ofInt(0, 100);
-  ValueAnimator countdownAnimator = new ValueAnimator();
 
   @Override
   public int getContentView() {
@@ -71,55 +65,62 @@ public class CameraActivity extends BaseActivity {
 
     initModel(()-> {
       cameraViewModel.startUploadThread();
-      makeVideoPath();
       startFSM();
     });
   }
 
   private void fireFsmEvent(FSMEvent event) {
-    runOnUiThread(()-> {
-      if (fsm == null || !fsm.canFire(event)) {
-        return;
-      }
-      Log.i(fsmTag, "before fire " + event);
-      fsm.fire(event);
-      Log.i(fsmTag, "after fire " + event);
-    });
+    if (fsm == null || !fsm.canFire(event)) {
+      return;
+    }
+    Log.i(fsmTag, "before fire " + event);
+    fsm.fire(event);
+    Log.i(fsmTag, "after fire " + event);
   }
 
   @Override
   public void initViews() {
     pausingDialog = new LearnVideoDialog();
-    countDownTextView = findViewById(R.id.count_down_text_view);
     progressBar = findViewById(R.id.progres_bar);
-    wordTextView = findViewById(R.id.word_text_view);
+    titleTextView = findViewById(R.id.topic_title);
     cameraView = findViewById(R.id.camera_view);
-    counterTextView = findViewById(R.id.counter_text_view);
-    largeWordTextView = findViewById(R.id.large_word_text_view);
-    largeWordPromptLayout = findViewById(R.id.large_word_prompt_layout);
-    realRecordLayout = findViewById(R.id.real_record_layout);
-
-    pausingDialog.setDialogListener(()->{
-      fireFsmEvent(FSMEvent.Continue);
-    });
-
-    realRecordLayout.setOnClickListener(view -> {
-      fireFsmEvent(FSMEvent.Pause);
-    });
+    realRecordLayout = findViewById(R.id.record_layout);
+    countdownFragment = (CountdownFragment)
+        getSupportFragmentManager().findFragmentById(R.id.countdown_fragment);
 
     cameraView.setCallBack(new CallBack() {
       @Override
       public void onCameraOpened() {
-        fillModel();
+
       }
       @Override
       public void onCameraError() {
+        //TODO: stop fsm
         finishWithToastInfo(getString(R.string.open_camera_failed));
       }
     });
 
     initCountdownAnimation();
     initProgressAnimation();
+    fillModel();
+  }
+
+  void initCountdownAnimation() {
+    countdownFragment.addListener(new CancelOrEndAnimatorListener() {
+      @Override
+      public void onStart(Animator animation) {
+      }
+      @Override
+      public void onEnd(Animator animation) {
+        Log.i("CameraActiviy", "countdown animation end");
+        fireFsmEvent(FSMEvent.Record);
+      }
+
+      @Override
+      public void onCancel(Animator animator) {
+        Log.i("CameraActiviy", "countdown animation canceled");
+      }
+    });
   }
 
   private void startFSM() {
@@ -156,56 +157,16 @@ public class CameraActivity extends BaseActivity {
         });
   }
 
-  private void initCountdownAnimation() {
-    countdownAnimator.addUpdateListener(animator -> {
-      long currentTime = animator.getCurrentPlayTime();
-      long totalTime = animator.getDuration();
-      long leftTime = totalTime - currentTime;
-
-      if (currentTime > LARGE_WORD_PROMPT_WAIT_TIME) {
-        largeWordPromptLayout.setVisibility(View.GONE);
-        realRecordLayout.setVisibility(View.VISIBLE);
-
-        if (leftTime <= DISPLAY_START_TIME) {
-          countDownTextView.setText(getString(R.string.start));
-        } else {
-          countDownTextView.setText(String.valueOf((leftTime - DISPLAY_START_TIME)/1000 + 1));
-          countDownTextView.invalidate();
-        }
-      }
-    });
-
-    countdownAnimator.addListener(new AnimatorListener() {
-      @Override
-      public void onStart(Animator animation) {
-        largeWordPromptLayout.setVisibility(View.VISIBLE);
-        realRecordLayout.setVisibility(View.GONE);
-      }
-      @Override
-      public void onEnd(Animator animation) {
-        Log.i("CameraActiviy", "countdown animation end");
-        fireFsmEvent(FSMEvent.Record);
-      }
-
-      @Override
-      public void onCancel(Animator animator) {
-        Log.i("CameraActiviy", "countdown animation canceled");
-      }
-    });
-  }
-
   private void startCountdownAnimation() {
+    int countDownSecond = VideoRecordingSharedPreferences.getTiming(
+        getApplicationContext(), TimingType.PREPARE_TIME);
+    String text = signPromptList.get(currentSignIndex).getText();
 
-    int countDownSecond = VideoRecordingSharedPreferences.getTiming(getApplicationContext(),
-        TimingType.PREPARE_TIME);
-    int totalTime = LARGE_WORD_PROMPT_WAIT_TIME + countDownSecond * 1000 + DISPLAY_START_TIME;
-    countdownAnimator.setIntValues(totalTime/100, 0);
-    countdownAnimator.setDuration(totalTime);
-    countdownAnimator.start();
+    countdownFragment.startAnimation(countDownSecond, text);
   }
 
   private void cancelCountdownAnimation() {
-    countdownAnimator.cancel();
+    countdownFragment.cancelAnimation();
   }
 
   private void initProgressAnimation() {
@@ -217,7 +178,7 @@ public class CameraActivity extends BaseActivity {
     });
 
     progressAnimator.addListener(
-        new AnimatorListener() {
+        new CancelOrEndAnimatorListener() {
           boolean valid;
           @Override
           public void onStart(Animator animator) {
@@ -226,7 +187,7 @@ public class CameraActivity extends BaseActivity {
           @Override
           public void onEnd(Animator animator) {
             Log.i("CameraActiviy", "progress animation end");
-            fireFsmEvent(FSMEvent.Next);
+            fireFsmEvent(FSMEvent.RecordingEnd);
           }
           @Override
           public void onCancel(Animator animator) {
@@ -258,9 +219,6 @@ public class CameraActivity extends BaseActivity {
   protected void onDestroy() {
     cameraView.closeCamera();
     cameraViewModel.stopUploadThread();
-    if (networkReceiver != null) {
-      unregisterReceiver(networkReceiver);
-    }
     super.onDestroy();
   }
 
@@ -287,9 +245,7 @@ public class CameraActivity extends BaseActivity {
   /** Update the contents of the view. */
   private void updateViewContent() {
     String text = signPromptList.get(currentSignIndex).getText();
-    largeWordTextView.setText(text);
-    wordTextView.setText(String.format(getString(R.string.please_sign), text));
-    counterTextView.setText(String.format(getString(R.string.label_counter), currentSignIndex + 1));
+    titleTextView.setText(String.format(getString(R.string.please_sign), text));
   }
 
   @Override
@@ -303,21 +259,75 @@ public class CameraActivity extends BaseActivity {
 
   enum FSMEvent {
     Start,
-    Next,
+    PrepareRecord,
     Record,
-    Pause,
-    Continue,
+    RecordingEnd,
+    Confirm,
+    Retry,
     Stop
   }
 
   enum FSMState {
-    Created,
+    Inited,
+    Learning,
     Countdowning,
-    CountdowningPaused,
     Recording,
-    RecordingPaused,
+    WaitingConfirm,
     Stopped
   }
+
+  StateMachine<FSMState, FSMEvent> fsm;
+
+  void initFSM() {
+
+    StateMachineConfig<FSMState, FSMEvent> config = new StateMachineConfig<>();
+
+    config.configure(FSMState.Inited)
+          .permit(FSMEvent.Start, FSMState.Learning)
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+    config.configure(FSMState.Learning)
+          .onEntry(this::entryLearning)
+          .onExit(this::exitLearning)
+          .permit(FSMEvent.PrepareRecord, FSMState.Countdowning)
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+    config.configure(FSMState.Countdowning)
+          .onEntry(this::entryCountdowning)
+          .onExit(this::exitCountdowning)
+          .permit(FSMEvent.Record, FSMState.Recording)
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+    config.configure(FSMState.Recording)
+          .onEntry(this::entryRecording)
+          .onExit(this::exitRecording)
+          .permit(FSMEvent.RecordingEnd, FSMState.WaitingConfirm)
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+    config.configure(FSMState.WaitingConfirm)
+          .onEntry(this::entryWaitingConfirm)
+          .onExit(this::exitWaitingConfirm)
+          .permit(FSMEvent.Retry, FSMState.Learning)
+          .permitDynamic(FSMEvent.Confirm,
+                         ()-> {
+                           Log.i(fsmTag, String.format("dyamic Confirm: currsignIndex %d", currentSignIndex));
+                           if (currentSignIndex < signPromptList.size() - 1) {
+                             return FSMState.Learning;
+                           } else {
+                             return FSMState.Stopped;
+                           }
+                         },
+                         ()-> currentSignIndex++
+                        )
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+
+    config.configure(FSMState.Stopped)
+          .onEntry(this::entryStopped);
+
+    fsm = new StateMachine<>(FSMState.Inited, config);
+  }
+
 
   private void showPausedDialog() {
     //make the dialog align to camereVieo
@@ -331,31 +341,38 @@ public class CameraActivity extends BaseActivity {
         signPromptList.get(currentSignIndex).getSampleVideo().getThumbnail());
   }
 
+  public void entryLearning() {
+    Log.i(fsmTag, "entryLearning");
+    //NOTE: not use runOnUiThread, because this is UI Thread.
+    //we must run it later
+    postToUIThread(()->fireFsmEvent(FSMEvent.PrepareRecord));
+  }
+
+  public void exitLearning() {
+    Log.i(fsmTag, "exitLearning");
+  }
+
   public void entryCountdowning() {
     Log.i(fsmTag, "entryCountdowning");
     cameraView.startPreview();
-    countDownTextView.setVisibility(View.VISIBLE);
+    realRecordLayout.setVisibility(View.GONE);
+    countdownFragment.setVisibility(View.VISIBLE);
     updateViewContent();
     startCountdownAnimation();
   }
 
   public void exitCountdowning(Transition<FSMState, FSMEvent> transition) {
     Log.i(fsmTag, "exitCountdowning");
-    if (transition.getTrigger() == FSMEvent.Record) {
-      countDownTextView.setVisibility(View.GONE);
-    }
+    countdownFragment.setVisibility(View.GONE);
     cancelCountdownAnimation();
   }
 
   public void entryRecording() {
     Log.i(fsmTag, "entryRecording");
+    realRecordLayout.setVisibility(View.VISIBLE);
+    makeVideoPath();
     cameraView.startRecord(videoFilePath);
     startProgressAnimation();
-  }
-
-  public void onFSMStopped() {
-    finishWithToastInfo(
-        (currentSignIndex > 0) ? String.format(getString(R.string.thanks), currentSignIndex) : null);
   }
 
   public void exitRecording(Transition<FSMState, FSMEvent> transition) {
@@ -364,13 +381,28 @@ public class CameraActivity extends BaseActivity {
     cancelProgressAnimation();
     progressBar.setProgress(0);
 
-    if (transition.getTrigger() == FSMEvent.Next) {
+  }
+
+  private void postToUIThread(Runnable r) {
+    Handler handler = new Handler(Looper.getMainLooper());
+    handler.post(r);
+  }
+
+  public void entryWaitingConfirm() {
+    postToUIThread(()->fsm.fire(FSMEvent.Confirm));
+  }
+
+  public void exitWaitingConfirm(Transition<FSMState, FSMEvent> transition) {
+    if (transition.getTrigger() == FSMEvent.Confirm) {
       uploadVideo();
-      currentSignIndex++;
-      makeVideoPath();
     } else {
       FileUtils.clearFile(videoFilePath);
     }
+  }
+
+  public void entryStopped() {
+    finishWithToastInfo(
+        (currentSignIndex > 0) ? String.format(getString(R.string.thanks), currentSignIndex) : null);
   }
 
   public void entryCountdowningPaused() {
@@ -381,84 +413,5 @@ public class CameraActivity extends BaseActivity {
   public void entryRecordingingPaused() {
     Log.i(fsmTag, "entryRecordingingPaused");
     showPausedDialog();
-  }
-
-  StateMachine<FSMState, FSMEvent> fsm;
-
-  void initFSM() {
-
-    StateMachineConfig<FSMState, FSMEvent> config = new StateMachineConfig<>();
-
-    config.configure(FSMState.Created).
-        permit(FSMEvent.Start, FSMState.Countdowning)
-        .permit(FSMEvent.Stop, FSMState.Stopped);
-
-    config.configure(FSMState.Countdowning)
-          .onEntry(this::entryCountdowning)
-          .onExit(this::exitCountdowning)
-          .permit(FSMEvent.Pause, FSMState.CountdowningPaused)
-          .permit(FSMEvent.Record, FSMState.Recording)
-          .permit(FSMEvent.Stop, FSMState.Stopped);
-
-    config.configure(FSMState.CountdowningPaused)
-          .onEntry(this::entryCountdowningPaused)
-          .permit(FSMEvent.Continue, FSMState.Countdowning)
-          .permit(FSMEvent.Stop, FSMState.Stopped);
-
-
-    config.configure(FSMState.Recording)
-          .onEntry(this::entryRecording)
-          .onExit(this::exitRecording)
-          .permitDynamic(FSMEvent.Next,
-                         ()-> {
-                           Log.i(fsmTag, String.format("dyamic next: currsignIndex %d", currentSignIndex));
-                           if (currentSignIndex < signPromptList.size() - 1) {
-                             return FSMState.Countdowning;
-                           } else {
-                             return FSMState.Stopped;
-                           }
-                         })
-          .permit(FSMEvent.Pause, FSMState.RecordingPaused)
-          .permit(FSMEvent.Stop, FSMState.Stopped);
-
-    config.configure(FSMState.RecordingPaused)
-          .onEntry(this::entryRecordingingPaused)
-          .permit(FSMEvent.Continue, FSMState.Countdowning)
-          .permit(FSMEvent.Stop, FSMState.Stopped);
-
-    config.configure(FSMState.Stopped)
-          .onEntry(this::onFSMStopped);
-
-
-    fsm = new StateMachine<>(FSMState.Created, config);
-  }
-
-  static abstract class AnimatorListener implements Animator.AnimatorListener {
-    private boolean valid;
-    @Override
-    final public void onAnimationStart(Animator animation) {
-      valid = true;
-      onStart(animation);
-    }
-
-    @Override
-    final public void onAnimationEnd(Animator animation) {
-      if (valid) {
-        onEnd(animation);
-      }
-    }
-
-    @Override
-    final public void onAnimationCancel(Animator animation) {
-      valid = false;
-      onCancel(animation);
-    }
-
-    @Override
-    final public void onAnimationRepeat(Animator animation) {}
-
-    abstract public void onStart(Animator animator);
-    abstract public void onEnd(Animator animator);
-    abstract public void onCancel(Animator animator);
   }
 }

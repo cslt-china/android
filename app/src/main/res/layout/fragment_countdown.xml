@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:background="@android:color/transparent"
+  android:foreground="@android:color/transparent"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+
+  <TextView
+    android:id="@+id/topic_title"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:layout_alignParentTop="true"
+    android:alpha="0.7"
+    android:background="@color/video_name_bg"
+    android:gravity="center"
+    android:textColor="@color/white"
+    android:textSize="30dp"
+    tools:text="@string/title_activity_agreement" />
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:background="@android:color/transparent"
+    android:foreground="@android:color/transparent"
+    android:layout_height="match_parent">
+
+  <TextView
+    android:id="@+id/count_text"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:gravity="center"
+    android:layout_gravity="center"
+    android:shadowColor="#ff000000"
+    android:shadowDx="15"
+    android:shadowDy="15"
+    android:shadowRadius="10"
+    android:background="@android:color/transparent"
+    android:textColor="@color/white"
+    android:textSize="60dp"
+    android:textStyle="bold"
+    android:alpha="0.7"
+    tools:text="@string/title_activity_agreement"
+    />
+  </RelativeLayout>
+
+</LinearLayout>
