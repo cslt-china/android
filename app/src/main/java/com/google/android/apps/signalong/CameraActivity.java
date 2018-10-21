@@ -1,17 +1,13 @@
 package com.google.android.apps.signalong;
 
 import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.transitions.Transition;
@@ -22,7 +18,6 @@ import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences.TimingType;
 import com.google.android.apps.signalong.widget.CameraView;
-import com.google.android.apps.signalong.widget.CameraView.CallBack;
 import com.google.android.apps.signalong.widget.LearnVideoDialog;
 
 import java.io.File;
@@ -41,16 +36,12 @@ public class CameraActivity extends BaseActivity {
   /* Suffix of video file.*/
   private static final String VIDEO_SUFFIX = ".mp4";
   private CountdownFragment countdownFragment;
-  private CameraView cameraView;
-  private TextView titleTextView;
-  private ViewGroup realRecordLayout;
+  private RecordFragment recordFragment;
   private String videoFilePath;
   private CameraViewModel cameraViewModel;
-  private ProgressBar progressBar;
   private List<SignPromptBatchResponse.DataBean> signPromptList;
   private int currentSignIndex;
   private LearnVideoDialog pausingDialog;
-  ValueAnimator progressAnimator = ValueAnimator.ofInt(0, 100);
 
   @Override
   public int getContentView() {
@@ -61,51 +52,51 @@ public class CameraActivity extends BaseActivity {
   public void init() {
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     currentSignIndex = 0;
-    initFSM();
 
-    initModel(()-> {
-      cameraViewModel.startUploadThread();
-      startFSM();
-    });
-  }
-
-  private void fireFsmEvent(FSMEvent event) {
-    if (fsm == null || !fsm.canFire(event)) {
-      return;
-    }
-    Log.i(fsmTag, "before fire " + event);
-    fsm.fire(event);
-    Log.i(fsmTag, "after fire " + event);
   }
 
   @Override
   public void initViews() {
     pausingDialog = new LearnVideoDialog();
-    progressBar = findViewById(R.id.progres_bar);
-    titleTextView = findViewById(R.id.topic_title);
-    cameraView = findViewById(R.id.camera_view);
-    realRecordLayout = findViewById(R.id.record_layout);
-    countdownFragment = (CountdownFragment)
-        getSupportFragmentManager().findFragmentById(R.id.countdown_fragment);
+    initCountdownFragment();
+    initRecordFragment();
+    initModel();
+  }
+  void initRecordFragment() {
+    recordFragment = (RecordFragment)
+        getSupportFragmentManager().findFragmentById(R.id.record_fragment);
 
-    cameraView.setCallBack(new CallBack() {
+    recordFragment.setCameraCallBack(new CameraView.CallBack() {
       @Override
       public void onCameraOpened() {
 
       }
       @Override
       public void onCameraError() {
-        //TODO: stop fsm
         finishWithToastInfo(getString(R.string.open_camera_failed));
       }
     });
 
-    initCountdownAnimation();
-    initProgressAnimation();
-    fillModel();
+    recordFragment.setRecordCallback(new CancelOrEndAnimatorListener() {
+      @Override
+      public void onStart(Animator animator) {
+        Log.i(fsmTag, "progress animation start");
+      }
+      @Override
+      public void onEnd(Animator animator) {
+        Log.i(fsmTag, "progress animation end");
+        fireFsmEvent(CameraActivity.FSMEvent.RecordingEnd);
+      }
+      @Override
+      public void onCancel(Animator animator) {
+        Log.i("CameraActiviy", "progress animation canceled");
+      }
+    });
   }
 
-  void initCountdownAnimation() {
+  void initCountdownFragment() {
+    countdownFragment = (CountdownFragment)
+        getSupportFragmentManager().findFragmentById(R.id.countdown_fragment);
     countdownFragment.addListener(new CancelOrEndAnimatorListener() {
       @Override
       public void onStart(Animator animation) {
@@ -123,15 +114,7 @@ public class CameraActivity extends BaseActivity {
     });
   }
 
-  private void startFSM() {
-    fireFsmEvent(FSMEvent.Start);
-  }
-
-  private void fillModel() {
-    cameraViewModel.getSignPromptBatch();
-  }
-
-  private void initModel(Runnable onResponseSuccess) {
+  private void initModel() {
     cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
     cameraViewModel
         .getSignPromptBatchResponseLiveData()
@@ -153,8 +136,31 @@ public class CameraActivity extends BaseActivity {
             finishWithToastInfo(getString(R.string.no_new_task));
             return;
           }
-          onResponseSuccess.run();
+
+          cameraViewModel.startUploadThread();
+          initFSM();
+          startFSM();
         });
+
+    cameraViewModel.getSignPromptBatch();
+  }
+
+
+  private void fireFsmEvent(FSMEvent event) {
+    if (fsm == null || !fsm.canFire(event)) {
+      return;
+    }
+    Log.i(fsmTag, "before fire " + event);
+    fsm.fire(event);
+    Log.i(fsmTag, "after fire " + event);
+  }
+
+  private void startFSM() {
+    fireFsmEvent(FSMEvent.Start);
+  }
+
+  private void stopFSM() {
+    fireFsmEvent(FSMEvent.Stop);
   }
 
   private void startCountdownAnimation() {
@@ -162,62 +168,12 @@ public class CameraActivity extends BaseActivity {
         getApplicationContext(), TimingType.PREPARE_TIME);
     String text = signPromptList.get(currentSignIndex).getText();
 
-    countdownFragment.startAnimation(countDownSecond, text);
-  }
-
-  private void cancelCountdownAnimation() {
-    countdownFragment.cancelAnimation();
-  }
-
-  private void initProgressAnimation() {
-    progressBar.setMax(100);
-    progressAnimator = ValueAnimator.ofInt(0, 100);
-    progressAnimator.addUpdateListener(valueAnimator ->
-    {
-      progressBar.setProgress((int) valueAnimator.getAnimatedValue());
-    });
-
-    progressAnimator.addListener(
-        new CancelOrEndAnimatorListener() {
-          boolean valid;
-          @Override
-          public void onStart(Animator animator) {
-            Log.i("CameraActiviy", "progress animation start");
-          }
-          @Override
-          public void onEnd(Animator animator) {
-            Log.i("CameraActiviy", "progress animation end");
-            fireFsmEvent(FSMEvent.RecordingEnd);
-          }
-          @Override
-          public void onCancel(Animator animator) {
-            Log.i("CameraActiviy", "progress animation canceled");
-          }
-        });
-  }
-
-  void startProgressAnimation() {
-    int scale = VideoRecordingSharedPreferences.getTiming(
-        getApplicationContext(), TimingType.RECORD_TIME_SCALE);
-
-    int recordingTime = (int)Math.ceil(
-        signPromptList.get(currentSignIndex).getDuration() / 1000.0 * scale / 100.0);
-
-    if (recordingTime < 2) {
-      recordingTime = 2;
-    }
-
-    progressAnimator.setDuration(recordingTime * 1000);
-    progressAnimator.start();
-  }
-
-  void cancelProgressAnimation() {
-    progressAnimator.cancel();
+    countdownFragment.startCountdown(countDownSecond, text);
   }
 
   @Override
   protected void onDestroy() {
-    cameraView.closeCamera();
+    recordFragment.closeCamera();
     cameraViewModel.stopUploadThread();
     super.onDestroy();
   }
@@ -245,13 +201,12 @@ public class CameraActivity extends BaseActivity {
   /** Update the contents of the view. */
   private void updateViewContent() {
     String text = signPromptList.get(currentSignIndex).getText();
-    titleTextView.setText(String.format(getString(R.string.please_sign), text));
   }
 
   @Override
   public void onBackPressed() {
     if (fsm != null && fsm.getState() != FSMState.Stopped) {
-      fireFsmEvent(FSMEvent.Stop);
+      stopFSM();
     } else {
       finish();
     }
@@ -330,11 +285,6 @@ public class CameraActivity extends BaseActivity {
 
 
   private void showPausedDialog() {
-    //make the dialog align to camereVieo
-    int[] location = new int[2];
-    cameraView.getLocationInWindow(location);
-    pausingDialog.setPosition(location[0], location[1],
-        cameraView.getWidth(), cameraView.getHeight());
     pausingDialog.show(getFragmentManager(),
         LearnVideoDialog.class.getName(),
         signPromptList.get(currentSignIndex).getSampleVideo().getVideoPath(),
@@ -354,8 +304,8 @@ public class CameraActivity extends BaseActivity {
 
   public void entryCountdowning() {
     Log.i(fsmTag, "entryCountdowning");
-    cameraView.startPreview();
-    realRecordLayout.setVisibility(View.GONE);
+    recordFragment.startPreview();
+    recordFragment.setVisibility(View.GONE);
     countdownFragment.setVisibility(View.VISIBLE);
     updateViewContent();
     startCountdownAnimation();
@@ -364,22 +314,26 @@ public class CameraActivity extends BaseActivity {
   public void exitCountdowning(Transition<FSMState, FSMEvent> transition) {
     Log.i(fsmTag, "exitCountdowning");
     countdownFragment.setVisibility(View.GONE);
-    cancelCountdownAnimation();
+    countdownFragment.cancelCountdown();
   }
 
   public void entryRecording() {
     Log.i(fsmTag, "entryRecording");
-    realRecordLayout.setVisibility(View.VISIBLE);
+    recordFragment.setVisibility(View.VISIBLE);
     makeVideoPath();
-    cameraView.startRecord(videoFilePath);
-    startProgressAnimation();
+
+    int scale = VideoRecordingSharedPreferences.getTiming(
+        getApplicationContext(), TimingType.RECORD_TIME_SCALE);
+
+    int recordingTime = (int)Math.ceil(
+        signPromptList.get(currentSignIndex).getDuration() / 1000.0 * scale / 100.0);
+    recordFragment.startRecord(signPromptList.get(currentSignIndex).getText(),
+                               videoFilePath, recordingTime);
   }
 
   public void exitRecording(Transition<FSMState, FSMEvent> transition) {
     Log.i(fsmTag, "exitRecording");
-    cameraView.stopRecording();
-    cancelProgressAnimation();
-    progressBar.setProgress(0);
+    recordFragment.stopRecording();
 
   }
 
