@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /** The ApiHelper class provides an api helper in singleton mode. */
 public class ApiHelper {
-  public static final String PROTOCOL = "https";
+  public static final String PROTOCOL = ConfigUtils.getProtocol();
   // Change to 140.143.180.224 once the Qcloud https host is setup;
   public static final String DOMAIN_NAME = ConfigUtils.getDomainName();
   public static final String API_URL = String.format("%s://%s", PROTOCOL, DOMAIN_NAME);
@@ -20,7 +20,7 @@ public class ApiHelper {
   // Change to  String.format("%s://%s/%s", PROTOCOL, DOMAIN_NAME, "agreements"); once
   // Qcloud https host is setup;
   public static final String AGREEMENTS_BASE_URL = ConfigUtils.getAgreementsUrl();
-  
+
   static {
     new ApiHelper();
   }
