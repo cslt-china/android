@@ -26,7 +26,7 @@
       android:layout_alignParentTop="true"
       android:layout_width="match_parent"
       android:layout_height="100dp"
-      android:id="@+id/topic_title"/>
+      android:id="@+id/camera_title"/>
     <ProgressBar
       android:id="@+id/progres_bar"
       android:layout_height="3dp"

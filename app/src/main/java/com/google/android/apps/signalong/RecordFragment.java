@@ -1,19 +1,14 @@
 package com.google.android.apps.signalong;
 
-import android.animation.Animator;
 import android.animation.ValueAnimator;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences;
 import com.google.android.apps.signalong.widget.CameraView;
 
 
@@ -29,7 +24,7 @@ public class RecordFragment extends Fragment {
                            Bundle savedInstanceState) {
     View fragmentgView = inflater.inflate(R.layout.fragment_record, container, false);
     progressBar = fragmentgView.findViewById(R.id.progres_bar);
-    titleTextView = fragmentgView.findViewById(R.id.topic_title);
+    titleTextView = fragmentgView.findViewById(R.id.camera_title);
     cameraView = fragmentgView.findViewById(R.id.camera_view);
     initProgressAnimation();
     return fragmentgView;
@@ -78,7 +73,7 @@ public class RecordFragment extends Fragment {
     progressAnimator.addListener(listener);
   }
 
-  //TODO: move to cameraview's onStop
+  //TODO: move to this fragment's onStop, not a public api
   public void closeCamera() {
     cameraView.closeCamera();
   }
