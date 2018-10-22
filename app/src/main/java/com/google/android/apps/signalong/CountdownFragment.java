@@ -51,7 +51,7 @@ public class CountdownFragment extends Fragment {
     return viewContainer;
   }
 
-  public void startAnimation(int countDownSecond, String text) {
+  public void startCountdown(int countDownSecond, String text) {
     titleTextView.setText(String.format(getString(R.string.please_sign), text));
     int totalTime = countDownSecond * 1000 + DISPLAY_START_TIME;
     animator.setIntValues(totalTime / 100, 0);
@@ -64,12 +64,12 @@ public class CountdownFragment extends Fragment {
     animator.addListener(listener);
   }
 
-  public void endAnimation() {
+  public void endCountdown() {
     animator.end();
     //Log.i(TAG, String.format("end countdowning"));
   }
 
-  public void cancelAnimation() {
+  public void cancelCountdown() {
     //Log.i(TAG, String.format("cancel countdowning"));
     animator.cancel();
   }

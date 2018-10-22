@@ -13,57 +13,11 @@
     android:background="@android:color/transparent"
     />
 
-  <RelativeLayout
-      android:background="@color/video_name_bg"
-      android:id="@+id/record_layout"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
+  <fragment
+    android:id="@+id/record_fragment"
+    android:name="com.google.android.apps.signalong.RecordFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    />
 
-    <com.google.android.apps.signalong.widget.CameraView
-        android:id="@+id/camera_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-      />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center">
-      <TextView
-          android:textColor="@color/white"
-          android:background="@color/video_name_bg"
-          android:alpha="0.7"
-          android:gravity="center"
-          android:textSize="30dp"
-          android:layout_alignParentTop="true"
-          android:layout_width="match_parent"
-          android:layout_height="100dp"
-          android:id="@+id/topic_title"/>
-      <ProgressBar
-          android:id="@+id/progres_bar"
-          android:layout_height="3dp"
-          android:layout_width="match_parent"
-          style="@android:style/Widget.ProgressBar.Horizontal"
-          />
-    </LinearLayout>
-
-
-    <com.google.android.apps.signalong.widget.RecordButton
-        android:background="@android:color/transparent"
-        android:id="@+id/record_start_button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="50dp"
-        android:layout_width="100dp"
-        android:layout_height="100dp" />
-    <Button
-        android:visibility="gone"
-        android:id="@+id/back_button"
-        android:textColor="@color/white"
-        android:background="@android:color/transparent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/btn_back"/>
-  </RelativeLayout>
 </RelativeLayout>
