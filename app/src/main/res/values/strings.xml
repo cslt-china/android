@@ -51,7 +51,6 @@
   <string name="btn_start_learn">开始学习</string>
   <string name="btn_start_record">开始录制</string>
   <string name="label_counter">第 %1$d 题</string>
-  <string name="btn_rerecord">重新录制</string>
   <string name="btn_cancel">关闭</string>
   <string name="demonstration">示范</string>
   <string name="thanks">"这次你录制了%d个视频，谢谢啦！"</string>
@@ -65,6 +64,11 @@
   <!-- fragment_reference_video_view -->
   <string name="label_reference_video_title">通用手语示范</string>
   <string name="btn_start_recording">开始录制</string>
+
+  <!-- fragment_recorded_view_view -->
+  <string name="label_recorded_video_title">检查刚录制的视频</string>
+  <string name="btn_retry">重录</string>
+  <string name="btn_submit">提交</string>
 
   <!-- back_title -->
   <string name="btn_back">返回</string>
@@ -83,7 +87,7 @@
   <string name="tv_prepare_time">录制准备时长</string>
   <string name="tv_record_time">录制时长调整</string>
   <string name="btn_help"> 积分规则介绍</string>
-  <string name="btn_change_password"> 修改密码</string>
+  <string name="btn_change_password">修改密码</string>
   <string name="btn_logout">退出帐号</string>
   <string name="title_activity_help">帮助</string>
   <string name="label_setting_prepare_time">%1$d 秒</string>

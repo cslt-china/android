@@ -13,6 +13,7 @@ import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.transitions.Transition;
 import com.github.oxo42.stateless4j.StateMachineConfig;
 import com.google.android.apps.signalong.ReferenceVideoViewFragment.OnReferenceCompletionListerner;
+import com.google.android.apps.signalong.SelfAssessRecordedVideoFragment.OnSelfAssessRecordedVideoListerner;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
@@ -27,7 +28,10 @@ import java.util.List;
  * CameraActivity implements video recording activity, reference code link
  * https://github.com/googlesamples/android-Camera2Video/blob/master/Application/src/main/java/com/example/android/camera2video/Camera2VideoFragment.java.
  */
-public class CameraActivity extends BaseActivity implements OnReferenceCompletionListerner {
+public class CameraActivity extends BaseActivity implements
+    OnReferenceCompletionListerner,
+    OnSelfAssessRecordedVideoListerner {
+  private static final String TAG = "CameraActivity";
 
   static private String fsmTag = "SignAlongStateMachine";
 
@@ -38,11 +42,12 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
   private ReferenceVideoViewFragment referenceFragment;
   private CountdownFragment countdownFragment;
   private RecordFragment recordFragment;
+  private SelfAssessRecordedVideoFragment assessmentFragment;
 
-  private String videoFilePath;
   private CameraViewModel cameraViewModel;
   private List<SignPromptBatchResponse.DataBean> signPromptList;
   private int currentSignIndex;
+  private String videoFilePath;
 
   @Override
   public int getContentView() {
@@ -60,12 +65,23 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
     initReferenceFragment();
     initCountdownFragment();
     initRecordFragment();
+    initAssessmentFragment();
     initModel();
   }
 
   @Override
-  public void onVideoViewCompletion() {
+  public void onReferenceVideoViewCompletion() {
     fireFsmEvent(FSMEvent.PrepareRecord);
+  }
+
+  @Override
+  public void onRejectRecordedVideo() {
+    fireFsmEvent(FSMEvent.Retry);
+  }
+
+  @Override
+  public void onAcceptRecordedVideo() {
+    fireFsmEvent(FSMEvent.Confirm);
   }
 
   private void initReferenceFragment() {
@@ -80,7 +96,6 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
     recordFragment.setCameraCallBack(new CameraView.CallBack() {
       @Override
       public void onCameraOpened() {
-
       }
       @Override
       public void onCameraError() {
@@ -96,7 +111,7 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
       @Override
       public void onEnd(Animator animator) {
         Log.i(fsmTag, "progress animation end");
-        fireFsmEvent(CameraActivity.FSMEvent.RecordingEnd);
+        fireFsmEvent(FSMEvent.RecordingEnd);
       }
       @Override
       public void onCancel(Animator animator) {
@@ -123,6 +138,11 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
         Log.i("CameraActiviy", "countdown animation canceled");
       }
     });
+  }
+
+  private void initAssessmentFragment() {
+    assessmentFragment = (SelfAssessRecordedVideoFragment)
+        getSupportFragmentManager().findFragmentById(R.id.self_assess_fragment);
   }
 
   private void initModel() {
@@ -209,11 +229,6 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
     finish();
   }
 
-  /** Update the contents of the view. */
-  private void updateViewContent() {
-    String text = signPromptList.get(currentSignIndex).getText();
-  }
-
   @Override
   public void onBackPressed() {
     if (fsm != null && fsm.getState() != FSMState.Stopped) {
@@ -273,18 +288,16 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
     config.configure(FSMState.WaitingConfirm)
           .onEntry(this::entryWaitingConfirm)
           .onExit(this::exitWaitingConfirm)
-          .permit(FSMEvent.Retry, FSMState.Learning)
-          .permitDynamic(FSMEvent.Confirm,
-                         ()-> {
-                           Log.i(fsmTag, String.format("dyamic Confirm: currsignIndex %d", currentSignIndex));
-                           if (currentSignIndex < signPromptList.size() - 1) {
-                             return FSMState.Learning;
-                           } else {
-                             return FSMState.Stopped;
-                           }
-                         },
-                         ()-> currentSignIndex++
-                        )
+          .permitDynamic(FSMEvent.Retry, () -> {
+            FileUtils.clearFile(videoFilePath);
+            return FSMState.Learning;
+          })
+          .permitDynamic(FSMEvent.Confirm, () -> {
+            Log.i(fsmTag, String.format("dyamic Confirm: currsignIndex %d", currentSignIndex));
+            uploadVideo();
+            currentSignIndex++;
+            return currentSignIndex < signPromptList.size() ? FSMState.Learning : FSMState.Stopped;
+          })
           .permit(FSMEvent.Stop, FSMState.Stopped);
 
 
@@ -296,11 +309,10 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
 
   public void entryLearning() {
     Log.i(fsmTag, "entryLearning");
-    //NOTE: not use runOnUiThread, because this is UI Thread.
-    //we must run it later
-    referenceFragment.setVisibility(View.VISIBLE);
     countdownFragment.setVisibility(View.GONE);
     recordFragment.setVisibility(View.GONE);
+    assessmentFragment.setVisibility(View.GONE);
+    referenceFragment.setVisibility(View.VISIBLE);
 
     referenceFragment.playReference(
         signPromptList.get(currentSignIndex).getText(),
@@ -315,16 +327,14 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
   public void entryCountdowning() {
     Log.i(fsmTag, "entryCountdowning");
     recordFragment.startPreview();
-    recordFragment.setVisibility(View.GONE);
     countdownFragment.setVisibility(View.VISIBLE);
-    updateViewContent();
     startCountdownAnimation();
   }
 
   public void exitCountdowning(Transition<FSMState, FSMEvent> transition) {
     Log.i(fsmTag, "exitCountdowning");
-    countdownFragment.setVisibility(View.GONE);
     countdownFragment.cancelCountdown();
+    countdownFragment.setVisibility(View.GONE);
   }
 
   public void entryRecording() {
@@ -343,24 +353,21 @@ public class CameraActivity extends BaseActivity implements OnReferenceCompletio
 
   public void exitRecording(Transition<FSMState, FSMEvent> transition) {
     Log.i(fsmTag, "exitRecording");
+    recordFragment.setVisibility(View.GONE);
     recordFragment.stopRecording();
   }
 
-  private void postToUIThread(Runnable r) {
-    Handler handler = new Handler(Looper.getMainLooper());
-    handler.post(r);
-  }
-
   public void entryWaitingConfirm() {
-    postToUIThread(()->fsm.fire(FSMEvent.Confirm));
+    assessmentFragment.setVisibility(View.VISIBLE);
+    String text = signPromptList.get(currentSignIndex).getText();
+    Log.i(TAG, "playback the recorded video for " + text + " from " + videoFilePath);
+    Log.i(TAG, "assessmentFragment" + String.valueOf(assessmentFragment));
+    assessmentFragment.playRecorded(
+      signPromptList.get(currentSignIndex).getText(), videoFilePath);
   }
 
   public void exitWaitingConfirm(Transition<FSMState, FSMEvent> transition) {
-    if (transition.getTrigger() == FSMEvent.Confirm) {
-      uploadVideo();
-    } else {
-      FileUtils.clearFile(videoFilePath);
-    }
+    assessmentFragment.setVisibility(View.GONE);
   }
 
   public void entryStopped() {

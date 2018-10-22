@@ -55,6 +55,11 @@ public class VideoViewFragment extends Fragment {
     videoView.setOnCompletionListener(listener);
   }
 
+  public void setVisibility(int visibility) {
+    videoView.setVisibility(visibility);
+    downloadProgressBar.setVisibility(visibility);
+  }
+
   public void stopPlayback() {
     if (videoView.isPlaying()) {
       videoView.stopPlayback();
@@ -72,33 +77,43 @@ public class VideoViewFragment extends Fragment {
       }
 
       stopPlayback();
-      String localVideoPath =
-          FileUtils.buildLocalVideoFilePath(FileUtils.extractFileName(videoPath));
-      this.getVideoFile(videoPath, localVideoPath)
-          .observe(
-              this,
-              downloadStatusData -> {
-                switch (downloadStatusData) {
-                  case SUCCESS:
-                    downloadProgressBar.setVisibility(View.GONE);
-                    videoView.setVideoURI(FileUtils.buildUri(localVideoPath));
-                    videoView.setMediaController(mediaController);
-                    videoView.start();
-                    break;
-                  case LOADING:
-                    downloadProgressBar.setVisibility(View.VISIBLE);
-                    break;
-                  case FAIL:
-                    ToastUtils.show(null, getString(R.string.tip_video_download_failure));
-                    Log.e("Failed downloading %s", videoPath);
-                    break;
-                }
-              });
+
+      Log.i(TAG, "view video from " + videoPath);
+      if (FileUtils.isFileExist(videoPath)) {
+        Log.i(TAG, "file already exists, no need to download.");
+        startPlayback(videoPath);
+      } else {
+        Log.i(TAG, "file is not loaded to local disk, start downloading");
+        String localVideoPath =
+            FileUtils.buildLocalVideoFilePath(FileUtils.extractFileName(videoPath));
+        this.getVideoFile(videoPath, localVideoPath)
+            .observe(
+                this,
+                downloadStatusData -> {
+                  switch (downloadStatusData) {
+                    case SUCCESS:
+                      downloadProgressBar.setVisibility(View.GONE);
+                      startPlayback(localVideoPath);
+                      break;
+                    case LOADING:
+                      downloadProgressBar.setVisibility(View.VISIBLE);
+                      break;
+                    case FAIL:
+                      ToastUtils.show(null, getString(R.string.tip_video_download_failure));
+                      Log.e("Failed downloading %s", videoPath);
+                      break;
+                  }
+                });
+      }
+  }
+
+  private void startPlayback(String localVideoPath) {
+    videoView.setVideoURI(FileUtils.buildUri(localVideoPath));
+    videoView.setMediaController(mediaController);
+    videoView.start();
   }
 
   private LiveData<DownloadStatusType> getVideoFile(String downloadUrl, String outputFilepath) {
     return downloadFileService.downloadFile(downloadUrl, outputFilepath);
   }
-
-
 }

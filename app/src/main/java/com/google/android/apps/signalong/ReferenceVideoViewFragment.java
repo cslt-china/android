@@ -1,6 +1,5 @@
 package com.google.android.apps.signalong;
 
-import android.app.Activity;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
@@ -11,8 +10,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.util.Log;
-import com.google.android.apps.signalong.VideoViewFragment;
-
 
 public class ReferenceVideoViewFragment extends Fragment {
   private static final String TAG = "ReferenceVideoViewFrag";
@@ -42,25 +39,20 @@ public class ReferenceVideoViewFragment extends Fragment {
       videoView.setVideoViewCompletionListener(new OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
-          viewCompletionCallback.onVideoViewCompletion();
+          viewCompletionCallback.onReferenceVideoViewCompletion();
         }
       });
       startRecordingTextView.setOnClickListener(new OnClickListener() {
         @Override
         public void onClick(View v) {
           videoView.stopPlayback();
-          viewCompletionCallback.onVideoViewCompletion();
+          viewCompletionCallback.onReferenceVideoViewCompletion();
         }
       });
     } catch (ClassCastException e) {
       throw new ClassCastException(getActivity().toString()
           + " must implet OnReferenceCompletionListerner");
     }
-  }
-
-  public void setVideoViewCompletionListener(MediaPlayer.OnCompletionListener listener) {
-    videoView.stopPlayback();
-    videoView.setVideoViewCompletionListener(listener);
   }
 
   public void playReference(String title, String videoPath) {
@@ -74,6 +66,6 @@ public class ReferenceVideoViewFragment extends Fragment {
   }
 
   public interface OnReferenceCompletionListerner {
-    public void onVideoViewCompletion();
+    public void onReferenceVideoViewCompletion();
   }
 }
