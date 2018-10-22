@@ -12,36 +12,37 @@ import android.view.WindowManager;
 import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.transitions.Transition;
 import com.github.oxo42.stateless4j.StateMachineConfig;
+import com.google.android.apps.signalong.ReferenceVideoViewFragment.OnReferenceCompletionListerner;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences.TimingType;
 import com.google.android.apps.signalong.widget.CameraView;
-import com.google.android.apps.signalong.widget.LearnVideoDialog;
 
 import java.io.File;
 import java.util.List;
-
 
 /**
  * CameraActivity implements video recording activity, reference code link
  * https://github.com/googlesamples/android-Camera2Video/blob/master/Application/src/main/java/com/example/android/camera2video/Camera2VideoFragment.java.
  */
-public class CameraActivity extends BaseActivity {
+public class CameraActivity extends BaseActivity implements OnReferenceCompletionListerner {
 
   static private String fsmTag = "SignAlongStateMachine";
 
   private static final int LARGE_WORD_PROMPT_WAIT_TIME = 1500;
   /* Suffix of video file.*/
   private static final String VIDEO_SUFFIX = ".mp4";
+
+  private ReferenceVideoViewFragment referenceFragment;
   private CountdownFragment countdownFragment;
   private RecordFragment recordFragment;
+
   private String videoFilePath;
   private CameraViewModel cameraViewModel;
   private List<SignPromptBatchResponse.DataBean> signPromptList;
   private int currentSignIndex;
-  private LearnVideoDialog pausingDialog;
 
   @Override
   public int getContentView() {
@@ -52,17 +53,27 @@ public class CameraActivity extends BaseActivity {
   public void init() {
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     currentSignIndex = 0;
-
   }
 
   @Override
   public void initViews() {
-    pausingDialog = new LearnVideoDialog();
+    initReferenceFragment();
     initCountdownFragment();
     initRecordFragment();
     initModel();
   }
-  void initRecordFragment() {
+
+  @Override
+  public void onVideoViewCompletion() {
+    fireFsmEvent(FSMEvent.PrepareRecord);
+  }
+
+  private void initReferenceFragment() {
+    referenceFragment = (ReferenceVideoViewFragment)
+        getSupportFragmentManager().findFragmentById((R.id.reference_fragment));
+  }
+
+  private void initRecordFragment() {
     recordFragment = (RecordFragment)
         getSupportFragmentManager().findFragmentById(R.id.record_fragment);
 
@@ -283,23 +294,22 @@ public class CameraActivity extends BaseActivity {
     fsm = new StateMachine<>(FSMState.Inited, config);
   }
 
-
-  private void showPausedDialog() {
-    pausingDialog.show(getFragmentManager(),
-        LearnVideoDialog.class.getName(),
-        signPromptList.get(currentSignIndex).getSampleVideo().getVideoPath(),
-        signPromptList.get(currentSignIndex).getSampleVideo().getThumbnail());
-  }
-
   public void entryLearning() {
     Log.i(fsmTag, "entryLearning");
     //NOTE: not use runOnUiThread, because this is UI Thread.
     //we must run it later
-    postToUIThread(()->fireFsmEvent(FSMEvent.PrepareRecord));
+    referenceFragment.setVisibility(View.VISIBLE);
+    countdownFragment.setVisibility(View.GONE);
+    recordFragment.setVisibility(View.GONE);
+
+    referenceFragment.playReference(
+        signPromptList.get(currentSignIndex).getText(),
+        signPromptList.get(currentSignIndex).getSampleVideo().getVideoPath());
   }
 
   public void exitLearning() {
     Log.i(fsmTag, "exitLearning");
+    referenceFragment.setVisibility(View.GONE);
   }
 
   public void entryCountdowning() {
@@ -334,7 +344,6 @@ public class CameraActivity extends BaseActivity {
   public void exitRecording(Transition<FSMState, FSMEvent> transition) {
     Log.i(fsmTag, "exitRecording");
     recordFragment.stopRecording();
-
   }
 
   private void postToUIThread(Runnable r) {
@@ -359,13 +368,4 @@ public class CameraActivity extends BaseActivity {
         (currentSignIndex > 0) ? String.format(getString(R.string.thanks), currentSignIndex) : null);
   }
 
-  public void entryCountdowningPaused() {
-    Log.i(fsmTag, "entryCountdowningPaused");
-    showPausedDialog();
-  }
-
-  public void entryRecordingingPaused() {
-    Log.i(fsmTag, "entryRecordingingPaused");
-    showPausedDialog();
-  }
 }
