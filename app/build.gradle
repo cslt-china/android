@@ -12,17 +12,12 @@ android {
     }
 
     signingConfigs {
+        // Note: 'release' and 'staging' shares the same keyPassword and storePassword.
+        //      But they have different *.jks file, 'app/staging.jks' and 'app/release.jks'.
         release {
             keyAlias "release"
             keyPassword "/!U/S7c8op0d3uOV.DmF"
             storeFile file("app/release.jks")
-            storePassword "/!yxhUt8dN/KZ,DwjF+0"
-        }
-
-        staging {
-            keyAlias "staging"
-            keyPassword "/!U/S7c8op0d3uOV.DmF"
-            storeFile file("app/staging.jks")
             storePassword "/!yxhUt8dN/KZ,DwjF+0"
         }
     }
