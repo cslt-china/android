@@ -5,6 +5,12 @@
     android:layout_height="match_parent">
 
   <fragment
+    android:id="@+id/reference_fragment"
+    android:name="com.google.android.apps.signalong.ReferenceVideoViewFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+  <fragment
     android:id="@+id/countdown_fragment"
     android:name="com.google.android.apps.signalong.CountdownFragment"
     android:layout_width="match_parent"

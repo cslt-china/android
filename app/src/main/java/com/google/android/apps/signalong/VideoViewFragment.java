@@ -45,7 +45,6 @@ public class VideoViewFragment extends Fragment {
     downloadProgressBar = viewContainer.findViewById(R.id.video_loading_progressbar);
 
     videoView = viewContainer.findViewById(R.id.video_view);
-    videoView = viewContainer.findViewById(R.id.video_view);
     mediaController = new MediaController(getActivity());
     mediaController.setAnchorView(videoView);
 
@@ -58,8 +57,12 @@ public class VideoViewFragment extends Fragment {
 
   public void stopPlayback() {
     if (videoView.isPlaying()) {
-        videoView.stopPlayback();
-      }
+      videoView.stopPlayback();
+      // This is necessary for the video view to play out a new video without displaying
+      // the stopped one.
+      videoView.setVisibility(View.GONE);
+      videoView.setVisibility(View.VISIBLE);
+    }
   }
 
   public void viewVideo(String videoPath) {

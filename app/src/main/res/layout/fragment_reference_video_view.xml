@@ -7,18 +7,49 @@
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
-    <fragment
-      android:id="@+id/fragment_reference_video_view"
-      android:name="com.google.android.apps.signalong.VideoViewFragment"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_marginBottom="50dp"/>
+    <TextView
+        android:textColor="@color/white"
+        android:background="@color/video_name_bg"
+        android:alpha="0.7"
+        android:gravity="center"
+        android:textSize="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:id="@+id/topic_title"/>
 
     <TextView
-      android:id="@+id/button_start_recording"
-      android:text="@string/btn_start_recording"
-      android:background="@color/red"
-      android:textColor="@color/white"
-      android:layout_width="wrap_content"
-      android:layout_height="50dp"/>
+        android:id="@+id/label_reference_video_title"
+        android:text="@string/label_reference_video_title"
+        android:textColor="@color/white"
+        android:background="@color/video_name_bg"
+        android:layout_width="match_parent"
+        android:gravity="center_horizontal"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+      <fragment
+          android:id="@+id/fragment_reference_video_view"
+          android:name="com.google.android.apps.signalong.VideoViewFragment"
+          android:layout_width="match_parent"
+          android:layout_height="fill_parent"
+          android:visibility="invisible"
+          android:layout_marginBottom="40dp"/>
+      <TextView
+          android:id="@+id/button_start_recording"
+          android:text="@string/btn_start_recording"
+          android:background="@color/red"
+          android:textColor="@color/white"
+          android:gravity="center"
+          android:layout_alignParentBottom="true"
+          android:layout_width="match_parent"
+          android:layout_height="40dp"
+          android:layout_marginTop="-40dp"/>
+    </LinearLayout>
+
+
 </LinearLayout>
