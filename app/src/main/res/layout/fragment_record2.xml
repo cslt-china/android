@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:background="@color/video_name_bg"
+  android:id="@+id/record_layout"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <com.google.android.apps.signalong.widget.AutoFitTextureView
+    android:id="@+id/texture"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentBottom="true"
+    />
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center">
+    <TextView
+      android:textColor="@color/white"
+      android:background="@color/video_name_bg"
+      android:alpha="0.7"
+      android:gravity="center"
+      android:textSize="30dp"
+      android:layout_alignParentTop="true"
+      android:layout_width="match_parent"
+      android:layout_height="100dp"
+      android:id="@+id/camera_title"/>
+    <ProgressBar
+      android:id="@+id/progres_bar"
+      android:layout_height="3dp"
+      android:layout_width="match_parent"
+      style="@android:style/Widget.ProgressBar.Horizontal"
+      />
+  </LinearLayout>
+
+
+  <Button
+    android:visibility="gone"
+    android:id="@+id/back_button"
+    android:textColor="@color/white"
+    android:background="@android:color/transparent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/btn_back"/>
+</RelativeLayout>
+

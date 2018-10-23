@@ -56,6 +56,7 @@
   <string name="thanks">"这次你录制了%d个视频，谢谢啦！"</string>
   <string name="please_sign">请打手语: %s</string>
   <string name="open_camera_failed">打开相机失败</string>
+  <string name="camera_error">This device doesn\'t support Camera2 API.</string>
 
   <string name="label_recording_session_summary">"这次你录制了%d个视频，谢谢啦！"</string>
   <!-- Recording session header -->

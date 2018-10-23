@@ -21,7 +21,7 @@
 
   <fragment
     android:id="@+id/record_fragment"
-    android:name="com.google.android.apps.signalong.RecordFragment"
+    android:name="com.google.android.apps.signalong.RecordFragment2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     />

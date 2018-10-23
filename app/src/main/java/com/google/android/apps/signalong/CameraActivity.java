@@ -41,9 +41,8 @@ public class CameraActivity extends BaseActivity implements
 
   private ReferenceVideoViewFragment referenceFragment;
   private CountdownFragment countdownFragment;
-  private RecordFragment recordFragment;
+  private RecordFragment2 recordFragment;
   private SelfAssessRecordedVideoFragment assessmentFragment;
-
   private CameraViewModel cameraViewModel;
   private List<SignPromptBatchResponse.DataBean> signPromptList;
   private int currentSignIndex;
@@ -90,32 +89,25 @@ public class CameraActivity extends BaseActivity implements
   }
 
   private void initRecordFragment() {
-    recordFragment = (RecordFragment)
+    recordFragment = (RecordFragment2)
         getSupportFragmentManager().findFragmentById(R.id.record_fragment);
 
-    recordFragment.setCameraCallBack(new CameraView.CallBack() {
+    recordFragment.setCameraCallback(new RecordFragment2.CameraCallback() {
       @Override
-      public void onCameraOpened() {
-      }
-      @Override
-      public void onCameraError() {
+      public void onError(String errorMessage) {
         finishWithToastInfo(getString(R.string.open_camera_failed));
+        Log.e(fsmTag, "open camera error: " + errorMessage);
       }
     });
 
-    recordFragment.setRecordCallback(new CancelOrEndAnimatorListener() {
-      @Override
-      public void onStart(Animator animator) {
-        Log.i(fsmTag, "progress animation start");
+    recordFragment.setRecordCallback(new RecordFragment2.RecordCallback() {
+      public void onFinished() {
+        Log.i(fsmTag, "recording finished");
+        fireFsmEvent(CameraActivity.FSMEvent.RecordingEnd);
       }
       @Override
-      public void onEnd(Animator animator) {
-        Log.i(fsmTag, "progress animation end");
-        fireFsmEvent(FSMEvent.RecordingEnd);
-      }
-      @Override
-      public void onCancel(Animator animator) {
-        Log.i("CameraActiviy", "progress animation canceled");
+      public void onCancel() {
+        Log.i(fsmTag, "recording is canceled");
       }
     });
   }
@@ -203,8 +195,13 @@ public class CameraActivity extends BaseActivity implements
   }
 
   @Override
+  protected void onPause() {
+    fireFsmEvent(FSMEvent.Retry);
+    super.onPause();
+  }
+
+  @Override
   protected void onDestroy() {
-    recordFragment.closeCamera();
     cameraViewModel.stopUploadThread();
     super.onDestroy();
   }
@@ -283,7 +280,9 @@ public class CameraActivity extends BaseActivity implements
           .onEntry(this::entryRecording)
           .onExit(this::exitRecording)
           .permit(FSMEvent.RecordingEnd, FSMState.WaitingConfirm)
-          .permit(FSMEvent.Stop, FSMState.Stopped);
+          .permitDynamic(FSMEvent.Stop,
+                         ()->FSMState.Stopped,
+                         ()->recordFragment.cancelRecording());
 
     config.configure(FSMState.WaitingConfirm)
           .onEntry(this::entryWaitingConfirm)
@@ -326,7 +325,6 @@ public class CameraActivity extends BaseActivity implements
 
   public void entryCountdowning() {
     Log.i(fsmTag, "entryCountdowning");
-    recordFragment.startPreview();
     countdownFragment.setVisibility(View.VISIBLE);
     startCountdownAnimation();
   }
@@ -353,9 +351,8 @@ public class CameraActivity extends BaseActivity implements
 
   public void exitRecording(Transition<FSMState, FSMEvent> transition) {
     Log.i(fsmTag, "exitRecording");
-    recordFragment.setVisibility(View.GONE);
-    recordFragment.stopRecording();
   }
+
 
   public void entryWaitingConfirm() {
     assessmentFragment.setVisibility(View.VISIBLE);
@@ -374,5 +371,4 @@ public class CameraActivity extends BaseActivity implements
     finishWithToastInfo(
         (currentSignIndex > 0) ? String.format(getString(R.string.thanks), currentSignIndex) : null);
   }
-
 }
