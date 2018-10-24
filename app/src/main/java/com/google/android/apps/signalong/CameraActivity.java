@@ -325,7 +325,9 @@ public class CameraActivity extends BaseActivity implements
 
   public void entryCountdowning() {
     Log.i(fsmTag, "entryCountdowning");
+    recordFragment.setVisibility(View.VISIBLE);
     countdownFragment.setVisibility(View.VISIBLE);
+    countdownFragment.getView().bringToFront();
     startCountdownAnimation();
   }
 
