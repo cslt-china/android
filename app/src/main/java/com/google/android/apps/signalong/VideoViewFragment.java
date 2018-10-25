@@ -20,7 +20,7 @@ import com.google.android.apps.signalong.service.DownloadFileServiceImpl;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 
-public class VideoViewFragment extends Fragment {
+public class VideoViewFragment extends BaseFragment {
   private static final String TAG = "[VideoViewFragment]";
 
   private View viewContainer;
@@ -58,6 +58,7 @@ public class VideoViewFragment extends Fragment {
   public void setVisibility(int visibility) {
     videoView.setVisibility(visibility);
     downloadProgressBar.setVisibility(visibility);
+    super.setVisibility(visibility);
   }
 
   public void stopPlayback() {

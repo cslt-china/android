@@ -7,8 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-
-public class SignTopicFragment extends Fragment {
+public class TopicFragment extends BaseFragment {
   private TextView indexView;
   private TextView topicTextView;
 
@@ -25,13 +24,11 @@ public class SignTopicFragment extends Fragment {
                                  false);
     indexView = view.findViewById(R.id.topic_counter_text_view);
     topicTextView = view.findViewById(R.id.topic_large_word_text_view);
-
     return view;
   }
 
   public void setTopicText(int index, String text) {
     topicTextView.setText(text);
-    indexView.setText(
-        String.format(getString(R.string.label_counter), index+1));
+    indexView.setText(String.format(getString(R.string.label_counter), index+1));
   }
 }

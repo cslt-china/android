@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.util.Log;
 
-public class ReferenceVideoViewFragment extends Fragment {
+public class ReferenceVideoViewFragment extends BaseFragment {
   private static final String TAG = "ReferenceVideoViewFrag";
   private VideoViewFragment videoView;
   private TextView titleTextView;
@@ -59,10 +59,6 @@ public class ReferenceVideoViewFragment extends Fragment {
     Log.i(TAG, "play reference video for " + title);
     titleTextView.setText(String.format(getString(R.string.please_sign), title));
     videoView.viewVideo(videoPath);
-  }
-
-  public void setVisibility(int visibility) {
-    getView().setVisibility(visibility);
   }
 
   public interface OnReferenceCompletionListerner {

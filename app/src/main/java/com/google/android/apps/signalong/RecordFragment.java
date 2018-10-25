@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.google.android.apps.signalong.widget.CameraView;
 
 
-public class RecordFragment extends Fragment {
+public class RecordFragment extends BaseFragment {
   private final String TAG = "RecordFragment";
   private CameraView cameraView;
   private TextView titleTextView;
@@ -28,10 +28,6 @@ public class RecordFragment extends Fragment {
     cameraView = fragmentgView.findViewById(R.id.camera_view);
     initProgressAnimation();
     return fragmentgView;
-  }
-
-  public void setVisibility(int visibility) {
-    getView().setVisibility(visibility);
   }
 
   private void initProgressAnimation() {
