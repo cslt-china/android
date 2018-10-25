@@ -62,6 +62,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public class RecordFragment2 extends Fragment {
 
@@ -296,6 +297,24 @@ public class RecordFragment2 extends Fragment {
     }
   }
 
+  static private float getRatio(Size size) {
+    return (float)size.getWidth()/(float)size.getHeight();
+  }
+
+  private void setBestMatchVideoAndPreviewSize(Size[] choices, int viewWidth,
+                                               int viewHeight) {
+    /*
+     The video size for deeplearing is much smaller than
+     which of camera captured video.
+     We need a fixed size which supported by as much as possible phone, and
+     suitble for portrait video.
+     So we select 1024x768.
+    */
+    mVideoSize = new Size(Config.RECORD_VIDEO_WIDTH,
+                          Config.RECORD_VIDEO_HEIGHT);
+    mPreviewSize = mVideoSize;
+  }
+
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
@@ -388,9 +407,13 @@ public class RecordFragment2 extends Fragment {
       if (map == null) {
         throw new RuntimeException("Cannot get available preview/video sizes");
       }
+      /*
       mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
       mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
                                        width, height, mVideoSize);
+                                       */
+      setBestMatchVideoAndPreviewSize(map.getOutputSizes(SurfaceTexture.class),
+                                      width, height);
 
       int orientation = getResources().getConfiguration().orientation;
       if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -528,14 +551,19 @@ public class RecordFragment2 extends Fragment {
     RectF bufferRect = new RectF(0, 0, mPreviewSize.getHeight(), mPreviewSize.getWidth());
     float centerX = viewRect.centerX();
     float centerY = viewRect.centerY();
+    bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
+
+    //scale to bufferRect
+    matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
+    float scale = Math.max(
+        (float) viewHeight / mPreviewSize.getHeight(),
+        (float) viewWidth / mPreviewSize.getWidth());
+    //rescale to restore view width or height
+    matrix.postScale(scale, scale, centerX, centerY);
+
     if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
-      bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
-      matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
-      float scale = Math.max(
-          (float) viewHeight / mPreviewSize.getHeight(),
-          (float) viewWidth / mPreviewSize.getWidth());
-      matrix.postScale(scale, scale, centerX, centerY);
-      matrix.postRotate(90 * (rotation - 2), centerX, centerY);
+      //the old code is 90 * (rotation - 2), it equals 360 - 90 * rotation
+      matrix.postRotate(360 - 90 * rotation, centerX, centerY);
     }
     mTextureView.setTransform(matrix);
   }
