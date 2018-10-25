@@ -14,7 +14,7 @@ import android.widget.TextView;
 import android.util.Log;
 
 
-public class SelfAssessRecordedVideoFragment extends Fragment {
+public class SelfAssessRecordedVideoFragment extends BaseFragment {
   private static final String TAG = "SelfAssessRecordedVideo";
   private VideoViewFragment videoView;
   private TextView titleTextView;
@@ -81,7 +81,7 @@ public class SelfAssessRecordedVideoFragment extends Fragment {
     retryButton.setEnabled(false);
     submitButton.setEnabled(false);
     videoView.setVisibility(visibility);
-    getView().setVisibility(visibility);
+    super.setVisibility(visibility);
   }
 
   public interface OnSelfAssessRecordedVideoListerner {

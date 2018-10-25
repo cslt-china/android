@@ -6,4 +6,6 @@ public class Config {
   public static final int RECORD_VIDEO_WIDTH = 1024;
   public static final int RECORD_VIDEO_HEIGHT = 768;
 
+  public static final int TOPIC_SHOW_SECOND = 2;
+
 }

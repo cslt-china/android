@@ -3,8 +3,6 @@ package com.google.android.apps.signalong;
 import android.animation.Animator;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,10 +17,11 @@ import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences.TimingType;
-import com.google.android.apps.signalong.widget.CameraView;
 
 import java.io.File;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * CameraActivity implements video recording activity, reference code link
@@ -39,6 +38,7 @@ public class CameraActivity extends BaseActivity implements
   /* Suffix of video file.*/
   private static final String VIDEO_SUFFIX = ".mp4";
 
+  private TopicFragment topicFragment;
   private ReferenceVideoViewFragment referenceFragment;
   private CountdownFragment countdownFragment;
   private RecordFragment2 recordFragment;
@@ -47,6 +47,7 @@ public class CameraActivity extends BaseActivity implements
   private List<SignPromptBatchResponse.DataBean> signPromptList;
   private int currentSignIndex;
   private String videoFilePath;
+  private Timer showTopicTimer = new Timer();
 
   @Override
   public int getContentView() {
@@ -61,11 +62,13 @@ public class CameraActivity extends BaseActivity implements
 
   @Override
   public void initViews() {
+    initTopicFragment();
     initReferenceFragment();
     initCountdownFragment();
     initRecordFragment();
     initAssessmentFragment();
     initModel();
+    hideAllFragment();
   }
 
   @Override
@@ -81,6 +84,11 @@ public class CameraActivity extends BaseActivity implements
   @Override
   public void onAcceptRecordedVideo() {
     fireFsmEvent(FSMEvent.Confirm);
+  }
+
+  private void initTopicFragment() {
+    topicFragment = (TopicFragment)
+        getSupportFragmentManager().findFragmentById((R.id.topic_fragment));
   }
 
   private void initReferenceFragment() {
@@ -203,6 +211,7 @@ public class CameraActivity extends BaseActivity implements
   @Override
   protected void onDestroy() {
     cameraViewModel.stopUploadThread();
+    showTopicTimer.cancel();
     super.onDestroy();
   }
 
@@ -237,6 +246,8 @@ public class CameraActivity extends BaseActivity implements
 
   enum FSMEvent {
     Start,
+    ShowTopic,
+    Learn,
     PrepareRecord,
     Record,
     RecordingEnd,
@@ -247,6 +258,7 @@ public class CameraActivity extends BaseActivity implements
 
   enum FSMState {
     Inited,
+    ShowingTopic,
     Learning,
     Countdowning,
     Recording,
@@ -261,7 +273,13 @@ public class CameraActivity extends BaseActivity implements
     StateMachineConfig<FSMState, FSMEvent> config = new StateMachineConfig<>();
 
     config.configure(FSMState.Inited)
-          .permit(FSMEvent.Start, FSMState.Learning)
+          .permit(FSMEvent.Start, FSMState.ShowingTopic)
+          .permit(FSMEvent.Stop, FSMState.Stopped);
+
+    config.configure(FSMState.ShowingTopic)
+          .onEntry(this::entryShowingTopic)
+          .onExit(this::exitShowingTopic)
+          .permit(FSMEvent.Learn, FSMState.Learning)
           .permit(FSMEvent.Stop, FSMState.Stopped);
 
     config.configure(FSMState.Learning)
@@ -295,7 +313,7 @@ public class CameraActivity extends BaseActivity implements
             Log.i(fsmTag, String.format("dyamic Confirm: currsignIndex %d", currentSignIndex));
             uploadVideo();
             currentSignIndex++;
-            return currentSignIndex < signPromptList.size() ? FSMState.Learning : FSMState.Stopped;
+            return currentSignIndex < signPromptList.size() ? FSMState.ShowingTopic : FSMState.Stopped;
           })
           .permit(FSMEvent.Stop, FSMState.Stopped);
 
@@ -306,12 +324,28 @@ public class CameraActivity extends BaseActivity implements
     fsm = new StateMachine<>(FSMState.Inited, config);
   }
 
+
+  public void entryShowingTopic() {
+    showFragment(topicFragment);
+    topicFragment.setTopicText(
+        currentSignIndex,
+        signPromptList.get(currentSignIndex).getText());
+
+    showTopicTimer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+        runOnUiThread(()-> fireFsmEvent(FSMEvent.Learn) );
+      }
+    }, Config.TOPIC_SHOW_SECOND * 1000);
+  }
+
+  public void exitShowingTopic() {
+    Log.i(fsmTag, "exitShowingTopic");
+  }
+
   public void entryLearning() {
     Log.i(fsmTag, "entryLearning");
-    countdownFragment.setVisibility(View.GONE);
-    recordFragment.setVisibility(View.GONE);
-    assessmentFragment.setVisibility(View.GONE);
-    referenceFragment.setVisibility(View.VISIBLE);
+    showFragment(referenceFragment);
 
     referenceFragment.playReference(
         signPromptList.get(currentSignIndex).getText(),
@@ -320,25 +354,22 @@ public class CameraActivity extends BaseActivity implements
 
   public void exitLearning() {
     Log.i(fsmTag, "exitLearning");
-    referenceFragment.setVisibility(View.GONE);
   }
 
   public void entryCountdowning() {
     Log.i(fsmTag, "entryCountdowning");
-    recordFragment.setVisibility(View.VISIBLE);
-    countdownFragment.setVisibility(View.VISIBLE);
-    countdownFragment.getView().bringToFront();
+    showTowFragments(countdownFragment, recordFragment);
     startCountdownAnimation();
   }
 
   public void exitCountdowning(Transition<FSMState, FSMEvent> transition) {
     Log.i(fsmTag, "exitCountdowning");
     countdownFragment.cancelCountdown();
-    countdownFragment.setVisibility(View.GONE);
   }
 
   public void entryRecording() {
     Log.i(fsmTag, "entryRecording");
+    showFragment(recordFragment);
     recordFragment.setVisibility(View.VISIBLE);
     makeVideoPath();
 
@@ -357,7 +388,7 @@ public class CameraActivity extends BaseActivity implements
 
 
   public void entryWaitingConfirm() {
-    assessmentFragment.setVisibility(View.VISIBLE);
+    showFragment(assessmentFragment);
     String text = signPromptList.get(currentSignIndex).getText();
     Log.i(TAG, "playback the recorded video for " + text + " from " + videoFilePath);
     Log.i(TAG, "assessmentFragment" + String.valueOf(assessmentFragment));
@@ -366,11 +397,32 @@ public class CameraActivity extends BaseActivity implements
   }
 
   public void exitWaitingConfirm(Transition<FSMState, FSMEvent> transition) {
-    assessmentFragment.setVisibility(View.GONE);
+    Log.i(fsmTag, "exitWaitingConfirm");
   }
 
   public void entryStopped() {
     finishWithToastInfo(
         (currentSignIndex > 0) ? String.format(getString(R.string.thanks), currentSignIndex) : null);
+  }
+
+  private void hideAllFragment() {
+    topicFragment.setVisibility(View.GONE);
+    countdownFragment.setVisibility(View.GONE);
+    recordFragment.setVisibility(View.GONE);
+    assessmentFragment.setVisibility(View.GONE);
+    referenceFragment.setVisibility(View.GONE);
+  }
+
+  private void showFragment(BaseFragment fragment) {
+    hideAllFragment();
+    fragment.setVisibility(View.VISIBLE);
+  }
+
+  private void showTowFragments(BaseFragment upperFragment,
+                                BaseFragment lowerFragment) {
+    hideAllFragment();
+    lowerFragment.setVisibility(View.VISIBLE);
+    upperFragment.setVisibility(View.VISIBLE);
+    upperFragment.getView().bringToFront();
   }
 }

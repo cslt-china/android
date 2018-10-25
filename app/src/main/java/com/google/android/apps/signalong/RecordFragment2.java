@@ -62,9 +62,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
-public class RecordFragment2 extends Fragment {
+public class RecordFragment2 extends BaseFragment {
 
 
   private static final int SENSOR_ORIENTATION_DEFAULT_DEGREES = 90;
@@ -737,6 +736,7 @@ public class RecordFragment2 extends Fragment {
     public void onEnd(Animator animator) {
       stopRecordingVideo();
       mRecordCallback.onFinished();
+      progressBar.setProgress(0);
     }
     public void onCancel(Animator animator) {
       stopRecordingVideo();
@@ -760,7 +760,4 @@ public class RecordFragment2 extends Fragment {
     progressBar.setProgress(0);
   }
 
-  public void setVisibility(int visibility) {
-    getView().setVisibility(visibility);
-  }
 }

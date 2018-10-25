@@ -2,13 +2,21 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+  <fragment
+    android:id="@+id/topic_fragment"
+    android:name="com.google.android.apps.signalong.TopicFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
 
   <fragment
     android:id="@+id/reference_fragment"
     android:name="com.google.android.apps.signalong.ReferenceVideoViewFragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    />
 
   <fragment
     android:id="@+id/countdown_fragment"

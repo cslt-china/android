@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class CountdownFragment extends Fragment {
+public class CountdownFragment extends BaseFragment {
   private final String TAG = "CountdownFragment";
 
   private static final int DISPLAY_START_TIME = 1000;
@@ -72,10 +72,6 @@ public class CountdownFragment extends Fragment {
   public void cancelCountdown() {
     //Log.i(TAG, String.format("cancel countdowning"));
     animator.cancel();
-  }
-
-  public void setVisibility(int visibility) {
-    getView().setVisibility(visibility);
   }
 }
 
