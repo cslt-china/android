@@ -2,7 +2,7 @@ package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.LiveData;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.os.Environment;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +20,9 @@ import com.google.android.apps.signalong.service.DownloadFileServiceImpl;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 
+import java.io.File;
+import java.io.IOException;
+
 public class VideoViewFragment extends BaseFragment {
   private static final String TAG = "[VideoViewFragment]";
 
@@ -27,6 +30,8 @@ public class VideoViewFragment extends BaseFragment {
   private VideoView videoView;
   private ProgressBar downloadProgressBar;
   private MediaController mediaController;
+  private String tmpFileForPlayer;
+  private File tmpDir;
 
   private DownloadFileService downloadFileService;
 
@@ -48,7 +53,24 @@ public class VideoViewFragment extends BaseFragment {
     mediaController = new MediaController(getActivity());
     mediaController.setAnchorView(videoView);
 
+    videoView.setOnErrorListener((MediaPlayer mp, int what, int extra)->{
+      Log.e(TAG, String.format("player error %d, %d", what, extra));
+        return false;
+    });
+
+    tmpDir = new File(this.getActivity().getExternalFilesDir(Environment.DIRECTORY_MOVIES), "temp_videos");
+    tmpDir.mkdirs();
+    tmpFileForPlayer = new File(tmpDir, String.format("player_tmp_file_%d", hashCode())).getPath();
+
     return viewContainer;
+  }
+
+  @Override
+  public void onDestroy() {
+    if (tmpDir != null) {
+      FileUtils.clearDir(tmpDir.getPath());
+    }
+    super.onDestroy();
   }
 
   public void setVideoViewCompletionListener(MediaPlayer.OnCompletionListener listener) {
@@ -76,17 +98,18 @@ public class VideoViewFragment extends BaseFragment {
         Log.e(TAG, "No VideoView element!");
         return;
       }
-
       stopPlayback();
 
       Log.i(TAG, "view video from " + videoPath);
+
       if (FileUtils.isFileExist(videoPath)) {
         Log.i(TAG, "file already exists, no need to download.");
         startPlayback(videoPath);
       } else {
         Log.i(TAG, "file is not loaded to local disk, start downloading");
         String localVideoPath =
-            FileUtils.buildLocalVideoFilePath(FileUtils.extractFileName(videoPath));
+            new File(tmpDir, FileUtils.extractFileName(videoPath)).getPath();
+        //TODO: remove the file after playback
         this.getVideoFile(videoPath, localVideoPath)
             .observe(
                 this,
@@ -109,7 +132,20 @@ public class VideoViewFragment extends BaseFragment {
   }
 
   private void startPlayback(String localVideoPath) {
-    videoView.setVideoURI(FileUtils.buildUri(localVideoPath));
+    if (videoView.isPlaying()) {
+      videoView.stopPlayback();
+    }
+
+    try {
+      //copy to a const tmp file is to prevent videoView play a removed file,
+      //when its visibility is changed.
+      FileUtils.copy(localVideoPath, tmpFileForPlayer);
+    } catch (IOException e) {
+      e.printStackTrace();
+      return;
+    }
+
+    videoView.setVideoURI(FileUtils.buildUri(tmpFileForPlayer));
     videoView.setMediaController(mediaController);
     videoView.start();
   }

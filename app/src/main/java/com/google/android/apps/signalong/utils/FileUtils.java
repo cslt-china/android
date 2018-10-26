@@ -1,9 +1,15 @@
 package com.google.android.apps.signalong.utils;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /** FileUtils wraps a variety of useful file processing. */
 public class FileUtils {
@@ -35,6 +41,13 @@ public class FileUtils {
            + File.separator + fileName;
   }
 
+  public static String buildLocalTempFilePath(Context context, String fileName) {
+    return TextUtils.isEmpty(fileName)
+           ? null
+           : context.getExternalFilesDir(Environment.DIRECTORY_MOVIES).getPath()
+             + File.separator + fileName;
+  }
+
   public static Uri buildUri(String filename) {
     return Uri.fromFile((new File(filename)));
   }
@@ -48,5 +61,44 @@ public class FileUtils {
     if (!TextUtils.isEmpty(filePath) && file.exists() && file.isFile()) {
       file.delete();
     }
+  }
+
+  public static long getFileSize(String filePath) {
+    File file = new File(filePath);
+    return file.length();
+  }
+
+  public static void copy(String srcPath, String dstPath) throws IOException {
+    try (InputStream in = new FileInputStream(srcPath)) {
+      try (OutputStream out = new FileOutputStream(dstPath)) {
+        byte[] buf = new byte[1024 * 4];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+          out.write(buf, 0, len);
+        }
+      }
+    }
+  }
+
+  public static boolean clearDir(String path) {
+    File dir = new File(path);
+
+    if (!dir.exists()) {
+      return false;
+    }
+
+    File[] files = dir.listFiles();
+    if(files != null) {
+      for(File file : files) {
+        if(file.isDirectory()) {
+          clearDir(file.getPath());
+        }
+        else {
+          file.delete();
+        }
+      }
+    }
+
+    return(dir.delete());
   }
 }
