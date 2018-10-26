@@ -27,6 +27,8 @@ import android.util.Log;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import java.util.HashMap;
+import java.util.Map;
 import retrofit2.Response;
 
 public class MyVideoFragment extends Fragment {
@@ -36,6 +38,7 @@ public class MyVideoFragment extends Fragment {
 
   private MyVideoViewModel myVideoViewModel;
   private View viewContainer;
+  private Map<PersonalVideoStatus, RecyclerView> recyclerViewMap;
   private TaskViewAdapter pendingTaskViewAdapter;
   private TaskViewAdapter rejectedTaskViewAdapter;
   private TaskViewAdapter approvedTaskViewAdapter;
@@ -43,6 +46,7 @@ public class MyVideoFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    recyclerViewMap = new HashMap<PersonalVideoStatus, RecyclerView>();
     myVideoViewModel = ViewModelProviders.of(this).get(MyVideoViewModel.class);
     myVideoViewModel.getPersonalVideoList(PersonalVideoStatus.REJECTED);
     myVideoViewModel.getPersonalVideoList(PersonalVideoStatus.PENDING_APPROVAL);
@@ -64,6 +68,13 @@ public class MyVideoFragment extends Fragment {
     super.onActivityCreated(savedInstanceState);
     initProfileView();
     initVideoListView();
+    recyclerViewMap.put(PersonalVideoStatus.REJECTED,
+        viewContainer.findViewById(R.id.my_rejected_videos_recyclerview));
+    recyclerViewMap.put(PersonalVideoStatus.PENDING_APPROVAL,
+        viewContainer.findViewById(R.id.my_recent_videos_recyclerview));
+    recyclerViewMap.put(PersonalVideoStatus.APPROVED,
+        viewContainer.findViewById(R.id.my_approved_videos_recyclerview));
+
     initRecyclerView(R.id.my_recent_videos_recyclerview, pendingTaskViewAdapter);
     initRecyclerView(R.id.my_rejected_videos_recyclerview, rejectedTaskViewAdapter);
     initRecyclerView(R.id.my_approved_videos_recyclerview, approvedTaskViewAdapter);
@@ -146,6 +157,11 @@ public class MyVideoFragment extends Fragment {
                 Context context = getActivity().getApplicationContext();
                 VideoListResponse.DataBeanList datalist = videoListResponseData.getDataBeanList();
                 Log.i(TAG, "video list data " + videoStatus + datalist.getData().size());
+                if (datalist.getData().size() == 0) {
+                  recyclerViewMap.get(videoStatus).setVisibility(View.GONE);
+                } else {
+                  recyclerViewMap.get(videoStatus).setVisibility(View.VISIBLE);
+                }
                 switch (videoStatus) {
                   case REJECTED:
                     rejectedTaskViewAdapter.setVideoList(context, datalist,
