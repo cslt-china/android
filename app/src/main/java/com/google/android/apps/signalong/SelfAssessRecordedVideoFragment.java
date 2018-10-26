@@ -78,8 +78,8 @@ public class SelfAssessRecordedVideoFragment extends BaseFragment {
   }
 
   public void setVisibility(int visibility) {
-    retryButton.setEnabled(false);
-    submitButton.setEnabled(false);
+    retryButton.setEnabled(visibility==View.VISIBLE);
+    submitButton.setEnabled(visibility==View.VISIBLE);
     videoView.setVisibility(visibility);
     super.setVisibility(visibility);
   }

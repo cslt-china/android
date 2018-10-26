@@ -69,14 +69,19 @@ public class ProfileResponse extends BaseResponse{
       @SerializedName("upload_sample_score")
       private int uploadSampleScore;
 
+      // The number of review tasks the user participated.
       @SerializedName("review_video_count")
       private int videoReviewCount;
+      // The number of recording tasks the user participated.
       @SerializedName("create_video_count")
       private int videoCreationCount;
+      // Not used.
       @SerializedName("create_gloss_count")
       private int glossCreationCount;
+      // The number of videos the user has been reviewed by others.
       @SerializedName("video_quality_count")
       private int videoQualityCount;
+      // Not used.
       @SerializedName("upload_sample_count")
       private int uploadSampleCount;
 

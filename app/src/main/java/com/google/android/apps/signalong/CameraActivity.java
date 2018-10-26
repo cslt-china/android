@@ -1,7 +1,10 @@
 package com.google.android.apps.signalong;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +16,7 @@ import com.github.oxo42.stateless4j.StateMachineConfig;
 import com.google.android.apps.signalong.ReferenceVideoViewFragment.OnReferenceCompletionListerner;
 import com.google.android.apps.signalong.SelfAssessRecordedVideoFragment.OnSelfAssessRecordedVideoListerner;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
+import com.google.android.apps.signalong.utils.ActivityUtils;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences;
@@ -22,17 +26,22 @@ import java.io.File;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import retrofit2.Response;
 
 /**
  * CameraActivity implements video recording activity, reference code link
  * https://github.com/googlesamples/android-Camera2Video/blob/master/Application/src/main/java/com/example/android/camera2video/Camera2VideoFragment.java.
  */
 public class CameraActivity extends BaseActivity implements
+    CameraViewModel.SignPromptBatchResponseCallbacks,
     OnReferenceCompletionListerner,
     OnSelfAssessRecordedVideoListerner {
   private static final String TAG = "CameraActivity";
 
-  static private String fsmTag = "SignAlongStateMachine";
+  private static String fsmTag = "SignAlongStateMachine";
+
+  // Accepted intent param.
+  public static final String RECORDING_TASK_PARAM = "recording_param";
 
   private static final int LARGE_WORD_PROMPT_WAIT_TIME = 1500;
   /* Suffix of video file.*/
@@ -69,6 +78,11 @@ public class CameraActivity extends BaseActivity implements
     initAssessmentFragment();
     initModel();
     hideAllFragment();
+  }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
   }
 
   @Override
@@ -147,35 +161,37 @@ public class CameraActivity extends BaseActivity implements
 
   private void initModel() {
     cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
-    cameraViewModel
-        .getSignPromptBatchResponseLiveData()
-        .observe( this, signPromptBatchResponse -> {
-          if (signPromptBatchResponse == null) {
-            finishWithToastInfo(getString(R.string.tip_request_fail));
-            return;
-          }
-
-          if (!signPromptBatchResponse.isSuccessful()
-              || signPromptBatchResponse.body().getCode() != 0) {
-            finishWithToastInfo(getString(R.string.tip_request_fail));
-            return;
-          }
-
-          signPromptList = signPromptBatchResponse.body().getData();
-
-          if (signPromptList == null || signPromptList.isEmpty()) {
-            finishWithToastInfo(getString(R.string.no_new_task));
-            return;
-          }
-
-          cameraViewModel.startUploadThread();
-          initFSM();
-          startFSM();
-        });
-
-    cameraViewModel.getSignPromptBatch();
+    signPromptList = ActivityUtils.parseRecordingTaskFromIntent(this);
+    if (signPromptList != null && signPromptList.size() > 0) {
+      Log.i(TAG, "parsed prompt data from intent.");
+      startWithPromptData();
+    } else {
+      Log.i(TAG, "fetch prompt data from server");
+      cameraViewModel.getSignPromptBatch(this);
+    }
   }
 
+  public void onSuccessSignPromptBatchResponse(Response<SignPromptBatchResponse> response) {
+    if (response != null && response.body() != null && response.body().getCode() == 0) {
+      signPromptList = response.body().getData();
+      if (signPromptList == null || signPromptList.isEmpty()) {
+        finishWithToastInfo(getString(R.string.no_new_task));
+      } else {
+        startWithPromptData();
+      }
+    } else {
+      finishWithToastInfo(getString(R.string.tip_request_fail));
+    }
+  }
+
+  public void onFailureResponse() {
+  }
+
+  private void startWithPromptData() {
+    cameraViewModel.startUploadThread();
+    initFSM();
+    startFSM();
+  }
 
   private void fireFsmEvent(FSMEvent event) {
     if (fsm == null || !fsm.canFire(event)) {

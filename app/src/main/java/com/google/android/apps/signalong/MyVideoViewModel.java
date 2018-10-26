@@ -33,6 +33,7 @@ public class MyVideoViewModel extends AndroidViewModel {
     PENDING_APPROVAL
   }
 
+  private static final int LIST_SIZE = 8;
   private final VideoApi videoApi;
   private final UserApi userApi;
   private final Map<PersonalVideoStatus, MutableLiveData<Response<VideoListResponse>>>
@@ -50,12 +51,13 @@ public class MyVideoViewModel extends AndroidViewModel {
     profileResponseLiveData = new MutableLiveData<>();
   }
 
-  public MutableLiveData<Response<VideoListResponse>> getPersonalVideoList(
+  public void getPersonalVideoList(
       PersonalVideoStatus videoStatus) {
     videoApi
         .getPersonalVideoList(
             LoginSharedPreferences.getAccessToken(getApplication()),
-            videoStatus.name().toLowerCase())
+            videoStatus.name().toLowerCase(),
+            LIST_SIZE)
         .enqueue(
             new Callback<VideoListResponse>() {
               @Override
@@ -69,6 +71,10 @@ public class MyVideoViewModel extends AndroidViewModel {
                 personalVideoList.get(videoStatus).setValue(null);
               }
             });
+  }
+
+  public MutableLiveData<Response<VideoListResponse>> getPersonalVideoListMutableLiveData(
+      PersonalVideoStatus videoStatus) {
     return personalVideoList.get(videoStatus);
   }
 

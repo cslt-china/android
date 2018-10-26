@@ -107,6 +107,9 @@ public class MyVideoActivity extends BaseActivity {
   @Override
   public void init() {
     myVideoViewModel = ViewModelProviders.of(this).get(MyVideoViewModel.class);
+    myVideoViewModel.getPersonalVideoList(PersonalVideoStatus.REJECTED);
+    myVideoViewModel.getPersonalVideoList(PersonalVideoStatus.PENDING_APPROVAL);
+    myVideoViewModel.getPersonalVideoList(PersonalVideoStatus.APPROVED);
   }
 
   @Override
@@ -120,7 +123,7 @@ public class MyVideoActivity extends BaseActivity {
               startActivity(new Intent(getApplicationContext(), SettingActivity.class));
             });
     initProfileView();
-    initVideoListEntites();
+    initVideoListEntities();
   }
 
   @Override
@@ -161,7 +164,7 @@ public class MyVideoActivity extends BaseActivity {
 
   }
 
-  private void initVideoListEntites() {
+  private void initVideoListEntities() {
     videoListEntities =  ImmutableList.of(
         new VideoListEntity(PersonalVideoStatus.APPROVED,
             R.string.label_personal_approved,
@@ -177,7 +180,7 @@ public class MyVideoActivity extends BaseActivity {
             R.id.rejected_video_recycler_view));
     for(VideoListEntity entity : videoListEntities) {
       myVideoViewModel
-          .getPersonalVideoList(entity.getVideoStatus())
+          .getPersonalVideoListMutableLiveData(entity.getVideoStatus())
           .observe(
               this,
               videoListResponse -> {

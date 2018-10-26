@@ -123,7 +123,8 @@ public class VideoViewFragment extends BaseFragment {
                       downloadProgressBar.setVisibility(View.VISIBLE);
                       break;
                     case FAIL:
-                      ToastUtils.show(null, getString(R.string.tip_video_download_failure));
+                      ToastUtils.show(getActivity().getApplicationContext(),
+                          getString(R.string.tip_video_download_failure));
                       Log.e("Failed downloading %s", videoPath);
                       break;
                   }

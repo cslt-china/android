@@ -54,10 +54,13 @@ public interface VideoApi {
    * Get a batch of words.
    *
    * @param authorization access jsonTokenId.
+   * @param limit is used to specify how many data to load per query.
    * @return a batch of data. if the access jsonTokenId is invalid, return no.
    */
   @GET("/api/bunch/")
-  Call<SignPromptBatchResponse> getSignPromptBatch(@Header("Authorization") String authorization);
+  Call<SignPromptBatchResponse> getSignPromptBatch(
+      @Header("Authorization") String authorization,
+      @Query("limit") Integer limit);
 
   /**
    * Get a batch of unreviewed video.
@@ -80,11 +83,14 @@ public interface VideoApi {
    *
    * @param authorization access jsonTokenId.
    * @param status is used to obtain a type of video such as approving approved rejected.
+   * @param limit is used to specify how many data to load per query.
    * @return a batch of personal video data.
    */
   @GET("/api/videos/self")
   Call<VideoListResponse> getPersonalVideoList(
-      @Header("Authorization") String authorization, @Query("status") String status);
+      @Header("Authorization") String authorization,
+      @Query("status") String status,
+      @Query("limit") Integer limit);
   /**
    * reviewVideo is used to review for the video.
    *

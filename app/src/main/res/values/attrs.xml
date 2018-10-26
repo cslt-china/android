@@ -1,0 +1,9 @@
+<resources>
+   <declare-styleable name="TaskTextView">
+     <attr name="displayText" format="string" />
+     <attr name="taskType" format="enum">
+       <enum name="recording" value="0"/>
+       <enum name="review" value="1"/>
+     </attr>
+   </declare-styleable>
+</resources>

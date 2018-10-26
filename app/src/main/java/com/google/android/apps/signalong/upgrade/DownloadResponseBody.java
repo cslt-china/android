@@ -12,6 +12,7 @@ import okio.BufferedSource;
 import okio.ForwardingSource;
 import okio.Okio;
 import okio.Source;
+import okio.Timeout;
 
 /**
  * Created by yonglew@ on 10/22/18
@@ -63,6 +64,12 @@ public class DownloadResponseBody extends ResponseBody {
           }
         }
         return bytesRead;
+      }
+
+      @Override
+      public Timeout timeout() {
+        downloadListener.onError("Read timeout");
+        return super.timeout();
       }
     };
   }
