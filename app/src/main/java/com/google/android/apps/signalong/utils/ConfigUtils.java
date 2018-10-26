@@ -17,6 +17,14 @@ public class ConfigUtils {
   private static final String STAGING_DOMAIN_NAME = "cslt-211408.appspot.com";
   private static final String DEV_DOMAIN_NAME = "cslt-211408.appspot.com";
 
+  private static final String PROD_UPDATE_APK_BASE_URL = "https://cslt-211408.firebaseapp.com/";
+  private static final String PROD_UPDATE_APK_CHECK_VERSION_URL = "/release-apk/cslt-release-version.txt";
+  private static final String PROD_UPDATE_APK_DOWNLOAD_APK_URL = "/release-apk/cslt-release.apk";
+
+  private static final String DEV_UPDATE_APK_BASE_URL = "https://cslt-211408.firebaseapp.com/";
+  private static final String DEV_UPDATE_APK_CHECK_VERSION_URL = "/staging-apk/cslt-staging-version.txt";
+  private static final String DEV_UPDATE_APK_DOWNLOAD_APK_URL = "/staging-apk/cslt-staging.apk";
+
   public static String getProtocol() {
     if (BuildConfig.DEBUG) {
       return PROTOCOL_HTTP;
@@ -44,6 +52,30 @@ public class ConfigUtils {
       return String.format("%s://storage.googleapis.com/%s/static/agreements", getProtocol(), getDomainName());
     } else {
       return String.format("%s://storage.googleapis.com/%s/static/agreements", getProtocol(), getDomainName());
+    }
+  }
+
+  public static String getUpdateApkBaseUrl() {
+    if (BUILD_TYPE_RELEASE.equals(BuildConfig.BUILD_TYPE)) {
+      return PROD_UPDATE_APK_BASE_URL;
+    } else {
+      return DEV_UPDATE_APK_BASE_URL;
+    }
+  }
+
+  public static String getUpdateApkCheckVersionUrl() {
+    if (BUILD_TYPE_RELEASE.equals(BuildConfig.BUILD_TYPE)) {
+      return PROD_UPDATE_APK_CHECK_VERSION_URL;
+    } else {
+      return DEV_UPDATE_APK_CHECK_VERSION_URL;
+    }
+  }
+
+  public static String getUpdateApkDownloadApkUrl() {
+    if (BUILD_TYPE_RELEASE.equals(BuildConfig.BUILD_TYPE)) {
+      return PROD_UPDATE_APK_DOWNLOAD_APK_URL;
+    } else {
+      return DEV_UPDATE_APK_DOWNLOAD_APK_URL;
     }
   }
 }

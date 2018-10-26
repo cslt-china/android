@@ -11,15 +11,21 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
+
 import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.ScoresBean;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList.DataBean;
+import com.google.android.apps.signalong.upgrade.UpgradeManager;
 import com.google.android.apps.signalong.utils.IntroSharedPreferences;
 import com.google.android.apps.signalong.utils.IntroSharedPreferences.IntroType;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
+import com.google.android.apps.signalong.utils.NetworkUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
+
 import java.util.ArrayList;
 
-/** Android signalong App. */
+/**
+ * Android signalong App.
+ */
 public class SignAlongActivity extends BaseActivity {
   /* This provides parameters for communication between activities for videoReviewActivity. */
   public static final String UNREVIEW_PARAM = "unreview_param";
@@ -34,10 +40,14 @@ public class SignAlongActivity extends BaseActivity {
   private static final String[] REVIEW_VIDEO_PERMISSIONS = {
     Manifest.permission.WRITE_EXTERNAL_STORAGE,
   };
+  private static final String[] UPGRADE_APP_PERMISSIONS = {
+      Manifest.permission.WRITE_EXTERNAL_STORAGE
+  };
   /* The code requesting record video permission is used to compare whether to permit or reject.*/
   private static final int REQUEST_RECORD_VIDEO_PERMISSIONS = 5;
   /* The code requesting review video permission is used to compare whether to permit or reject.*/
   private static final int REQUEST_REVIEW_VIDEO_PERMISSIONS = 6;
+  private static final int REQUEST_UPGRADE_APP_PERMISSION_CODE = 7;
   private SignAlongViewModel signAlongViewModel;
   private UnreviewedVideoGridAdapter unreviewedVideoGridAdapter;
   private Intent intentToVideoReview;
@@ -60,6 +70,8 @@ public class SignAlongActivity extends BaseActivity {
                 String username = LoginSharedPreferences.getCurrentUsername(getApplicationContext());
                 if(!LoginSharedPreferences.getConfirmedAgreement(getApplicationContext(), username)) {
                   startConfirmAgreementActivity();
+                } else {
+                  checkUpdate();
                 }
               } else {
                 startLoginActivity();
@@ -217,6 +229,22 @@ public class SignAlongActivity extends BaseActivity {
     initUserData();
   }
 
+  private void checkUpdate() {
+    // Check permission
+    if (!isHavePermission(UPGRADE_APP_PERMISSIONS)) {
+      // Request permission.
+      requestPermissions(UPGRADE_APP_PERMISSIONS, REQUEST_UPGRADE_APP_PERMISSION_CODE);
+      return;
+    }
+    // Check SharedPreference
+    if (UpgradeManager.isTodayChecked(this)) return;
+
+    NetworkUtils.NetworkType networkType = NetworkUtils.checkNetworkStatus(this);
+    // Get version code and compare.
+    new UpgradeManager(this).checkVersion(networkType);
+  }
+
+
   private boolean isHavePermission(String[] permissions) {
     for (String permission : permissions) {
       if (ActivityCompat.checkSelfPermission(this, permission)
@@ -243,6 +271,13 @@ public class SignAlongActivity extends BaseActivity {
       } else {
         ToastUtils.show(getApplicationContext(), getString(R.string.tip_refuse_permission));
       }
+    } else if (requestCode == REQUEST_UPGRADE_APP_PERMISSION_CODE) {
+      if (isHavePermission(UPGRADE_APP_PERMISSIONS)) {
+        checkUpdate();
+      } else {
+        ToastUtils.show(getApplicationContext(), getString(R.string.upgrade_request_permission_hint));
+      }
+
     }
     super.onRequestPermissionsResult(requestCode, permissions, permissionsStatus);
   }
