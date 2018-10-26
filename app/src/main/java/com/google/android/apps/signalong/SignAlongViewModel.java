@@ -15,9 +15,11 @@ import com.google.android.apps.signalong.api.VideoApi;
 import com.google.android.apps.signalong.jsonentities.AuthResponse;
 import com.google.android.apps.signalong.jsonentities.ProfileResponse;
 import com.google.android.apps.signalong.jsonentities.RefreshRequest;
+import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList.DataBean;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
+import com.google.android.apps.signalong.utils.TimerUtils;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import retrofit2.Call;
@@ -29,7 +31,7 @@ import retrofit2.Response;
  */
 public class SignAlongViewModel extends AndroidViewModel {
 
-  private static final Integer PAGE_SIZE = 10;
+  private static final Integer PAGE_SIZE = 8;
   /* This is used as a parameter for the request to get all the videos.*/
   private static final String SELF_ALL_VIDEO_STATUS = "all";
   /* This is used as a parameter for the request to get the not approve videos.*/
@@ -37,7 +39,9 @@ public class SignAlongViewModel extends AndroidViewModel {
   private final UserApi userApi;
   private final VideoApi videoApi;
   private final MutableLiveData<Boolean> isLoginLiveData;
-  private final MutableLiveData<PagedList<DataBean>> unreviewedVideosLiveData;
+  private final MutableLiveData<VideoListResponse.DataBeanList> unreviewedVideosLiveData;
+  private final MutableLiveData<Response<SignPromptBatchResponse>> signPromptBatchResponseLiveData;
+
 
   public SignAlongViewModel(@NonNull Application application) {
     super(application);
@@ -45,16 +49,13 @@ public class SignAlongViewModel extends AndroidViewModel {
     videoApi = ApiHelper.getRetrofit().create(VideoApi.class);
     isLoginLiveData = new MutableLiveData<>();
     unreviewedVideosLiveData = new MutableLiveData<>();
-  }
-
-  private boolean verifyTime(long time) {
-    return System.currentTimeMillis() / 1000 < time;
+    signPromptBatchResponseLiveData = new MutableLiveData<>();
   }
 
   public MutableLiveData<Boolean> checkLogin() {
-    if (verifyTime(LoginSharedPreferences.getAccessExp(getApplication()))) {
+    if (TimerUtils.verifyTime(LoginSharedPreferences.getAccessExp(getApplication()))) {
       isLoginLiveData.setValue(true);
-    } else if (verifyTime(LoginSharedPreferences.getRefreshExp(getApplication()))) {
+    } else if (TimerUtils.verifyTime(LoginSharedPreferences.getRefreshExp(getApplication()))) {
       userApi
           .refresh(new RefreshRequest(LoginSharedPreferences.getRefreshToken(getApplication())))
           .enqueue(
@@ -108,80 +109,52 @@ public class SignAlongViewModel extends AndroidViewModel {
     return currentPointAndUsernameLiveData;
   }
 
-  public MutableLiveData<PagedList<DataBean>> getUnreviewedVideoList() {
-    DataSource<Integer, DataBean> dataSource =
-        new UnreviewedVideoDataSource(
-            videoApi, LoginSharedPreferences.getAccessToken(getApplication()));
-    PagedList<DataBean> unreviewedVideoList =
-        new android.arch.paging.PagedList.Builder<Integer, DataBean>(
-                dataSource,
-                new Config.Builder()
-                    .setPageSize(PAGE_SIZE)
-                    .setInitialLoadSizeHint(5)
-                    .setPrefetchDistance(2)
-                    .setEnablePlaceholders(false)
-                    .build())
-            .setFetchExecutor(Executors.newFixedThreadPool(5))
-            .setNotifyExecutor(
-                new Executor() {
-                  private final Handler handler = new Handler(Looper.getMainLooper());
+  public void getReviewTaskList() {
+    videoApi
+        .getUnreviewedVideoList(LoginSharedPreferences.getAccessToken(getApplication()), 0, 0)
+        .enqueue(
+            new Callback<VideoListResponse>() {
+              @Override
+              public void onResponse(
+                  Call<VideoListResponse> call, Response<VideoListResponse> response) {
+                if (response.isSuccessful()
+                    && response.body() != null
+                    && response.body().getCode() == 0) {
+                  unreviewedVideosLiveData.setValue(response.body().getDataBeanList());
+                }
+                onFailure(call, null);
+              }
 
-                  @Override
-                  public void execute(@NonNull Runnable command) {
-                    handler.post(command);
-                  }
-                })
-            .build();
-    unreviewedVideosLiveData.setValue(unreviewedVideoList);
+              @Override
+              public void onFailure(Call<VideoListResponse> call, Throwable t) {
+                unreviewedVideosLiveData.setValue(null);
+              }
+            });
+  }
+
+  public MutableLiveData<VideoListResponse.DataBeanList> getReviewTaskListLiveData() {
     return unreviewedVideosLiveData;
   }
 
-  public MutableLiveData<Integer> getPersonalVideoCount() {
-    MutableLiveData<Integer> personalVideoCountLiveData = new MutableLiveData<>();
+  public void getSignPromptList() {
     videoApi
-        .getPersonalVideoList(
-            LoginSharedPreferences.getAccessToken(getApplication()), SELF_ALL_VIDEO_STATUS)
-        .enqueue(new WrapCallBack(personalVideoCountLiveData));
-    return personalVideoCountLiveData;
+        .getSignPromptBatch(LoginSharedPreferences.getAccessToken(getApplication()), PAGE_SIZE)
+        .enqueue(
+            new Callback<SignPromptBatchResponse>() {
+              @Override
+              public void onResponse(
+                  Call<SignPromptBatchResponse> call, Response<SignPromptBatchResponse> response) {
+                signPromptBatchResponseLiveData.setValue(response);
+              }
+
+              @Override
+              public void onFailure(Call<SignPromptBatchResponse> call, Throwable t) {
+                signPromptBatchResponseLiveData.setValue(null);
+              }
+            });
   }
 
-  public MutableLiveData<Integer> getPersonalUnapprovedVideoCount() {
-    MutableLiveData<Integer> personalUnapprovedVideoCountLiveData = new MutableLiveData<>();
-    videoApi
-        .getPersonalVideoList(
-            LoginSharedPreferences.getAccessToken(getApplication()), SELF_NOT_APPROVE_VIDEO_STATUS)
-        .enqueue(new WrapCallBack(personalUnapprovedVideoCountLiveData));
-    return personalUnapprovedVideoCountLiveData;
-  }
-
-  public MutableLiveData<Integer> getUnreviewVideoCount() {
-    MutableLiveData<Integer> unreviewVideoCountLiveData = new MutableLiveData<>();
-    videoApi
-        .getUnreviewedVideoList(LoginSharedPreferences.getAccessToken(getApplication()), 0, 0)
-        .enqueue(new WrapCallBack(unreviewVideoCountLiveData));
-    return unreviewVideoCountLiveData;
-  }
-
-  /** WrapCallBack is used to add extra function to Retrofit Callback for reuse. */
-  private static class WrapCallBack implements Callback<VideoListResponse> {
-    private final MutableLiveData<Integer> liveData;
-
-    public WrapCallBack(MutableLiveData<Integer> liveData) {
-      this.liveData = liveData;
-    }
-
-    @Override
-    public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
-      if (response.isSuccessful() && response.body() != null && response.body().getCode() == 0) {
-        liveData.setValue(response.body().getDataBeanList().getTotal());
-        return;
-      }
-      onFailure(call, null);
-    }
-
-    @Override
-    public void onFailure(Call<VideoListResponse> call, Throwable t) {
-      liveData.setValue(null);
-    }
+  public MutableLiveData<Response<SignPromptBatchResponse>> getSignPromptBatchResponseLiveData() {
+    return signPromptBatchResponseLiveData;
   }
 }

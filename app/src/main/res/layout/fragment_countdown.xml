@@ -17,8 +17,7 @@
     android:background="@color/video_name_bg"
     android:gravity="center"
     android:textColor="@color/white"
-    android:textSize="30dp"
-    tools:text="@string/title_activity_agreement" />
+    android:textSize="30dp" />
 
   <RelativeLayout
     android:layout_width="match_parent"

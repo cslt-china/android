@@ -1,5 +1,9 @@
 package com.google.android.apps.signalong.jsonentities;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList;
+import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList.DataBean;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
@@ -22,7 +26,7 @@ public class SignPromptBatchResponse extends BaseResponse {
   /**
    * The DataBean class is real data, that contains id and sample text.
    */
-  public static class DataBean {
+  public static class DataBean implements Parcelable {
 
     private int id;
     private String text;
@@ -31,12 +35,49 @@ public class SignPromptBatchResponse extends BaseResponse {
     private int glossType;
 
     @SerializedName("video_count")
-    private Object videoCount;
+    private int videoCount;
 
     @SerializedName("sample_video")
     private SampleVideoBean sampleVideo;
 
     private int duration;
+
+    public static final Creator<DataBean> CREATOR =
+        new Creator<DataBean>() {
+          @Override
+          public DataBean createFromParcel(Parcel source) {
+            return new DataBean(source);
+          }
+
+          @Override
+          public DataBean[] newArray(int size) {
+            return new DataBean[size];
+          }
+        };
+
+    protected DataBean(Parcel in) {
+      this.id = in.readInt();
+      this.text = in.readString();
+      this.glossType = in.readInt();
+      this.videoCount = in.readInt();
+      this.duration = in.readInt();
+      this.sampleVideo = in.readParcelable(SampleVideoBean.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+      return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+      dest.writeInt(this.id);
+      dest.writeString(this.text);
+      dest.writeInt(this.glossType);
+      dest.writeInt(this.videoCount);
+      dest.writeInt(this.duration);
+      dest.writeParcelable(this.sampleVideo, flags);
+    }
 
     public int getId() {
       return id;
@@ -50,32 +91,12 @@ public class SignPromptBatchResponse extends BaseResponse {
       return text;
     }
 
-    public void setText(String text) {
-      this.text = text;
-    }
-
-    public int getGlossType() {
-      return glossType;
-    }
-
-    public void setGlossType(int glossType) {
-      this.glossType = glossType;
-    }
-
-    public Object getVideoCount() {
-      return videoCount;
-    }
-
-    public void setVideoCount(Object videoCount) {
-      this.videoCount = videoCount;
-    }
-
     public int getDuration() {
       return duration;
     }
 
-    public void setDuration(int duration) {
-      this.duration = duration;
+    public void setText(String text) {
+      this.text = text;
     }
 
     public SampleVideoBean getSampleVideo() {
@@ -89,27 +110,41 @@ public class SignPromptBatchResponse extends BaseResponse {
     /**
      * The SampleVideoBean class is real data, that contains video path.
      */
-    public static class SampleVideoBean {
+    public static class SampleVideoBean implements Parcelable {
 
       @SerializedName("video_path")
       private String videoPath;
 
       private String thumbnail;
 
+      public SampleVideoBean() {}
+
+      @Override
+      public int describeContents() { return 0; }
+
+      @Override
+      public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(videoPath);
+        dest.writeString(thumbnail);
+      }
+
+      protected SampleVideoBean(Parcel in) {
+        this.videoPath = in.readString();
+        this.thumbnail = in.readString();
+      }
+
+      static public final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public SampleVideoBean createFromParcel(Parcel in) {
+          return new SampleVideoBean(in);
+        }
+
+        public SampleVideoBean[] newArray(int size) {
+          return new SampleVideoBean[size];
+        }
+      };
+
       public String getVideoPath() {
         return videoPath;
-      }
-
-      public void setVideoPath(String videoPath) {
-        this.videoPath = videoPath;
-      }
-
-      public String getThumbnail() {
-        return thumbnail;
-      }
-
-      public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
       }
     }
   }

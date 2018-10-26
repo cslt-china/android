@@ -19,7 +19,7 @@ public class VideoReviewViewModel extends AndroidViewModel {
 
   private static final String TAG = "VideoReviewViewModel";
   /* Load size per page.*/
-  private static final Integer LIMIT_SIZE = 10;
+  private static final Integer LIMIT_SIZE = 8;
   private final VideoApi videoApi;
   private final MutableLiveData<Response<ReviewVideoResponse>> reviewVideoResponseLiveData;
   private final MutableLiveData<Response<VideoListResponse>> unreviewedVideoResponseLiveData;
@@ -31,8 +31,8 @@ public class VideoReviewViewModel extends AndroidViewModel {
     unreviewedVideoResponseLiveData = new MutableLiveData<>();
   }
 
-  public void reviewVideo(String uuid, String status) {
-
+  public void reviewVideo(String uuid, String status,
+      VideoReviewViewModel.ReviewVideoResponseCallbacks callback) {
     videoApi
         .reviewVideo(LoginSharedPreferences.getAccessToken(getApplication()), uuid, status)
         .enqueue(
@@ -40,14 +40,31 @@ public class VideoReviewViewModel extends AndroidViewModel {
               @Override
               public void onResponse(
                   Call<ReviewVideoResponse> call, Response<ReviewVideoResponse> response) {
-                reviewVideoResponseLiveData.setValue(response);
+                callback.onSuccessReviewVideoResponse(response);
               }
 
               @Override
               public void onFailure(Call<ReviewVideoResponse> call, Throwable t) {
-                reviewVideoResponseLiveData.setValue(null);
+                callback.onFailureResponse();
               }
             });
+  }
+
+  public void getUnreviewedVideoList(UnreviewedVideoListResponseCallbacks callback) {
+    videoApi.getUnreviewedVideoList(
+        LoginSharedPreferences.getAccessToken(getApplication()), 0, LIMIT_SIZE)
+        .enqueue(new Callback<VideoListResponse>() {
+          @Override
+          public void onResponse(Call<VideoListResponse> call,
+              Response<VideoListResponse> response) {
+            callback.onSuccessUnreviewedVideoListResponse(response);
+          }
+
+          @Override
+          public void onFailure(Call<VideoListResponse> call, Throwable t) {
+            callback.onFailureResponse();
+          }
+        });
   }
 
   public void getUnreviewedVideoList() {
@@ -76,5 +93,17 @@ public class VideoReviewViewModel extends AndroidViewModel {
 
   public MutableLiveData<Response<VideoListResponse>> getUnreviewedVideoResponseLiveData() {
     return unreviewedVideoResponseLiveData;
+  }
+
+  public interface UnreviewedVideoListResponseCallbacks {
+    void onSuccessUnreviewedVideoListResponse(Response<VideoListResponse> response);
+
+    void onFailureResponse();
+  }
+
+  public interface ReviewVideoResponseCallbacks {
+    void onSuccessReviewVideoResponse(Response<ReviewVideoResponse> response);
+
+    void onFailureResponse();
   }
 }

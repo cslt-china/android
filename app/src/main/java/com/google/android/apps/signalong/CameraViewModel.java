@@ -15,8 +15,10 @@ import com.google.android.apps.signalong.jsonentities.CreateVideoResponse;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.jsonentities.UploadVideoResponse;
 import com.google.android.apps.signalong.jsonentities.VideoId;
+import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
+import com.google.android.apps.signalong.utils.TimerUtils;
 import com.google.android.apps.signalong.utils.VideoScreenUtils;
 
 import java.io.File;
@@ -78,9 +80,27 @@ public class CameraViewModel extends AndroidViewModel {
     }).start();
   }
 
+  public void getSignPromptBatch(SignPromptBatchResponseCallbacks callback) {
+    videoApi
+        .getSignPromptBatch(LoginSharedPreferences.getAccessToken(getApplication()), 8)
+        .enqueue(
+            new Callback<SignPromptBatchResponse>() {
+              @Override
+              public void onResponse(
+                  Call<SignPromptBatchResponse> call, Response<SignPromptBatchResponse> response) {
+                callback.onSuccessSignPromptBatchResponse(response);
+              }
+
+              @Override
+              public void onFailure(Call<SignPromptBatchResponse> call, Throwable t) {
+                callback.onFailureResponse();
+              }
+            });
+  }
+
   public void getSignPromptBatch() {
     videoApi
-        .getSignPromptBatch(LoginSharedPreferences.getAccessToken(getApplication()))
+        .getSignPromptBatch(LoginSharedPreferences.getAccessToken(getApplication()), 8)
         .enqueue(
             new Callback<SignPromptBatchResponse>() {
               @Override
@@ -101,7 +121,7 @@ public class CameraViewModel extends AndroidViewModel {
   }
 
 
-  static final int UPLOAD_CONCURRENT = 3;
+  private static final int UPLOAD_CONCURRENT = 3;
 
   private Semaphore semaphore = new Semaphore(UPLOAD_CONCURRENT);
   private volatile boolean threadExitFlag = false;
@@ -203,22 +223,9 @@ public class CameraViewModel extends AndroidViewModel {
               uploadVideo(videoUploadTask, callback);
             }
 
-            enoughSleep(2000);
+            TimerUtils.enoughSleep(2000);
           }
         }).start();
-  }
-
-  void enoughSleep(int timeToSleep) {
-    long start;
-    while(timeToSleep > 0) {
-      start = System.currentTimeMillis();
-      try{
-        Thread.sleep(timeToSleep);
-        break;
-      } catch(InterruptedException e){
-        timeToSleep -= System.currentTimeMillis() - start;
-      }
-    }
   }
 
   interface UploadVideoCallback {
@@ -286,6 +293,12 @@ public class CameraViewModel extends AndroidViewModel {
     File file = new File(filePath);
     RequestBody requestFile = RequestBody.create(MediaType.parse(mediaType), file);
     return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
+  }
+
+  public interface SignPromptBatchResponseCallbacks {
+    void onSuccessSignPromptBatchResponse(Response<SignPromptBatchResponse> response);
+
+    void onFailureResponse();
   }
 
 }

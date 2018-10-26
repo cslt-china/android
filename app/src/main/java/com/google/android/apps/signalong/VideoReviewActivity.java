@@ -1,18 +1,31 @@
 package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.google.android.apps.signalong.jsonentities.ReviewVideoResponse;
+import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse.DataBean;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
+import com.google.android.apps.signalong.utils.ActivityUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
+import java.util.ArrayList;
 import java.util.List;
+import retrofit2.Response;
 
 /** VideoReviewActivity implements review video by user. */
-public class VideoReviewActivity extends BaseActivity {
+public class VideoReviewActivity extends BaseActivity implements
+    VideoReviewViewModel.UnreviewedVideoListResponseCallbacks,
+    VideoReviewViewModel.ReviewVideoResponseCallbacks {
   private static final String TAG = "[VideoReviewActivity]";
+
+  /* This provides parameters for communication between activities for videoReviewActivity. */
+  public static final String REVIEW_TASK_PARAM = "review_param";
+
   /* Review approve for video.*/
   private static final String REVIEW_APPROVE = "approve";
   /* Review reject for video.*/
@@ -54,53 +67,48 @@ public class VideoReviewActivity extends BaseActivity {
     });
     findViewById(R.id.ok_button).setOnClickListener(view -> finish());
     findViewById(R.id.review_result_reject_button).setOnClickListener(
-        view -> reviewVideo(REVIEW_REJECT));
+        view -> videoReviewViewModel.reviewVideo(
+            currentUnreviewedVideoData.getUuid(), REVIEW_REJECT, this));
     findViewById(R.id.review_result_approve_button).setOnClickListener(
-        view -> reviewVideo(REVIEW_APPROVE));
-    videoReviewViewModel
-        .getUnreviewedVideoResponseLiveData()
-        .observe(
-            this,
-            unreviewedResponse -> {
-              if (unreviewedResponse == null) {
-                finish();
-                return;
-              }
-              if (unreviewedResponse.isSuccessful() && unreviewedResponse.body().getCode() == 0) {
-                unreviewedVideoList = unreviewedResponse.body().getDataBeanList().getData();
-                if (unreviewedVideoList != null && !unreviewedVideoList.isEmpty()) {
-                  nextUnreviewedVideoData();
-                } else {
-                  approveRejectButtonsLayout.setVisibility(View.GONE);
-                  findViewById(R.id.finish_layout).setVisibility(View.VISIBLE);
-                }
-                return;
-              }
-              ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
-            });
-    videoReviewViewModel
-        .getReviewVideoResponseLiveData()
-        .observe(
-            this,
-            reviewVideoResponse -> {
-              if (reviewVideoResponse == null) {
-                ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
-                finish();
-                return;
-              }
-              if (reviewVideoResponse.isSuccessful() && reviewVideoResponse.body().getCode() == 0) {
-                unreviewedVideoList.remove(currentUnreviewedVideoData);
-                nextUnreviewedVideoData();
-                return;
-              }
-              Log.e(TAG, "Failed fetching review list.");
-              ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
-            });
-    getUnreviewedVideoDataFromIntent();
+        view -> videoReviewViewModel.reviewVideo(
+            currentUnreviewedVideoData.getUuid(),REVIEW_APPROVE, this));
+    unreviewedVideoList = ActivityUtils.parseReviewTaskFromIntent(this);
+    if (unreviewedVideoList == null || unreviewedVideoList.isEmpty()) {
+      Log.i(TAG, "fetch unreviewed video list from server");
+      videoReviewViewModel.getUnreviewedVideoList(this);
+    } else {
+      nextUnreviewedVideoData();
+    }
   }
 
-  private void reviewVideo(String status) {
-    videoReviewViewModel.reviewVideo(currentUnreviewedVideoData.getUuid(), status);
+  public void onSuccessUnreviewedVideoListResponse(Response<VideoListResponse> response) {
+    if (response.isSuccessful() && response.body().getCode() == 0) {
+      unreviewedVideoList = response.body().getDataBeanList().getData();
+      if (unreviewedVideoList != null && !unreviewedVideoList.isEmpty()) {
+        nextUnreviewedVideoData();
+      } else {
+        approveRejectButtonsLayout.setVisibility(View.GONE);
+        findViewById(R.id.finish_layout).setVisibility(View.VISIBLE);
+      }
+    } else {
+      ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
+    }
+  }
+
+  public void onSuccessReviewVideoResponse(Response<ReviewVideoResponse> response) {
+    if (response.isSuccessful() && response.body().getCode() == 0) {
+      if (unreviewedVideoList != null) {
+        unreviewedVideoList.remove(0);
+        nextUnreviewedVideoData();
+      }
+    } else {
+      ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
+    }
+  }
+
+  public void onFailureResponse() {
+    ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
+    finish();
   }
 
   private void nextUnreviewedVideoData() {
@@ -114,17 +122,8 @@ public class VideoReviewActivity extends BaseActivity {
               String.format(
                   getString(R.string.label_review_word_prompt),
                   currentUnreviewedVideoData.getGlossText()));
-      videoView.viewVideo(currentUnreviewedVideoData.getVideoPath());
       approveRejectButtonsLayout.setVisibility(View.INVISIBLE);
-    } else {
-      videoReviewViewModel.getUnreviewedVideoList();
-    }
-  }
-
-  private void getUnreviewedVideoDataFromIntent() {
-    unreviewedVideoList = getIntent().getParcelableArrayListExtra(SignAlongActivity.UNREVIEW_PARAM);
-    if (unreviewedVideoList != null && !unreviewedVideoList.isEmpty()) {
-      nextUnreviewedVideoData();
+      videoView.viewVideo(currentUnreviewedVideoData.getVideoPath());
     } else {
       videoReviewViewModel.getUnreviewedVideoList();
     }

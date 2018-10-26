@@ -13,7 +13,13 @@
     <color name="dark">#797D7F </color>
     <color name="back">#000000</color>
     <color name="light_grey">#DCDCDC</color>
-    <color name="red">#C43F38</color>
-    <color name="green">#66AC5B</color>
     <color name="disabled_green">#7F66AC5B</color>
+    <!-- The following colors are picked from https://www.sessions.edu/color-calculator/
+         with the seed color "red" provided from UX fusong@, and the rest computed using
+         tetradic harmony.
+     -->
+    <color name="red">#C43F38</color>
+    <color name="green">#38C454</color>
+    <color name="yellow">#C48538</color>
+    <color name="blue">#4638c4</color>
 </resources>
