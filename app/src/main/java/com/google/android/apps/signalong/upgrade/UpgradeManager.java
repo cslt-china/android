@@ -11,6 +11,7 @@ import android.support.v4.content.FileProvider;
 import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.apps.signalong.BuildConfig;
+import com.google.android.apps.signalong.Config;
 import com.google.android.apps.signalong.R;
 import com.google.android.apps.signalong.utils.ConfigUtils;
 import com.google.android.apps.signalong.utils.NetworkUtils;
@@ -21,8 +22,17 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -49,8 +59,6 @@ public class UpgradeManager {
   private static final String LAST_CHECK_DATE = "LAST_CHECK_DATE";
 
   private Retrofit retrofit;
-  private UpgradeService checkVersionService;
-  private UpgradeService downloadService;
   private DownloadListener downloadListener;
 
   private Context mContext;
@@ -73,8 +81,43 @@ public class UpgradeManager {
 
   public UpgradeManager(Context context) {
     this.mContext = context;
-    checkVersionService = getBasicRetrofit().create(UpgradeService.class);
-    downloadService = getRetrofitWithDownloadListener().create(UpgradeService.class);
+  }
+
+  private static OkHttpClient.Builder getUnsafeOkHttpClientBuilder() {
+    try {
+      // Create a trust manager that does not validate certificate chains
+      final TrustManager[] trustAllCerts = new TrustManager[]{
+          new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(java.security.cert.X509Certificate[] chain,
+                                           String authType) {
+            }
+
+            @Override
+            public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
+                                           String authType) {
+            }
+
+            @Override
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+              return new X509Certificate[0];
+            }
+          }
+      };
+
+      // Install the all-trusting trust manager
+      final SSLContext sslContext = SSLContext.getInstance("SSL");
+      sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+      // Create an ssl socket factory with our all-trusting manager
+      final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+      return new OkHttpClient.Builder()
+          .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
+          .hostnameVerifier((hostname, session) -> true);
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private Retrofit getBasicRetrofit() {
@@ -82,7 +125,8 @@ public class UpgradeManager {
     HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor()
         .setLevel(HttpLoggingInterceptor.Level.BODY);
     // Create httpClient
-    OkHttpClient httpClient = new OkHttpClient.Builder()
+    OkHttpClient.Builder builder = getUnsafeOkHttpClientBuilder();
+    OkHttpClient httpClient = builder
         .addNetworkInterceptor(loggingInterceptor)
         .build();
     httpClient.newBuilder().connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
@@ -133,7 +177,8 @@ public class UpgradeManager {
     };
 
     // Create httpClient
-    OkHttpClient httpClient = new OkHttpClient.Builder()
+    OkHttpClient.Builder builder = getUnsafeOkHttpClientBuilder();
+    OkHttpClient httpClient = builder
         .addInterceptor(new DownloadInterceptor(downloadListener))
         .build();
     httpClient.newBuilder().connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
@@ -149,7 +194,8 @@ public class UpgradeManager {
   }
 
   private void download() {
-    downloadService.downloadApk(DOWNLOAD_URL)
+    getRetrofitWithDownloadListener().create(UpgradeService.class)
+        .downloadApk(DOWNLOAD_URL)
         .subscribeOn(Schedulers.io())
         .unsubscribeOn(Schedulers.io())
         .map(responseBody -> responseBody.byteStream())
@@ -192,7 +238,8 @@ public class UpgradeManager {
   }
 
   public void checkVersion(NetworkUtils.NetworkType networkType) {
-    checkVersionService.checkVersion(CHECK_VERSION_URL)
+    getBasicRetrofit().create(UpgradeService.class)
+        .checkVersion(CHECK_VERSION_URL)
         .subscribeOn(Schedulers.io())
         .unsubscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
