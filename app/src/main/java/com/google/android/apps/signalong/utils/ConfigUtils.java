@@ -21,9 +21,9 @@ public class ConfigUtils {
   private static final String PROD_UPDATE_APK_CHECK_VERSION_URL = "/media/apk/signalong-release-version.txt";
   private static final String PROD_UPDATE_APK_DOWNLOAD_APK_URL = "/media/apk/signalong-release.apk";
 
-  private static final String DEV_UPDATE_APK_BASE_URL = "https://cslt-211408.firebaseapp.com/";
-  private static final String DEV_UPDATE_APK_CHECK_VERSION_URL = "/staging-apk/signalong-staging-version.txt";
-  private static final String DEV_UPDATE_APK_DOWNLOAD_APK_URL = "/staging-apk/signalong-staging.apk";
+  private static final String DEV_UPDATE_APK_BASE_URL = "https://firebasestorage.googleapis.com/";
+  private static final String DEV_UPDATE_APK_CHECK_VERSION_URL = "v0/b/cslt-211408.appspot.com/o/staging-apk%2Fsignalong-staging-version.txt?alt=media";
+  private static final String DEV_UPDATE_APK_DOWNLOAD_APK_URL = "v0/b/cslt-211408.appspot.com/o/staging-apk%2Fsignalong-staging.apk?alt=media";
 
   public static String getProtocol() {
     if (BuildConfig.DEBUG) {
