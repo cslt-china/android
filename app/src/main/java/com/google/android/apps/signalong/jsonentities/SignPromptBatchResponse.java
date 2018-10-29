@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList.DataBean;
 import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +24,10 @@ public class SignPromptBatchResponse extends BaseResponse {
     this.data = data;
   }
 
+  public SignPromptBatchResponse(DataBean data) {
+    this.data = new ArrayList<DataBean>();
+    this.data.add(data);
+  }
   /**
    * The DataBean class is real data, that contains id and sample text.
    */

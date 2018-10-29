@@ -1,6 +1,7 @@
 package com.google.android.apps.signalong;
 
 import android.Manifest;
+import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.TextView;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.upgrade.UpgradeManager;
@@ -22,6 +25,7 @@ import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import com.google.android.apps.signalong.utils.NetworkUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 
+import com.google.android.apps.signalong.widget.TaskView;
 import com.google.android.apps.signalong.widget.TaskView.TaskType;
 import com.google.android.apps.signalong.widget.TaskViewAdapter;
 import java.util.List;
@@ -220,7 +224,15 @@ public class SignAlongActivity extends BaseActivity implements
       ((TextView) findViewById(R.id.recording_task_count_textview))
           .setText(String.format(getString(R.string.label_recording_task_count),
               promptList.getData() == null ? 0 : promptList.getData().size()));
-      recordingTaskViewAdapter.setSignPromptList(getApplicationContext(), response.body(), null);
+      Activity activity = this;
+      recordingTaskViewAdapter.setSignPromptList(getApplicationContext(), response.body(),
+          new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              SignPromptBatchResponse.DataBean data = ((TaskView) v).getPromptData();
+              ActivityUtils.startCameraActivity(activity, new SignPromptBatchResponse(data));
+            }
+          });
     } else {
       // ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
     }

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import com.google.android.apps.signalong.MyVideoViewModel.PersonalVideoStatus;
@@ -42,6 +43,7 @@ public class MyVideoFragment extends Fragment {
   private TaskViewAdapter pendingTaskViewAdapter;
   private TaskViewAdapter rejectedTaskViewAdapter;
   private TaskViewAdapter approvedTaskViewAdapter;
+  private OnClickListener taskViewOnClickListener;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,17 @@ public class MyVideoFragment extends Fragment {
     pendingTaskViewAdapter = new TaskViewAdapter();
     rejectedTaskViewAdapter = new TaskViewAdapter();
     approvedTaskViewAdapter = new TaskViewAdapter();
+
+    VideoViewFragment videoViewFragment = (VideoViewFragment) getChildFragmentManager()
+        .findFragmentById(R.id.fragment_my_video_view);
+    taskViewOnClickListener = new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        VideoListResponse.DataBeanList.DataBean data = ((TaskView) v).getVideoData();
+        ViewMyVideoActivity.startActivity(getActivity(), data);
+      }
+    };
+
     return viewContainer;
   }
 
@@ -164,15 +177,15 @@ public class MyVideoFragment extends Fragment {
                 switch (videoStatus) {
                   case REJECTED:
                     rejectedTaskViewAdapter.setVideoList(context, datalist,
-                        TaskType.REJECTED_RECORDING, null);
+                        TaskType.REJECTED_RECORDING, taskViewOnClickListener);
                     break;
                   case APPROVED:
                     approvedTaskViewAdapter.setVideoList(context, datalist,
-                        TaskType.ACCEPTED_RECORDING, null);
+                        TaskType.ACCEPTED_RECORDING, taskViewOnClickListener);
                     break;
                   case PENDING_APPROVAL:
                     pendingTaskViewAdapter.setVideoList(context, datalist,
-                      TaskType.PENDING_RECORDING, null);
+                      TaskType.PENDING_RECORDING, taskViewOnClickListener);
                     break;
                 }
               });
