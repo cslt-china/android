@@ -37,7 +37,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize"></activity>
         <activity android:name=".SettingActivity"></activity>
         <activity android:name=".ChangePasswordActivity"></activity>
-        <activity android:name=".MyVideoActivity"></activity>
         <activity android:name=".VideoReviewActivity"
             android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenSize"></activity>

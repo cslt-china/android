@@ -127,7 +127,6 @@ public class MyVideoFragment extends Fragment {
                         scoresBean.getVideoReviewScore()));
                 return;
               }
-              ToastUtils.show(getActivity().getApplicationContext(), getString(R.string.tip_request_fail));
             });
   }
 
@@ -165,15 +164,15 @@ public class MyVideoFragment extends Fragment {
                 switch (videoStatus) {
                   case REJECTED:
                     rejectedTaskViewAdapter.setVideoList(context, datalist,
-                        TaskType.REJECTED_RECORDING);
+                        TaskType.REJECTED_RECORDING, null);
                     break;
                   case APPROVED:
                     approvedTaskViewAdapter.setVideoList(context, datalist,
-                        TaskType.ACCEPTED_RECORDING);
+                        TaskType.ACCEPTED_RECORDING, null);
                     break;
                   case PENDING_APPROVAL:
                     pendingTaskViewAdapter.setVideoList(context, datalist,
-                      TaskType.PENDING_RECORDING);
+                      TaskType.PENDING_RECORDING, null);
                     break;
                 }
               });
@@ -190,7 +189,6 @@ public class MyVideoFragment extends Fragment {
       videoListResponseCallBack.onSuccess(response.body());
       return;
     }
-    ToastUtils.show(getActivity().getApplicationContext(), getString(R.string.tip_request_fail));
   }
 
   /*

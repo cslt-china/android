@@ -204,9 +204,9 @@ public class SignAlongActivity extends BaseActivity implements
                   response.body().getDataBeanList().getTotal()));
       this.unreviewedVideoList = response.body().getDataBeanList().getData();
       reviewTaskViewAdapter.setVideoList(
-          getApplicationContext(), response.body().getDataBeanList(), TaskType.NEW_REVIEW);
+          getApplicationContext(), response.body().getDataBeanList(), TaskType.NEW_REVIEW, null);
     } else {
-      ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
+      // ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
     }
   }
 
@@ -220,9 +220,9 @@ public class SignAlongActivity extends BaseActivity implements
       ((TextView) findViewById(R.id.recording_task_count_textview))
           .setText(String.format(getString(R.string.label_recording_task_count),
               promptList.getData() == null ? 0 : promptList.getData().size()));
-      recordingTaskViewAdapter.setSignPromptList(getApplicationContext(), response.body());
+      recordingTaskViewAdapter.setSignPromptList(getApplicationContext(), response.body(), null);
     } else {
-      ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
+      // ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
     }
   }
 
