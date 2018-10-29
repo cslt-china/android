@@ -1,6 +1,7 @@
 package com.google.android.apps.signalong.widget;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +19,7 @@ public class TaskViewAdapter extends RecyclerView.Adapter<TaskViewAdapter.TaskVi
   private SignPromptBatchResponse signPromptList;
   private TaskView.TaskType taskType;
   private Context context;
+  private OnClickListener listener;
 
   public static class TaskViewHolder extends RecyclerView.ViewHolder {
     public TaskView taskView;
@@ -36,16 +38,20 @@ public class TaskViewAdapter extends RecyclerView.Adapter<TaskViewAdapter.TaskVi
   }
 
   public void setVideoList(Context context, VideoListResponse.DataBeanList videoList,
-      TaskView.TaskType taskType) {
+      TaskView.TaskType taskType, @Nullable  OnClickListener listener) {
     this.context = context;
     this.videoList = videoList;
     this.taskType = taskType;
+    this.listener = listener;
     notifyDataSetChanged();
   }
 
-  public void setSignPromptList(Context context, SignPromptBatchResponse signPromptList) {
+  public void setSignPromptList(Context context, SignPromptBatchResponse signPromptList,
+      @Nullable OnClickListener listener) {
+    this.context = context;
     this.signPromptList = signPromptList;
     this.taskType = TaskType.NEW_RECORDING;
+    this.listener = listener;
     notifyDataSetChanged();
   }
 
@@ -60,14 +66,11 @@ public class TaskViewAdapter extends RecyclerView.Adapter<TaskViewAdapter.TaskVi
   public void onBindViewHolder(TaskViewHolder viewHolder, int position) {
     if (taskType == TaskType.NEW_RECORDING) {
       viewHolder.taskView.setData(signPromptList.getData().get(position), taskType);
-      viewHolder.taskView.setOnClickListener(new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-
-        }
-      });
     } else {
       viewHolder.taskView.setData(videoList.getData().get(position), taskType);
+    }
+    if (this.listener != null) {
+      viewHolder.taskView.setOnClickListener(this.listener);
     }
   }
 
