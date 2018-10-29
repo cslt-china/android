@@ -46,6 +46,23 @@ public class TaskView extends AppCompatTextView {
     this.setVisibility(View.INVISIBLE);
   }
 
+  public VideoListResponse.DataBeanList.DataBean getVideoData() {
+    if (taskType == TaskType.PENDING_RECORDING || taskType == TaskType.REJECTED_RECORDING
+        || taskType == TaskType.ACCEPTED_RECORDING) {
+      return videoData;
+    } else {
+      return null;
+    }
+  }
+
+  public SignPromptBatchResponse.DataBean getPromptData() {
+    if (taskType == TaskType.NEW_RECORDING) {
+      return promptData;
+    } else {
+      return null;
+    }
+  }
+
   public void setData(VideoListResponse.DataBeanList.DataBean data, TaskType taskType) {
     videoData = data;
     this.taskType = taskType;

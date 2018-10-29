@@ -116,4 +116,10 @@
       android:layout_width="match_parent"
       android:layout_height="60dp" />
 
+  <fragment
+      android:id="@+id/fragment_my_video_view"
+      android:name="com.google.android.apps.signalong.VideoViewFragment"
+      android:layout_width="match_parent"
+      android:layout_height="500dp"
+      android:visibility="gone"/>
 </LinearLayout>
