@@ -138,6 +138,7 @@ public class SignAlongActivity extends BaseActivity implements
             ToastUtils.show(getApplicationContext(),
                 getString(R.string.upgrade_request_permission_hint));
           }
+          break;
         default:
           ToastUtils.show(context, "Unknown request code " + requestCode);
       }
