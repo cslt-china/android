@@ -29,7 +29,7 @@ public class VideoRecordingSharedPreferences {
     if (timingType == TimingType.RECORD_TIME_SCALE) {
       return getSharedPreferences(context).getInt(timingType.name(), 100);
     } else {
-      return getSharedPreferences(context).getInt(timingType.name(), 1);
+      return getSharedPreferences(context).getInt(timingType.name(), 3);
     }
   }
 }
