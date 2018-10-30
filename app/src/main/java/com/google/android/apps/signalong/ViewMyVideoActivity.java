@@ -3,6 +3,7 @@ package com.google.android.apps.signalong;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -45,7 +46,8 @@ public class ViewMyVideoActivity extends BaseActivity {
       public void onCompletion(MediaPlayer mp) {
       }
     });
-    videoView.viewVideo(myVideoData.getVideoPath());
+    videoView.viewVideo(Uri.parse(myVideoData.getVideoPath()),
+                        Uri.parse(myVideoData.getThumbnail()));
   }
 
   public static void startActivity(

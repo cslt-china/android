@@ -13,6 +13,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.util.Log;
 
+import com.google.android.apps.signalong.utils.FileUtils;
+
 
 public class SelfAssessRecordedVideoFragment extends BaseFragment {
   private static final String TAG = "SelfAssessRecordedVideo";
@@ -74,7 +76,7 @@ public class SelfAssessRecordedVideoFragment extends BaseFragment {
   public void playRecorded(String title, String videoPath) {
     Log.i(TAG, "play recorded video for " + title + " from " + videoPath);
     titleTextView.setText(String.format(getString(R.string.please_sign), title));
-    videoView.viewVideo(videoPath);
+    videoView.viewVideo(FileUtils.buildUri(videoPath), null);
   }
 
   public void setVisibility(int visibility) {

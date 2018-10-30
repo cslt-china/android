@@ -363,9 +363,13 @@ public class CameraActivity extends BaseActivity implements
     Log.i(fsmTag, "entryLearning");
     showFragment(referenceFragment);
 
+    SignPromptBatchResponse.DataBean current =
+        signPromptList.get(currentSignIndex);
+
     referenceFragment.playReference(
-        signPromptList.get(currentSignIndex).getText(),
-        signPromptList.get(currentSignIndex).getSampleVideo().getVideoPath());
+        current.getText(),
+        current.getSampleVideo().getVideoPath(),
+        current.getSampleVideo().getThumbnailPath());
   }
 
   public void exitLearning() {

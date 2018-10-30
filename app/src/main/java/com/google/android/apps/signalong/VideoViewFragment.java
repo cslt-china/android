@@ -1,6 +1,8 @@
 package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.LiveData;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.media.MediaPlayer;
@@ -23,6 +25,8 @@ import com.google.android.apps.signalong.utils.ToastUtils;
 import java.io.File;
 import java.io.IOException;
 
+import static android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START;
+
 public class VideoViewFragment extends BaseFragment {
   private static final String TAG = "[VideoViewFragment]";
 
@@ -33,12 +37,12 @@ public class VideoViewFragment extends BaseFragment {
   private String tmpFileForPlayer;
   private File tmpDir;
 
-  private DownloadFileService downloadFileService;
+  private DownloadFileService downloadVideoFileService;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    downloadFileService = new DownloadFileServiceImpl(
+    downloadVideoFileService = new DownloadFileServiceImpl(
         ApiHelper.getRetrofit().create(VideoApi.class));
   }
 
@@ -56,6 +60,15 @@ public class VideoViewFragment extends BaseFragment {
     videoView.setOnErrorListener((MediaPlayer mp, int what, int extra)->{
       Log.e(TAG, String.format("player error %d, %d", what, extra));
         return false;
+    });
+
+    videoView.setOnInfoListener((MediaPlayer mp, int what, int extra)->{
+      if (what == MEDIA_INFO_VIDEO_RENDERING_START) {
+        //must remove background here, if in preparedListener, player will black
+        //for a moment
+        videoView.setBackground(null);
+      }
+      return false;
     });
 
     tmpDir = new File(this.getActivity().getExternalFilesDir(Environment.DIRECTORY_MOVIES), "temp_videos");
@@ -93,43 +106,72 @@ public class VideoViewFragment extends BaseFragment {
     }
   }
 
-  public void viewVideo(String videoPath) {
-      if (videoView == null) {
-        Log.e(TAG, "No VideoView element!");
-        return;
-      }
-      stopPlayback();
+  //TODO: extract common logic of downloadAndDisplayThumbnail
+  //and downloadAndPlayVideo
+  private void downloadAndDisplayThumbnail(Uri uri) {
+    if (uri.getScheme() == "file") {
+      videoView.setBackground(Drawable.createFromPath(uri.getPath()));
+    } else {
+      String localPath =
+          new File(tmpDir, uri.getLastPathSegment()).getPath();
 
-      Log.i(TAG, "view video from " + videoPath);
-
-      if (FileUtils.isFileExist(videoPath)) {
-        Log.i(TAG, "file already exists, no need to download.");
-        startPlayback(videoPath);
-      } else {
-        Log.i(TAG, "file is not loaded to local disk, start downloading");
-        String localVideoPath =
-            new File(tmpDir, FileUtils.extractFileName(videoPath)).getPath();
-        //TODO: remove the file after playback
-        this.getVideoFile(videoPath, localVideoPath)
-            .observe(
-                this,
-                downloadStatusData -> {
-                  switch (downloadStatusData) {
-                    case SUCCESS:
-                      downloadProgressBar.setVisibility(View.GONE);
-                      startPlayback(localVideoPath);
-                      break;
-                    case LOADING:
-                      downloadProgressBar.setVisibility(View.VISIBLE);
-                      break;
-                    case FAIL:
-                      ToastUtils.show(getActivity().getApplicationContext(),
-                          getString(R.string.tip_video_download_failure));
-                      Log.e("Failed downloading %s", videoPath);
-                      break;
+      downloadFile(uri.toString(), localPath)
+          .observe(
+              this,
+              downloadStatusData -> {
+                if (downloadStatusData == DownloadStatusType.SUCCESS) {
+                  if (!videoView.isPlaying()) {
+                    videoView.setBackground(Drawable.createFromPath(localPath));
                   }
-                });
-      }
+                }
+              });
+    }
+  }
+
+  private void downloadAndPlayVideo(Uri uri) {
+    if (uri.getScheme() == "file") {
+      Log.i(TAG, "file already exists, no need to download.");
+      startPlayback(uri.getPath());
+    } else {
+      Log.i(TAG, "file is not loaded to local disk, start downloading");
+      String localPath =
+          new File(tmpDir, uri.getLastPathSegment()).getPath();
+      this.downloadFile(uri.toString(), localPath)
+          .observe(
+              this,
+              downloadStatusData -> {
+                switch (downloadStatusData) {
+                  case SUCCESS:
+                    downloadProgressBar.setVisibility(View.GONE);
+                    startPlayback(localPath);
+                    break;
+                  case LOADING:
+                    downloadProgressBar.setVisibility(View.VISIBLE);
+                    break;
+                  case FAIL:
+                    ToastUtils.show(getActivity().getApplicationContext(),
+                                    getString(R.string.tip_video_download_failure));
+                    Log.e("Failed downloading %s", uri.toString());
+                    break;
+                }
+              });
+    }
+  }
+
+  public void viewVideo(Uri videoUri, Uri thumbnailUri) {
+    if (videoView == null) {
+      Log.e(TAG, "No VideoView element!");
+      return;
+    }
+    stopPlayback();
+
+    Log.i(TAG, "view video from " + videoUri);
+
+    if (thumbnailUri != null) {
+      downloadAndDisplayThumbnail(thumbnailUri);
+    }
+
+    downloadAndPlayVideo(videoUri);
   }
 
   private void startPlayback(String localVideoPath) {
@@ -151,7 +193,7 @@ public class VideoViewFragment extends BaseFragment {
     videoView.start();
   }
 
-  private LiveData<DownloadStatusType> getVideoFile(String downloadUrl, String outputFilepath) {
-    return downloadFileService.downloadFile(downloadUrl, outputFilepath);
+  private LiveData<DownloadStatusType> downloadFile(String downloadUrl, String outputFilepath) {
+    return downloadVideoFileService.downloadFile(downloadUrl, outputFilepath);
   }
 }

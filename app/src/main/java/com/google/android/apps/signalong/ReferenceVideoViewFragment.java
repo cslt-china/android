@@ -2,6 +2,7 @@ package com.google.android.apps.signalong;
 
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -55,10 +56,11 @@ public class ReferenceVideoViewFragment extends BaseFragment {
     }
   }
 
-  public void playReference(String title, String videoPath) {
+  public void playReference(String title, String videoPath,
+                            String thumbnailPath) {
     Log.i(TAG, "play reference video for " + title);
     titleTextView.setText(String.format(getString(R.string.please_sign), title));
-    videoView.viewVideo(videoPath);
+    videoView.viewVideo(Uri.parse(videoPath), Uri.parse(thumbnailPath));
   }
 
   public interface OnReferenceCompletionListerner {
