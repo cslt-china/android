@@ -93,11 +93,19 @@ public class LoginSharedPreferences {
 
 
   public static void saveConfirmedAgreement(Context context, String value) {
+    // Note that you must not modify the set instance returned by this call: getStringSet().
     Set<String> agreements = getSharedPreferences(context).getStringSet(CONFIRMED_AGREEMENT, new HashSet<>());
-    agreements.add(value);
+    // Create a new Set to store new values.
+    Set<String> newValues = new HashSet<>();
+    for (String username : agreements) {
+      // Copy all the existing values.
+      newValues.add(username);
+    }
+    // Add new value.
+    newValues.add(value);
     getSharedPreferences(context)
       .edit()
-      .putStringSet(CONFIRMED_AGREEMENT, agreements)
+      .putStringSet(CONFIRMED_AGREEMENT, newValues)
       .apply();
   }
 
