@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -72,6 +70,10 @@ public class SignAlongActivity extends BaseActivity implements
                 if(!LoginSharedPreferences.getConfirmedAgreement(getApplicationContext(), username)) {
                   startConfirmAgreementActivity();
                 } else {
+                  // Show welcome toast
+                  ToastUtils.show(getApplicationContext(),
+                      String.format(getString(R.string.tip_welcome), username));
+                  // Check for update.
                   checkUpdate();
                 }
               } else {
@@ -189,10 +191,6 @@ public class SignAlongActivity extends BaseActivity implements
                 ((TextView) findViewById(R.id.app_title_textview))
                     .setText(getString(R.string.app_name));
               }
-              ToastUtils.show(getApplicationContext(),
-                  String.format(
-                      getString(R.string.tip_welcome),
-                      currentPointAndUsername.getData().getUsername()));
             });
 
     videoReviewViewModel.getUnreviewedVideoList(this);
