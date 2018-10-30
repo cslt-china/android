@@ -18,39 +18,55 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@drawable/logo_signalong_24dp"
         android:label="@string/signalong"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".SignAlongActivity">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".SignAlongActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CameraActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
-        <activity android:name=".SettingActivity"></activity>
-        <activity android:name=".ChangePasswordActivity"></activity>
+        <activity
+            android:name=".CameraActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".SettingActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:screenOrientation="portrait"></activity>
 
-        <activity android:name=".ViewMyVideoActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+        <activity
+            android:name=".ViewMyVideoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"></activity>
 
-        <activity android:name=".VideoReviewActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+        <activity
+            android:name=".VideoReviewActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"></activity>
 
-        <activity android:name=".IntroRecordActivity"></activity>
-        <activity android:name=".IntroReviewActivity"></activity>
+        <activity
+            android:name=".IntroRecordActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".IntroReviewActivity"
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".AgreementActivity"
             android:label="@string/title_activity_agreement"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme"></activity>
 
         <provider
@@ -60,7 +76,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
     </application>
