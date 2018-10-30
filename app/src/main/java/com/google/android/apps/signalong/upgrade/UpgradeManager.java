@@ -11,7 +11,6 @@ import android.support.v4.content.FileProvider;
 import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.apps.signalong.BuildConfig;
-import com.google.android.apps.signalong.Config;
 import com.google.android.apps.signalong.R;
 import com.google.android.apps.signalong.utils.ConfigUtils;
 import com.google.android.apps.signalong.utils.NetworkUtils;
@@ -22,19 +21,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -194,100 +192,130 @@ public class UpgradeManager {
   }
 
   private void download() {
+    Observer<InputStream> observer = new Observer<InputStream>() {
+      @Override
+      public void onSubscribe(Disposable d) {
+        downloadListener.onStartDownload();
+      }
+
+      @Override
+      public void onNext(InputStream stream) {
+        // Install APK.
+        File apkfile = new File(FOLDER_DIR, DOWNLOADED_APK_NAME);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+          Uri apkUri = FileProvider
+              .getUriForFile(mContext, BuildConfig.APPLICATION_ID +
+                      UpgradeManager.PROVIDER_PACKAGE_NAME,
+                  apkfile);
+          Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+          intent.setData(apkUri);
+          intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+          intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+          mContext.startActivity(intent);
+        } else {
+          Uri apkUri = Uri.fromFile(apkfile);
+          Intent intent = new Intent(Intent.ACTION_VIEW);
+          intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+          intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+          mContext.startActivity(intent);
+        }
+      }
+
+      @Override
+      public void onError(Throwable e) {
+        e.printStackTrace();
+        upgradeProgressDialog.dismiss();
+        ToastUtils.show(mContext, e.getMessage());
+      }
+
+      @Override
+      public void onComplete() {
+        downloadListener.onFinishDownload();
+        upgradeProgressDialog.dismiss();
+      }
+    };
+
     getRetrofitWithDownloadListener().create(UpgradeService.class)
         .downloadApk(DOWNLOAD_URL)
         .subscribeOn(Schedulers.io())
         .unsubscribeOn(Schedulers.io())
         .map(responseBody -> responseBody.byteStream())
-        .observeOn(AndroidSchedulers.mainThread())
-        // onsubscribe
-        .doOnSubscribe(disposable -> downloadListener.onStartDownload())
         .observeOn(Schedulers.computation())
-        // onNext
+        // Save stream to file.
         .doOnNext(stream -> writeFile(stream))
-        .doOnNext(stream -> {
-          // Install APK.
-          File apkfile = new File(FOLDER_DIR, DOWNLOADED_APK_NAME);
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Uri apkUri = FileProvider
-                .getUriForFile(mContext, BuildConfig.APPLICATION_ID +
-                        UpgradeManager.PROVIDER_PACKAGE_NAME,
-                    apkfile);
-            Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-            intent.setData(apkUri);
-            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            mContext.startActivity(intent);
-          } else {
-            Uri apkUri = Uri.fromFile(apkfile);
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(intent);
-          }
-        })
         .observeOn(AndroidSchedulers.mainThread())
-        // onError
-        .doOnError(e -> {
-          e.printStackTrace();
-          downloadListener.onError(e.getMessage());
-        })
-        .doOnNext(stream -> downloadListener.onFinishDownload())
-        // onComplete
-        .doOnComplete(() -> upgradeProgressDialog.dismiss())
-        .subscribe();
+        .subscribe(observer);
   }
 
   public void checkVersion(NetworkUtils.NetworkType networkType) {
+    Observer<Integer> observer = new Observer<Integer>() {
+      @Override
+      public void onSubscribe(Disposable d) {
+
+      }
+
+      @Override
+      public void onNext(Integer version) {
+        if (version > BuildConfig.VERSION_CODE) {
+          // New version code, show upgrade notice dialog.
+          new MaterialDialog.Builder(mContext)
+              .title(R.string.upgrade_title)
+              .content(R.string.upgrade_message, true)
+              .positiveText(R.string.upgrade_yes)
+              .negativeText(R.string.upgrade_no)
+              .onPositive((dialog, which) -> {
+                dialog.dismiss();
+                switch (networkType) {
+                  case NETWORK_MOBILE:
+                    // Tell user whether to use mobile network to download.
+                    new MaterialDialog.Builder(mContext)
+                        .title(R.string.upgrade_title)
+                        .content(R.string.upgrade_under_mobile_hint, true)
+                        .positiveText(R.string.upgrade_yes)
+                        .negativeText(R.string.upgrade_no)
+                        .onPositive((confirmDialog, confirmWhich) -> {
+                          confirmDialog.dismiss();
+                          // Start download.
+                          download();
+                        })
+                        .show();
+                    break;
+                  case NETWORK_WIFI:
+                    download();
+                    break;
+                  case NETWORK_NONE:
+                    // Tell user no network is available.
+                    new MaterialDialog.Builder(mContext)
+                        .title(R.string.upgrade_title)
+                        .content(R.string.upgrade_no_network, true)
+                        .negativeText(R.string.upgrade_cancel)
+                        .show();
+                    break;
+                }
+              })
+              .show();
+        }
+        // Mark as checked.
+        UpgradeManager.saveCheckDate(mContext);
+      }
+
+      @Override
+      public void onError(Throwable e) {
+        e.printStackTrace();
+        ToastUtils.show(mContext, e.getMessage());
+      }
+
+      @Override
+      public void onComplete() {
+
+      }
+    };
     getBasicRetrofit().create(UpgradeService.class)
         .checkVersion(CHECK_VERSION_URL)
         .subscribeOn(Schedulers.io())
         .unsubscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .doOnNext(version -> {
-          if (version > BuildConfig.VERSION_CODE) {
-            // New version code, show upgrade notice dialog.
-            new MaterialDialog.Builder(mContext)
-                .title(R.string.upgrade_title)
-                .content(R.string.upgrade_message, true)
-                .positiveText(R.string.upgrade_yes)
-                .negativeText(R.string.upgrade_no)
-                .onPositive((dialog, which) -> {
-                  dialog.dismiss();
-                  switch (networkType) {
-                    case NETWORK_MOBILE:
-                      // Tell user whether to use mobile network to download.
-                      new MaterialDialog.Builder(mContext)
-                          .title(R.string.upgrade_title)
-                          .content(R.string.upgrade_under_mobile_hint, true)
-                          .positiveText(R.string.upgrade_yes)
-                          .negativeText(R.string.upgrade_no)
-                          .onPositive((confirmDialog, confirmWhich) -> {
-                            confirmDialog.dismiss();
-                            // Start download.
-                            download();
-                          })
-                          .show();
-                      break;
-                    case NETWORK_WIFI:
-                      download();
-                      break;
-                    case NETWORK_NONE:
-                      // Tell user no network is available.
-                      new MaterialDialog.Builder(mContext)
-                          .title(R.string.upgrade_title)
-                          .content(R.string.upgrade_no_network, true)
-                          .negativeText(R.string.upgrade_cancel)
-                          .show();
-                      break;
-                  }
-                })
-                .show();
-          }
-          // Mark as checked.
-          UpgradeManager.saveCheckDate(mContext);
-        })
-        .doOnError(e -> e.printStackTrace())
-        .subscribe();
+        .subscribe(observer);
   }
 
   private void writeFile(InputStream stream) {
