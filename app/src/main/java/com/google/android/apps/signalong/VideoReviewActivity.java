@@ -125,7 +125,7 @@ public class VideoReviewActivity extends BaseActivity implements
       approveRejectButtonsLayout.setVisibility(View.INVISIBLE);
       videoView.viewVideo(currentUnreviewedVideoData.getVideoPath());
     } else {
-      videoReviewViewModel.getUnreviewedVideoList();
+      videoReviewViewModel.getUnreviewedVideoList(this);
     }
   }
 
