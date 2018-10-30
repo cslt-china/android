@@ -3,6 +3,7 @@ package com.google.android.apps.signalong;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -123,7 +124,8 @@ public class VideoReviewActivity extends BaseActivity implements
                   getString(R.string.label_review_word_prompt),
                   currentUnreviewedVideoData.getGlossText()));
       approveRejectButtonsLayout.setVisibility(View.INVISIBLE);
-      videoView.viewVideo(currentUnreviewedVideoData.getVideoPath());
+      videoView.viewVideo(Uri.parse(currentUnreviewedVideoData.getVideoPath()),
+                          Uri.parse(currentUnreviewedVideoData.getThumbnail()));
     } else {
       videoReviewViewModel.getUnreviewedVideoList();
     }

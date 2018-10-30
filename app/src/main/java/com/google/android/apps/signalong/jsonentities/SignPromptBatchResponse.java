@@ -151,6 +151,7 @@ public class SignPromptBatchResponse extends BaseResponse {
       public String getVideoPath() {
         return videoPath;
       }
+      public String getThumbnailPath() { return thumbnail; }
     }
   }
 }

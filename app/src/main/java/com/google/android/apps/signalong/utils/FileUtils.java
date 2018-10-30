@@ -18,7 +18,7 @@ public class FileUtils {
   private static final String VIDEO_SUFFIX = ".mp4";
 
   public static String extractFileName(String path) {
-    if (!TextUtils.isEmpty(path) && path.endsWith(VIDEO_SUFFIX)) {
+    if (!TextUtils.isEmpty(path)) {
       return new File(path).getName();
     }
     return null;
