@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
@@ -32,8 +33,8 @@ public class VideoViewFragment extends BaseFragment {
 
   private View viewContainer;
   private VideoView videoView;
+  private Button replayButton;
   private ProgressBar downloadProgressBar;
-  private MediaController mediaController;
   private String tmpFileForPlayer;
   private File tmpDir;
 
@@ -54,8 +55,6 @@ public class VideoViewFragment extends BaseFragment {
     downloadProgressBar = viewContainer.findViewById(R.id.video_loading_progressbar);
 
     videoView = viewContainer.findViewById(R.id.video_view);
-    mediaController = new MediaController(getActivity());
-    mediaController.setAnchorView(videoView);
 
     videoView.setOnErrorListener((MediaPlayer mp, int what, int extra)->{
       Log.e(TAG, String.format("player error %d, %d", what, extra));
@@ -70,6 +69,9 @@ public class VideoViewFragment extends BaseFragment {
       }
       return false;
     });
+
+    replayButton = viewContainer.findViewById(R.id.replay_button);
+    replayButton.setOnClickListener((View v)-> replay());
 
     tmpDir = new File(this.getActivity().getExternalFilesDir(Environment.DIRECTORY_MOVIES), "temp_videos");
     tmpDir.mkdirs();
@@ -103,6 +105,18 @@ public class VideoViewFragment extends BaseFragment {
       // the stopped one.
       videoView.setVisibility(View.GONE);
       videoView.setVisibility(View.VISIBLE);
+    }
+  }
+
+  protected void replay() {
+    if (videoView.isPlaying() && videoView.canSeekBackward()) {
+      videoView.seekTo(0);
+      return;
+    } else {
+      if (tmpFileForPlayer != null && FileUtils.isFileExist(tmpFileForPlayer)) {
+        videoView.setVideoURI(FileUtils.buildUri(tmpFileForPlayer));
+        videoView.start();
+      }
     }
   }
 
@@ -196,7 +210,6 @@ public class VideoViewFragment extends BaseFragment {
     }
 
     videoView.setVideoURI(FileUtils.buildUri(tmpFileForPlayer));
-    videoView.setMediaController(mediaController);
     videoView.start();
   }
 
