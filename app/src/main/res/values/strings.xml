@@ -1,6 +1,6 @@
 <resources>
   <string name="signalong" translation_description="The launcher name.">SignAlong</string>
-  <string name="app_name">手语小歌</string>
+  <string name="app_name">手语数据收集</string>
   <!-- activity_collect_data_menu-->
   <string name="btn_standard_data">标准数据</string>
   <string name="btn_test_data">测试数据</string>
