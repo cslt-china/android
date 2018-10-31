@@ -17,7 +17,7 @@ import android.widget.VideoView;
 import com.google.android.apps.signalong.api.ApiHelper;
 import com.google.android.apps.signalong.api.VideoApi;
 import com.google.android.apps.signalong.service.DownloadFileService;
-import com.google.android.apps.signalong.service.DownloadFileService.DownloadStatusType;
+import com.google.android.apps.signalong.service.DownloadFileService.DownloadStatus;
 import com.google.android.apps.signalong.service.DownloadFileServiceImpl;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
@@ -91,8 +91,8 @@ public class VideoViewFragment extends BaseFragment {
   }
 
   public void setVisibility(int visibility) {
+    //downloadProgressBar.setVisibility(visibility);
     videoView.setVisibility(visibility);
-    downloadProgressBar.setVisibility(visibility);
     super.setVisibility(visibility);
   }
 
@@ -119,7 +119,7 @@ public class VideoViewFragment extends BaseFragment {
           .observe(
               this,
               downloadStatusData -> {
-                if (downloadStatusData == DownloadStatusType.SUCCESS) {
+                if (downloadStatusData.statusType == DownloadStatus.Type.SUCCESS) {
                   if (!videoView.isPlaying()) {
                     videoView.setBackground(Drawable.createFromPath(localPath));
                   }
@@ -131,24 +131,31 @@ public class VideoViewFragment extends BaseFragment {
   private void downloadAndPlayVideo(Uri uri) {
     if (uri.getScheme() == "file") {
       Log.i(TAG, "file already exists, no need to download.");
+      downloadProgressBar.setVisibility(View.GONE);
       startPlayback(uri.getPath());
     } else {
       Log.i(TAG, "file is not loaded to local disk, start downloading");
       String localPath =
           new File(tmpDir, uri.getLastPathSegment()).getPath();
+
+      downloadProgressBar.setMax(100);
+      downloadProgressBar.setProgress(0);
+      downloadProgressBar.setVisibility(View.VISIBLE);
+      downloadProgressBar.bringToFront();
+
       this.downloadFile(uri.toString(), localPath)
           .observe(
               this,
               downloadStatusData -> {
-                switch (downloadStatusData) {
+                switch (downloadStatusData.statusType) {
                   case SUCCESS:
                     downloadProgressBar.setVisibility(View.GONE);
                     startPlayback(localPath);
                     break;
                   case LOADING:
-                    downloadProgressBar.setVisibility(View.VISIBLE);
+                    downloadProgressBar.setProgress(downloadStatusData.percent);
                     break;
-                  case FAIL:
+                  case FAILED:
                     ToastUtils.show(getActivity().getApplicationContext(),
                                     getString(R.string.tip_video_download_failure));
                     Log.e("Failed downloading %s", uri.toString());
@@ -193,7 +200,8 @@ public class VideoViewFragment extends BaseFragment {
     videoView.start();
   }
 
-  private LiveData<DownloadStatusType> downloadFile(String downloadUrl, String outputFilepath) {
+  private LiveData<DownloadFileService.DownloadStatus> downloadFile(
+      String downloadUrl, String outputFilepath) {
     return downloadVideoFileService.downloadFile(downloadUrl, outputFilepath);
   }
 }

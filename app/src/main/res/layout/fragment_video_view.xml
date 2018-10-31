@@ -6,18 +6,18 @@
     android:background="@android:color/black"
     android:id="@+id/fragment_video_view_layout">
 
-    <ProgressBar
-      android:layout_centerInParent="true"
-      android:visibility="gone"
-      android:id="@+id/video_loading_progressbar"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"/>
-
     <VideoView
       android:layout_alignParentBottom="true"
       android:id="@+id/video_view"
       android:layout_centerInParent="true"
       android:layout_width="match_parent"
       android:layout_height="match_parent" />
+
+    <ProgressBar
+      android:layout_centerInParent="true"
+      android:visibility="gone"
+      android:id="@+id/video_loading_progressbar"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"/>
 
 </RelativeLayout>

@@ -27,13 +27,13 @@ public class DownloadFileServiceImpl implements DownloadFileService {
   }
 
   @Override
-  public LiveData<DownloadStatusType> downloadFile(String downloadUrl, String outputFilepath) {
-    MutableLiveData<DownloadStatusType> downloadStatusLiveData = new MutableLiveData<>();
+  public LiveData<DownloadStatus> downloadFile(String downloadUrl, String outputFilepath) {
+    MutableLiveData<DownloadStatus> downloadStatusLiveData = new MutableLiveData<>();
 
     if (FileUtils.isFileExist(outputFilepath)) {
-      downloadStatusLiveData.setValue(DownloadStatusType.SUCCESS);
+      downloadStatusLiveData.setValue(DownloadStatus.sucessStatus());
     } else {
-      downloadStatusLiveData.setValue(DownloadStatusType.LOADING);
+      downloadStatusLiveData.setValue(DownloadStatus.loadingStatus(0));
       videoApi
           .downloadFile(downloadUrl)
           .enqueue(
@@ -43,19 +43,28 @@ public class DownloadFileServiceImpl implements DownloadFileService {
                   File videoFile = new File(outputFilepath);
                   InputStream inputStream = null;
                   OutputStream outputStream = null;
+                  int percent = 0;
                   try {
                     byte[] fileReader = new byte[4096];
+                    long contentLength = response.body().contentLength();
+                    long downloadedSize = 0;
                     inputStream = response.body().byteStream();
                     outputStream = new FileOutputStream(videoFile);
                     int read = -1;
                     while ((read = inputStream.read(fileReader)) != -1) {
                       outputStream.write(fileReader, 0, read);
+                      //downloadStatusLiveData.
+                      downloadedSize += read;
+                      percent = (int)(downloadedSize * 100 / contentLength);
+                      downloadStatusLiveData.setValue(
+                          DownloadStatus.loadingStatus(percent));
                     }
                     outputStream.flush();
-                    downloadStatusLiveData.setValue(DownloadStatusType.SUCCESS);
+                    downloadStatusLiveData.setValue(DownloadStatus.sucessStatus());
                   } catch (IOException e) {
                     Log.d(TAG, e.getMessage());
-                    onFailure(call, null);
+                    downloadStatusLiveData.setValue(
+                        DownloadStatus.failedStatus(e.getMessage(), percent));
                   } finally {
                     try {
                       if (inputStream != null) {
@@ -72,7 +81,8 @@ public class DownloadFileServiceImpl implements DownloadFileService {
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                  downloadStatusLiveData.setValue(DownloadStatusType.FAIL);
+                  downloadStatusLiveData.setValue(
+                      DownloadStatus.failedStatus(t.getMessage()));
                 }
               });
     }

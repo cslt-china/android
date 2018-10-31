@@ -17,6 +17,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Streaming;
 import retrofit2.http.Url;
 
 /** The VideoApi interface provides upload video and get a batch of unreview videos service. */
@@ -111,5 +112,6 @@ public interface VideoApi {
    * @return already download file.
    */
   @GET
+  @Streaming
   Call<ResponseBody> downloadFile(@Url String fileUrl);
 }
