@@ -13,6 +13,17 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent" />
 
+    <Button
+      android:id="@+id/replay_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/button_replay"
+      android:alpha="0.5"
+      android:minHeight="0dp"
+      android:minWidth="0dp"
+      android:layout_alignRight="@id/video_view"
+      android:layout_alignTop="@id/video_view" />
+
     <ProgressBar
       android:layout_centerInParent="true"
       android:visibility="gone"
