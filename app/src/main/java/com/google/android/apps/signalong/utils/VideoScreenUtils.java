@@ -20,27 +20,34 @@ public class VideoScreenUtils {
   /* mediaMetadataRetriever provides metadata obtained from video file.*/
   private static final MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
 
-  public static String screenFromVideo(String videoPath) {
-    String imagePath;
-    if (videoPath == null) {
-      return null;
-    }
+  public static boolean screenFromVideo(String videoPath, String imagePath) {
+    assert(videoPath != null && imagePath != null);
+
     try {
       mediaMetadataRetriever.setDataSource(videoPath);
       String duration =
           mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
       Bitmap bitmap = mediaMetadataRetriever.getFrameAtTime(Integer.parseInt(duration) / 2);
-      imagePath = getImagePath();
       FileOutputStream fileOutputStream = new FileOutputStream(imagePath);
       if (!bitmap.compress(CompressFormat.PNG, QUALITY, fileOutputStream)) {
-        return null;
+        return false;
       }
       fileOutputStream.close();
     } catch (IllegalArgumentException | IOException e) {
       Log.d(TAG, e.getMessage());
+      return false;
+    }
+    return true;
+  }
+
+  //For compatibility with other code
+  public static String screenFromVideo(String videoPath) {
+    String imagePath = getImagePath();
+    if (screenFromVideo(videoPath, imagePath)) {
+      return imagePath;
+    } else {
       return null;
     }
-    return imagePath;
   }
 
   private static String getImagePath() {

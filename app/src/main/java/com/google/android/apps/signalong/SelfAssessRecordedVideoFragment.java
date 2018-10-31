@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.util.Log;
 
 import com.google.android.apps.signalong.utils.FileUtils;
+import com.google.android.apps.signalong.utils.VideoScreenUtils;
 
 
 public class SelfAssessRecordedVideoFragment extends BaseFragment {
@@ -75,8 +76,16 @@ public class SelfAssessRecordedVideoFragment extends BaseFragment {
 
   public void playRecorded(String title, String videoPath) {
     Log.i(TAG, "play recorded video for " + title + " from " + videoPath);
+    //There is a moment of black screen, before renderering the first frame,
+    //On this moment, another videoview will exposed which in a hidden fragment.
+    //So to cover the incorrectly exposed videoview, we must add a thumbnail 
+    //image.
     titleTextView.setText(String.format(getString(R.string.please_sign), title));
-    videoView.viewVideo(FileUtils.buildUri(videoPath), null);
+    //TODO: place the thumbnail to tmpDir
+    String thumbnailPath = videoPath + "_thumbernal.png";
+    VideoScreenUtils.screenFromVideo(videoPath, thumbnailPath);
+    videoView.viewVideo(FileUtils.buildUri(videoPath),
+                        FileUtils.buildUri(thumbnailPath));
   }
 
   public void setVisibility(int visibility) {
