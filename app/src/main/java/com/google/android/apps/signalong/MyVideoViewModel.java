@@ -8,6 +8,7 @@ import com.google.android.apps.signalong.api.ApiHelper;
 import com.google.android.apps.signalong.api.UserApi;
 import com.google.android.apps.signalong.api.VideoApi;
 import com.google.android.apps.signalong.jsonentities.ProfileResponse;
+import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import java.util.HashMap;
@@ -52,7 +53,7 @@ public class MyVideoViewModel extends AndroidViewModel {
   }
 
   public void getPersonalVideoList(
-      PersonalVideoStatus videoStatus) {
+      PersonalVideoStatus videoStatus, PersonalVideoListResponseCallbacks callback) {
     videoApi
         .getPersonalVideoList(
             LoginSharedPreferences.getAccessToken(getApplication()),
@@ -63,22 +64,17 @@ public class MyVideoViewModel extends AndroidViewModel {
               @Override
               public void onResponse(
                   Call<VideoListResponse> call, Response<VideoListResponse> response) {
-                personalVideoList.get(videoStatus).setValue(response);
+                callback.onSuccessPersonalVideoListResponse(videoStatus, response);
               }
 
               @Override
               public void onFailure(Call<VideoListResponse> call, Throwable t) {
-                personalVideoList.get(videoStatus).setValue(null);
+                callback.onFailureResponse();
               }
             });
   }
 
-  public MutableLiveData<Response<VideoListResponse>> getPersonalVideoListMutableLiveData(
-      PersonalVideoStatus videoStatus) {
-    return personalVideoList.get(videoStatus);
-  }
-
-  public void getProfile() {
+  public void getProfile(PersonalProfileResponseCallbacks callback) {
     userApi
         .getProfile(LoginSharedPreferences.getAccessToken(getApplication()))
         .enqueue(
@@ -86,17 +82,26 @@ public class MyVideoViewModel extends AndroidViewModel {
               @Override
               public void onResponse(
                   Call<ProfileResponse> call, Response<ProfileResponse> response) {
-                profileResponseLiveData.setValue(response);
+                callback.onSuccessPersonalProfileResponse(response);
               }
 
               @Override
               public void onFailure(Call<ProfileResponse> call, Throwable t) {
-                profileResponseLiveData.setValue(null);
+                callback.onFailureResponse();
               }
             });
   }
 
-  public MutableLiveData<Response<ProfileResponse>> getProfileResponseLiveData() {
-    return profileResponseLiveData;
+  public interface PersonalVideoListResponseCallbacks {
+    void onSuccessPersonalVideoListResponse(
+        PersonalVideoStatus status, Response<VideoListResponse> response);
+
+    void onFailureResponse();
+  }
+
+  public interface PersonalProfileResponseCallbacks {
+    void onSuccessPersonalProfileResponse(Response<ProfileResponse> response);
+
+    void onFailureResponse();
   }
 }

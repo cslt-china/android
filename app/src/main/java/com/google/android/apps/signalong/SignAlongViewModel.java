@@ -37,19 +37,13 @@ public class SignAlongViewModel extends AndroidViewModel {
   /* This is used as a parameter for the request to get the not approve videos.*/
   private static final String SELF_NOT_APPROVE_VIDEO_STATUS = "rejected";
   private final UserApi userApi;
-  private final VideoApi videoApi;
   private final MutableLiveData<Boolean> isLoginLiveData;
-  private final MutableLiveData<VideoListResponse.DataBeanList> unreviewedVideosLiveData;
-  private final MutableLiveData<Response<SignPromptBatchResponse>> signPromptBatchResponseLiveData;
 
 
   public SignAlongViewModel(@NonNull Application application) {
     super(application);
     userApi = ApiHelper.getRetrofit().create(UserApi.class);
-    videoApi = ApiHelper.getRetrofit().create(VideoApi.class);
     isLoginLiveData = new MutableLiveData<>();
-    unreviewedVideosLiveData = new MutableLiveData<>();
-    signPromptBatchResponseLiveData = new MutableLiveData<>();
   }
 
   public MutableLiveData<Boolean> checkLogin() {
@@ -107,54 +101,5 @@ public class SignAlongViewModel extends AndroidViewModel {
               }
             });
     return currentPointAndUsernameLiveData;
-  }
-
-  public void getReviewTaskList() {
-    videoApi
-        .getUnreviewedVideoList(LoginSharedPreferences.getAccessToken(getApplication()), 0, 0)
-        .enqueue(
-            new Callback<VideoListResponse>() {
-              @Override
-              public void onResponse(
-                  Call<VideoListResponse> call, Response<VideoListResponse> response) {
-                if (response.isSuccessful()
-                    && response.body() != null
-                    && response.body().getCode() == 0) {
-                  unreviewedVideosLiveData.setValue(response.body().getDataBeanList());
-                }
-                onFailure(call, null);
-              }
-
-              @Override
-              public void onFailure(Call<VideoListResponse> call, Throwable t) {
-                unreviewedVideosLiveData.setValue(null);
-              }
-            });
-  }
-
-  public MutableLiveData<VideoListResponse.DataBeanList> getReviewTaskListLiveData() {
-    return unreviewedVideosLiveData;
-  }
-
-  public void getSignPromptList() {
-    videoApi
-        .getSignPromptBatch(LoginSharedPreferences.getAccessToken(getApplication()), PAGE_SIZE)
-        .enqueue(
-            new Callback<SignPromptBatchResponse>() {
-              @Override
-              public void onResponse(
-                  Call<SignPromptBatchResponse> call, Response<SignPromptBatchResponse> response) {
-                signPromptBatchResponseLiveData.setValue(response);
-              }
-
-              @Override
-              public void onFailure(Call<SignPromptBatchResponse> call, Throwable t) {
-                signPromptBatchResponseLiveData.setValue(null);
-              }
-            });
-  }
-
-  public MutableLiveData<Response<SignPromptBatchResponse>> getSignPromptBatchResponseLiveData() {
-    return signPromptBatchResponseLiveData;
   }
 }
