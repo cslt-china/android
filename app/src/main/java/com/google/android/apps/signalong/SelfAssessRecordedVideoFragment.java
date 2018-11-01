@@ -91,7 +91,11 @@ public class SelfAssessRecordedVideoFragment extends BaseFragment {
   public void setVisibility(int visibility) {
     retryButton.setEnabled(visibility==View.VISIBLE);
     submitButton.setEnabled(visibility==View.VISIBLE);
+
+    //must add this line, otherwise a vidoeView.videoView (a VideoView), will
+    //flick in the gap of other fragment switch visibility.
     videoView.setVisibility(visibility);
+
     super.setVisibility(visibility);
   }
 

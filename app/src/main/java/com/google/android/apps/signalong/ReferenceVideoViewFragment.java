@@ -66,4 +66,12 @@ public class ReferenceVideoViewFragment extends BaseFragment {
   public interface OnReferenceCompletionListerner {
     public void onReferenceVideoViewCompletion();
   }
+
+  public void setVisibility(int visibility) {
+    //must add this line, otherwise a vidoeView.videoView (a VideoView), will
+    //flick in the gap of other fragment switch visibility.
+    videoView.setVisibility(visibility);
+
+    super.setVisibility(visibility);
+  }
 }
