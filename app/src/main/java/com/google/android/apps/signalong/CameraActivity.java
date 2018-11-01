@@ -1,9 +1,7 @@
 package com.google.android.apps.signalong;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -58,6 +56,9 @@ public class CameraActivity extends BaseActivity implements
   private String videoFilePath;
   private Timer showTopicTimer = new Timer();
 
+  private boolean isShown = false;
+  private boolean isTaskReady = false;
+
   @Override
   public int getContentView() {
     return R.layout.activity_camera;
@@ -83,6 +84,13 @@ public class CameraActivity extends BaseActivity implements
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    isShown = true;
+    tryStartFSM();
   }
 
   @Override
@@ -190,7 +198,8 @@ public class CameraActivity extends BaseActivity implements
   private void startWithPromptData() {
     cameraViewModel.startUploadThread();
     initFSM();
-    startFSM();
+    isTaskReady = true;
+    tryStartFSM();
   }
 
   private void fireFsmEvent(FSMEvent event) {
@@ -202,8 +211,10 @@ public class CameraActivity extends BaseActivity implements
     Log.i(fsmTag, "after fire " + event);
   }
 
-  private void startFSM() {
-    fireFsmEvent(FSMEvent.Start);
+  private void tryStartFSM() {
+    if (isShown && isTaskReady) {
+      fireFsmEvent(FSMEvent.Start);
+    }
   }
 
   private void stopFSM() {
