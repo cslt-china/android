@@ -5,6 +5,7 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import com.google.android.apps.signalong.api.ApiHelper;
 import com.google.android.apps.signalong.api.VideoApi;
 import com.google.android.apps.signalong.jsonentities.ReviewVideoResponse;
@@ -62,37 +63,10 @@ public class VideoReviewViewModel extends AndroidViewModel {
 
           @Override
           public void onFailure(Call<VideoListResponse> call, Throwable t) {
+            Log.e(TAG, "get unreviewed video list call failed " + t);
             callback.onFailureResponse();
           }
         });
-  }
-
-  public void getUnreviewedVideoList() {
-    videoApi
-        .getUnreviewedVideoList(
-            LoginSharedPreferences.getAccessToken(getApplication()), 0, LIMIT_SIZE)
-        .enqueue(
-            new Callback<VideoListResponse>() {
-
-              @Override
-              public void onResponse(
-                  Call<VideoListResponse> call, Response<VideoListResponse> response) {
-                unreviewedVideoResponseLiveData.setValue(response);
-              }
-
-              @Override
-              public void onFailure(Call<VideoListResponse> call, Throwable t) {
-                unreviewedVideoResponseLiveData.setValue(null);
-              }
-            });
-  }
-
-  public MutableLiveData<Response<ReviewVideoResponse>> getReviewVideoResponseLiveData() {
-    return reviewVideoResponseLiveData;
-  }
-
-  public MutableLiveData<Response<VideoListResponse>> getUnreviewedVideoResponseLiveData() {
-    return unreviewedVideoResponseLiveData;
   }
 
   public interface UnreviewedVideoListResponseCallbacks {

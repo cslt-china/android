@@ -1,9 +1,12 @@
 package com.google.android.apps.signalong.jsonentities;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.Parcelable.Creator;
 
 import com.google.android.apps.signalong.api.ApiHelper;
+import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse.DataBean;
+import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse.DataBean.SampleVideoBean;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
@@ -36,12 +39,26 @@ public class VideoListResponse extends BaseResponse{
       return total;
     }
 
+    public void setTotal(int total) { this.total = total; }
+
     public int getNext() {
       return next;
     }
 
     public void setNext(int next) {
       this.next = next;
+    }
+
+    public void addAll(DataBeanList other) {
+      if (this.data == null) {
+        this.total = other.getTotal();
+        this.data = other.getData();
+        this.next = other.getNext();
+      } else {
+        this.total = this.total + other.getTotal();
+        this.data.addAll(other.getData());
+        this.next = this.data.size();
+      }
     }
 
     public List<DataBean> getData() {
@@ -80,6 +97,12 @@ public class VideoListResponse extends BaseResponse{
       @SerializedName("video_path")
       private String videoPath;
 
+      @SerializedName("status")
+      private String status;
+
+      @SerializedName("review_summary")
+      private ReviewCounterBean reviewCounter;
+
       private String uuid;
       private String thumbnail;
 
@@ -92,6 +115,8 @@ public class VideoListResponse extends BaseResponse{
         this.videoPath = in.readString();
         this.uuid = in.readString();
         this.thumbnail = in.readString();
+        this.status = in.readString();
+        this.reviewCounter = in.readParcelable(ReviewCounterBean.class.getClassLoader());
       }
 
       @Override
@@ -107,31 +132,59 @@ public class VideoListResponse extends BaseResponse{
         dest.writeString(this.videoPath);
         dest.writeString(this.uuid);
         dest.writeString(this.thumbnail);
+        dest.writeString(this.status);
+        dest.writeParcelable(this.reviewCounter, flags);
       }
 
-      public int getGlossId() {
-        return glossId;
-      }
+      public static class ReviewCounterBean implements Parcelable {
 
-      public void setGlossId(int glossId) {
-        this.glossId = glossId;
+        @SerializedName("approved")
+        private int approved;
+
+        private int rejected;
+
+        public ReviewCounterBean() {}
+
+        @Override
+        public int describeContents() { return 0; }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+          dest.writeInt(approved);
+          dest.writeInt(rejected);
+        }
+
+        protected ReviewCounterBean(Parcel in) {
+          this.approved = in.readInt();
+          this.rejected = in.readInt();
+        }
+
+        static public final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+          public ReviewCounterBean createFromParcel(Parcel in) {
+            return new ReviewCounterBean(in);
+          }
+
+          public ReviewCounterBean[] newArray(int size) {
+            return new ReviewCounterBean[size];
+          }
+        };
+
+        public int getApproved() { return approved; }
+        public int getRejected() { return rejected; }
       }
 
       public String getGlossText() {
         return glossText;
       }
 
-      public void setGlossText(String glossText) {
-        this.glossText = glossText;
-      }
-
       public int getCreatedTime() {
         return createdTime;
       }
 
-      public void setCreatedTime(int createdTime) {
-        this.createdTime = createdTime;
-      }
+      public String getStatus() { return status; }
+
+      public int getApprovedReviewCounter() { return reviewCounter.getApproved(); }
+      public int getRejectedReviewCounter() { return reviewCounter.getRejected(); }
 
       public String getVideoPath() {
         if (videoPath.startsWith(ApiHelper.PROTOCOL)) {
@@ -141,16 +194,8 @@ public class VideoListResponse extends BaseResponse{
         }
       }
 
-      public void setVideoPath(String videoPath) {
-        this.videoPath = videoPath;
-      }
-
       public String getUuid() {
         return uuid;
-      }
-
-      public void setUuid(String uuid) {
-        this.uuid = uuid;
       }
 
       public String getThumbnail() {
@@ -161,9 +206,6 @@ public class VideoListResponse extends BaseResponse{
         }
       }
 
-      public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
-      }
     }
   }
 }

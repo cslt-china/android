@@ -102,19 +102,9 @@
   </LinearLayout>
 
   <android.support.v7.widget.RecyclerView
-      android:id="@+id/my_rejected_videos_recyclerview"
-      android:layout_width="match_parent"
-      android:layout_height="60dp" />
-
-  <android.support.v7.widget.RecyclerView
       android:id="@+id/my_recent_videos_recyclerview"
       android:layout_width="match_parent"
-      android:layout_height="60dp" />
-
-  <android.support.v7.widget.RecyclerView
-      android:id="@+id/my_approved_videos_recyclerview"
-      android:layout_width="match_parent"
-      android:layout_height="60dp" />
+      android:layout_height="200dp" />
 
   <fragment
       android:id="@+id/fragment_my_video_view"

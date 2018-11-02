@@ -15,7 +15,7 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
 public class TaskView extends AppCompatTextView {
-  private static final String TAG = "ReviewTaskView";
+  private static final String TAG = "TaskView";
 
   private TaskType taskType;
   private VideoListResponse.DataBeanList.DataBean videoData;
@@ -27,12 +27,8 @@ public class TaskView extends AppCompatTextView {
     NEW_RECORDING,
     // The task to review other user's pending recordings according to VideoListResponse
     NEW_REVIEW,
-    // The task to view user's own accepted recordings according to VideoListResponse
-    ACCEPTED_RECORDING,
-    // The task to view user's own pending recordings according to VideoListResponse
-    PENDING_RECORDING,
-    // The task to view user's own rejected recordings according to VideoListResponse
-    REJECTED_RECORDING
+    // The task to view user's own recordings according to VideoListResponse
+    MY_RECORDING,
   }
 
   public TaskView(Context context, AttributeSet attrs) throws InvalidParameterException {
@@ -47,8 +43,7 @@ public class TaskView extends AppCompatTextView {
   }
 
   public VideoListResponse.DataBeanList.DataBean getVideoData() {
-    if (taskType == TaskType.PENDING_RECORDING || taskType == TaskType.REJECTED_RECORDING
-        || taskType == TaskType.ACCEPTED_RECORDING) {
+    if (taskType == TaskType.NEW_REVIEW || taskType == TaskType.MY_RECORDING) {
       return videoData;
     } else {
       return null;
@@ -64,6 +59,7 @@ public class TaskView extends AppCompatTextView {
   }
 
   public void setData(VideoListResponse.DataBeanList.DataBean data, TaskType taskType) {
+    Log.i(TAG, "setData with task type " + taskType);
     videoData = data;
     this.taskType = taskType;
     this.setText(data.getGlossText());
@@ -73,6 +69,7 @@ public class TaskView extends AppCompatTextView {
   public void setData(SignPromptBatchResponse.DataBean data, TaskType taskType) {
     if (taskType != TaskType.NEW_RECORDING) {
       Log.e(TAG, "task type must be NEW_RECORDING for SignPromptBatchResponse");
+      return;
     }
     this.taskType = TaskType.NEW_RECORDING;
     promptData = data;
@@ -86,17 +83,21 @@ public class TaskView extends AppCompatTextView {
       case NEW_REVIEW:
         this.setTextColor(getResources().getColor(R.color.colorPrimary, null));
         break;
-      case ACCEPTED_RECORDING:
-        this.setTextColor(getResources().getColor(R.color.green, null));
-        break;
-      case PENDING_RECORDING:
-        this.setTextColor(getResources().getColor(R.color.yellow, null));
-        break;
-      case REJECTED_RECORDING:
-        this.setTextColor(getResources().getColor(R.color.red, null));
+      case MY_RECORDING:
+        switch (videoData.getStatus()) {
+          case "APPROVED":
+            this.setTextColor(getResources().getColor(R.color.green, null));
+            break;
+          case "PENDING_APPROVAL":
+            this.setTextColor(getResources().getColor(R.color.yellow, null));
+            break;
+          case "REJECTED":
+            this.setTextColor(getResources().getColor(R.color.red, null));
+            break;
+        }
         break;
       default:
-        Log.e(TAG, "unknown task type");
+        Log.e(TAG, "updateView cannot update unknown task type");
         throw new InvalidParameterException(
             "Invalid AttributeSet of TaskTExtView_taskType=UNKNOWN");
     }

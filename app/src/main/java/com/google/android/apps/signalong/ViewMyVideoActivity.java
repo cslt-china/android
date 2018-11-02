@@ -38,6 +38,13 @@ public class ViewMyVideoActivity extends BaseActivity {
     ((TextView) findViewById(R.id.gloss_text_textview)).setText(myVideoData.getGlossText());
     ((TextView) findViewById(R.id.gloss_creation_time_textview))
         .setText(TimerUtils.convertTimestamp(myVideoData.getCreatedTime()));
+    ((TextView) findViewById(R.id.gloss_status_textview))
+        .setText(String.valueOf(myVideoData.getStatus()));
+    ((TextView) findViewById(R.id.gloss_approved_counter_textview))
+        .setText(String.valueOf(myVideoData.getApprovedReviewCounter()));
+    ((TextView) findViewById(R.id.gloss_rejected_counter_textview))
+        .setText(String.valueOf(myVideoData.getRejectedReviewCounter()));
+
 
     videoView = (VideoViewFragment) getSupportFragmentManager().findFragmentById(
         R.id.fragment_my_video_view);

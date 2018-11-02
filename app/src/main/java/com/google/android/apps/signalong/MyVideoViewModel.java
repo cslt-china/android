@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import com.google.android.apps.signalong.api.ApiHelper;
 import com.google.android.apps.signalong.api.UserApi;
 import com.google.android.apps.signalong.api.VideoApi;
@@ -22,6 +23,8 @@ import retrofit2.Response;
  * video logic.
  */
 public class MyVideoViewModel extends AndroidViewModel {
+  private static final String TAG = "MyVideoViewModel";
+
   /** The type of PersonalVideoStatus that this object specifies. */
   public enum PersonalVideoStatus {
     /* The request to get all videos of current user.*/
@@ -69,7 +72,8 @@ public class MyVideoViewModel extends AndroidViewModel {
 
               @Override
               public void onFailure(Call<VideoListResponse> call, Throwable t) {
-                callback.onFailureResponse();
+                Log.i(TAG, "video status = " + videoStatus + " call failed: "  +t);
+                callback.onFailureResponse(t);
               }
             });
   }
@@ -87,7 +91,7 @@ public class MyVideoViewModel extends AndroidViewModel {
 
               @Override
               public void onFailure(Call<ProfileResponse> call, Throwable t) {
-                callback.onFailureResponse();
+                callback.onFailureResponse(t);
               }
             });
   }
@@ -96,12 +100,12 @@ public class MyVideoViewModel extends AndroidViewModel {
     void onSuccessPersonalVideoListResponse(
         PersonalVideoStatus status, Response<VideoListResponse> response);
 
-    void onFailureResponse();
+    void onFailureResponse(Throwable t);
   }
 
   public interface PersonalProfileResponseCallbacks {
     void onSuccessPersonalProfileResponse(Response<ProfileResponse> response);
 
-    void onFailureResponse();
+    void onFailureResponse(Throwable t);
   }
 }

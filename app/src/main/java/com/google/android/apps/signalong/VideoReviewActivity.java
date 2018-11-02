@@ -127,7 +127,7 @@ public class VideoReviewActivity extends BaseActivity implements
       videoView.viewVideo(Uri.parse(currentUnreviewedVideoData.getVideoPath()),
                           Uri.parse(currentUnreviewedVideoData.getThumbnail()));
     } else {
-      videoReviewViewModel.getUnreviewedVideoList();
+      videoReviewViewModel.getUnreviewedVideoList(this);
     }
   }
 

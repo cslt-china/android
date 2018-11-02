@@ -34,18 +34,9 @@ public class MyVideoFragment extends Fragment implements
     MyVideoViewModel.PersonalProfileResponseCallbacks {
   private static final String TAG = "MyVideoFragment";
 
-  private static final int SPAN_COUNT = 4;
+  private static final TaskType TASK_TYPE = TaskType.MY_RECORDING;
 
-  protected static final Map<PersonalVideoStatus, TaskType> VIDEO_STATUS_TO_TASK_TYPE_MAP =
-      new HashMap<>();
-  static {
-    VIDEO_STATUS_TO_TASK_TYPE_MAP.put(PersonalVideoStatus.REJECTED,
-        TaskType.REJECTED_RECORDING);
-    VIDEO_STATUS_TO_TASK_TYPE_MAP.put(PersonalVideoStatus.PENDING_APPROVAL,
-        TaskType.PENDING_RECORDING);
-    VIDEO_STATUS_TO_TASK_TYPE_MAP.put(PersonalVideoStatus.APPROVED,
-        TaskType.ACCEPTED_RECORDING);
-  }
+  private static final int SPAN_COUNT = 4;
 
   private static final Map<PersonalVideoStatus, Pair<Integer, Integer>>
       PERSONAL_VIDEO_STATUS_VIEW_ID_MAP = new HashMap<>();
@@ -60,6 +51,7 @@ public class MyVideoFragment extends Fragment implements
 
   private View viewContainer;
   private Map<PersonalVideoStatus, TaskViewAdapter> taskViewAdapterMap;
+  private TaskViewAdapter taskViewAdapter;
   private OnClickListener taskViewOnClickListener;
   private MyVideoViewModel myVideoViewModel;
 
@@ -73,6 +65,7 @@ public class MyVideoFragment extends Fragment implements
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     viewContainer = inflater.inflate(R.layout.fragment_my_video, container, false);
+    taskViewAdapter = new TaskViewAdapter();
     taskViewAdapterMap = new HashMap<>();
     for(PersonalVideoStatus status : PERSONAL_VIDEO_STATUS_VIEW_ID_MAP.keySet()) {
       taskViewAdapterMap.put(status, new TaskViewAdapter());
@@ -92,12 +85,7 @@ public class MyVideoFragment extends Fragment implements
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    initRecyclerView(R.id.my_recent_videos_recyclerview,
-        taskViewAdapterMap.get(PersonalVideoStatus.PENDING_APPROVAL));
-    initRecyclerView(R.id.my_rejected_videos_recyclerview,
-        taskViewAdapterMap.get(PersonalVideoStatus.REJECTED));
-    initRecyclerView(R.id.my_approved_videos_recyclerview,
-        taskViewAdapterMap.get(PersonalVideoStatus.APPROVED));
+    initRecyclerView(R.id.my_recent_videos_recyclerview, taskViewAdapter);
   }
 
   private void initRecyclerView(int recylcerViewId, TaskViewAdapter adapter) {
@@ -115,7 +103,10 @@ public class MyVideoFragment extends Fragment implements
 
   private void initView() {
     myVideoViewModel.getProfile(this);
+    taskViewAdapter.initVideolist(getActivity().getApplicationContext(), TASK_TYPE,
+        taskViewOnClickListener);
     for(PersonalVideoStatus status : PERSONAL_VIDEO_STATUS_VIEW_ID_MAP.keySet()) {
+      Log.i(TAG, "initView for status " + status);
       myVideoViewModel.getPersonalVideoList(status, this);
     }
   }
@@ -158,6 +149,7 @@ public class MyVideoFragment extends Fragment implements
       PersonalVideoStatus status, Response<VideoListResponse> response) {
     if (response == null || !response.isSuccessful()) {
       ToastUtils.show(getActivity().getApplicationContext(), getString(R.string.tip_connect_fail));
+      Log.i(TAG, "onSuccessPersonalVideoListResponse connection failed " + status);
       return;
     }
     if (response.body() != null && response.body().getCode() == 0) {
@@ -165,14 +157,16 @@ public class MyVideoFragment extends Fragment implements
       ((TextView) viewContainer.findViewById(PERSONAL_VIDEO_STATUS_VIEW_ID_MAP.get(status).first))
         .setText(String.format(getString(PERSONAL_VIDEO_STATUS_VIEW_ID_MAP.get(status).second),
             dataBeanList.getTotal()));
-      taskViewAdapterMap.get(status).setVideoList(
-          getActivity().getApplicationContext(),
-          dataBeanList,
-          VIDEO_STATUS_TO_TASK_TYPE_MAP.get(status),
-          taskViewOnClickListener);
+      if (dataBeanList.getData() != null && !dataBeanList.getData().isEmpty()) {
+        taskViewAdapter
+            .addVideoList(getActivity().getApplicationContext(), TASK_TYPE, dataBeanList);
+      }
+    } else {
+      Log.i(TAG, "onSuccessPersonalVideoListResponse status: " + status + "no response");
     }
   }
 
-  public void onFailureResponse() {
+  public void onFailureResponse(Throwable t) {
+    Log.e(TAG, String.valueOf(t));
   }
 }
