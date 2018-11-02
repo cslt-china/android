@@ -104,13 +104,17 @@
   <string name="btn_dialog_help_ok">确定</string>
 
   <!-- activity_view_my_video -->
-  <string name="label_my_video_gloss_text">录制手语： </string>
-  <string name="label_my_video_creation_time">创建时间： </string>
+  <string name="label_my_video_gloss_text">录制手语</string>
+  <string name="label_my_video_creation_time">创建时间</string>
   <string name="tip_request_fail">请求失败</string>
   <string name="label_empty_video_list">\(暂无\)</string>
   <string name="label_gloss_status">评审状态</string>
   <string name="label_gloss_approved_counter">评为正确</string>
   <string name="label_gloss_rejected_counter">评为错误</string>
+
+  <string name="label_gloss_status_rejected">未通过</string>
+  <string name="label_gloss_status_pending_approval">待评审</string>
+  <string name="label_gloss_status_approved">已通过</string>
 
   <!-- fragment_my_videos -->
   <string name="label_task_profile_title">%1$s 已完成的任务</string>
