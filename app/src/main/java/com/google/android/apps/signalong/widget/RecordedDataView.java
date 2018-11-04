@@ -17,7 +17,7 @@ import java.util.Map;
 public class RecordedDataView extends TaskView<DataBean> {
   private static final String TAG = "RecordedDataView";
 
-  private static final Map<String, Integer> GLOSS_STATUS_LABEL_ID_MAP = new HashMap<>();
+  public static final Map<String, Integer> GLOSS_STATUS_LABEL_ID_MAP = new HashMap<>();
   static {
     GLOSS_STATUS_LABEL_ID_MAP.put("APPROVED", R.string.label_gloss_status_approved);
     GLOSS_STATUS_LABEL_ID_MAP.put("PENDING_APPROVAL", R.string.label_gloss_status_pending_approval);
@@ -43,7 +43,7 @@ public class RecordedDataView extends TaskView<DataBean> {
     ((TextView) layout.findViewById(R.id.gloss_text_textview)).setText(data.getGlossText());
     ((TextView) layout.findViewById(R.id.gloss_creation_time_textview))
         .setText(TimerUtils.convertTimestamp(data.getCreatedTime()));
-    ((TextView) findViewById(R.id.gloss_status_textview))
+    ((TextView) layout.findViewById(R.id.gloss_status_textview))
         .setText(layout.getResources().getText(
             GLOSS_STATUS_LABEL_ID_MAP.get(data.getStatus())));
     ((TextView) layout.findViewById(R.id.gloss_approved_counter_textview))
@@ -51,10 +51,6 @@ public class RecordedDataView extends TaskView<DataBean> {
     ((TextView) layout.findViewById(R.id.gloss_rejected_counter_textview))
         .setText(String.valueOf(data.getRejectedReviewCounter()));
 
-    updateView();
-  }
-
-  private void updateView() {
     CardView card = layout.findViewById(R.id.recorded_data_cardview);
     switch (taskType) {
       case NEW_REVIEW:

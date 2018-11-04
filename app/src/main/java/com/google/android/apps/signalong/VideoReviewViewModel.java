@@ -2,8 +2,6 @@ package com.google.android.apps.signalong;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.android.apps.signalong.api.ApiHelper;
@@ -22,14 +20,10 @@ public class VideoReviewViewModel extends AndroidViewModel {
   /* Load size per page.*/
   private static final Integer LIMIT_SIZE = 8;
   private final VideoApi videoApi;
-  private final MutableLiveData<Response<ReviewVideoResponse>> reviewVideoResponseLiveData;
-  private final MutableLiveData<Response<VideoListResponse>> unreviewedVideoResponseLiveData;
 
   public VideoReviewViewModel(@NonNull Application application) {
     super(application);
     videoApi = ApiHelper.getRetrofit().create(VideoApi.class);
-    reviewVideoResponseLiveData = new MutableLiveData<>();
-    unreviewedVideoResponseLiveData = new MutableLiveData<>();
   }
 
   public void reviewVideo(String uuid, String status,
@@ -46,7 +40,7 @@ public class VideoReviewViewModel extends AndroidViewModel {
 
               @Override
               public void onFailure(Call<ReviewVideoResponse> call, Throwable t) {
-                callback.onFailureResponse();
+                callback.onFailureResponse(t);
               }
             });
   }
@@ -64,7 +58,7 @@ public class VideoReviewViewModel extends AndroidViewModel {
           @Override
           public void onFailure(Call<VideoListResponse> call, Throwable t) {
             Log.e(TAG, "get unreviewed video list call failed " + t);
-            callback.onFailureResponse();
+            callback.onFailureResponse(t);
           }
         });
   }
@@ -72,12 +66,12 @@ public class VideoReviewViewModel extends AndroidViewModel {
   public interface UnreviewedVideoListResponseCallbacks {
     void onSuccessUnreviewedVideoListResponse(Response<VideoListResponse> response);
 
-    void onFailureResponse();
+    void onFailureResponse(Throwable t);
   }
 
   public interface ReviewVideoResponseCallbacks {
     void onSuccessReviewVideoResponse(Response<ReviewVideoResponse> response);
 
-    void onFailureResponse();
+    void onFailureResponse(Throwable t);
   }
 }

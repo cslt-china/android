@@ -2,11 +2,8 @@ package com.google.android.apps.signalong.jsonentities;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.Parcelable.Creator;
 
 import com.google.android.apps.signalong.api.ApiHelper;
-import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse.DataBean;
-import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse.DataBean.SampleVideoBean;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
@@ -23,10 +20,6 @@ public class VideoListResponse extends BaseResponse{
     return dataBeanList;
   }
 
-  public void setDataBeanList(DataBeanList dataBeanList) {
-    this.dataBeanList = dataBeanList;
-  }
-
   /** DataBeanList wraps multiple item data. */
   public static class DataBeanList {
 
@@ -39,14 +32,8 @@ public class VideoListResponse extends BaseResponse{
       return total;
     }
 
-    public void setTotal(int total) { this.total = total; }
-
     public int getNext() {
       return next;
-    }
-
-    public void setNext(int next) {
-      this.next = next;
     }
 
     public void addAll(DataBeanList other) {
@@ -142,8 +129,6 @@ public class VideoListResponse extends BaseResponse{
         private int approved;
 
         private int rejected;
-
-        public ReviewCounterBean() {}
 
         @Override
         public int describeContents() { return 0; }

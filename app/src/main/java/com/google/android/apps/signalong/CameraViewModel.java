@@ -15,7 +15,6 @@ import com.google.android.apps.signalong.jsonentities.CreateVideoResponse;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.jsonentities.UploadVideoResponse;
 import com.google.android.apps.signalong.jsonentities.VideoId;
-import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import com.google.android.apps.signalong.utils.TimerUtils;
@@ -39,6 +38,7 @@ import retrofit2.Response;
 public class CameraViewModel extends AndroidViewModel {
   private static final String TAG = "CameraViewModel";
 
+  private static final int PROMPT_BATCH_LIMIT = 10;
   /* Internet video file type.*/
   private static final String MEDIA_VIDEO = "video/mp4";
   /* Internet image file type.*/
@@ -82,7 +82,8 @@ public class CameraViewModel extends AndroidViewModel {
 
   public void getSignPromptBatch(SignPromptBatchResponseCallbacks callback) {
     videoApi
-        .getSignPromptBatch(LoginSharedPreferences.getAccessToken(getApplication()), 8)
+        .getSignPromptBatch(LoginSharedPreferences.getAccessToken(getApplication()),
+            PROMPT_BATCH_LIMIT)
         .enqueue(
             new Callback<SignPromptBatchResponse>() {
               @Override
@@ -93,33 +94,10 @@ public class CameraViewModel extends AndroidViewModel {
 
               @Override
               public void onFailure(Call<SignPromptBatchResponse> call, Throwable t) {
-                callback.onFailureResponse();
+                callback.onFailureResponse(t);
               }
             });
   }
-
-  public void getSignPromptBatch() {
-    videoApi
-        .getSignPromptBatch(LoginSharedPreferences.getAccessToken(getApplication()), 8)
-        .enqueue(
-            new Callback<SignPromptBatchResponse>() {
-              @Override
-              public void onResponse(
-                  Call<SignPromptBatchResponse> call, Response<SignPromptBatchResponse> response) {
-                signPromptBatchResponseLiveData.setValue(response);
-              }
-
-              @Override
-              public void onFailure(Call<SignPromptBatchResponse> call, Throwable t) {
-                signPromptBatchResponseLiveData.setValue(null);
-              }
-            });
-  }
-
-  public MutableLiveData<Response<SignPromptBatchResponse>> getSignPromptBatchResponseLiveData() {
-    return signPromptBatchResponseLiveData;
-  }
-
 
   private static final int UPLOAD_CONCURRENT = 3;
 
@@ -298,7 +276,7 @@ public class CameraViewModel extends AndroidViewModel {
   public interface SignPromptBatchResponseCallbacks {
     void onSuccessSignPromptBatchResponse(Response<SignPromptBatchResponse> response);
 
-    void onFailureResponse();
+    void onFailureResponse(Throwable t);
   }
 
 }

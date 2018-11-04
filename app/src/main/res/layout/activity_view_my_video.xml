@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="0dp">
-  <include layout="@layout/item_recording_data_view"></include>
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+  <include layout="@layout/item_recording_data_view" />
   <fragment
       android:id="@+id/fragment_my_video_view"
       android:name="com.google.android.apps.signalong.VideoViewFragment"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_marginTop="140dp"/>
-</RelativeLayout>
+      android:layout_height="fill_parent"/>
+</LinearLayout>

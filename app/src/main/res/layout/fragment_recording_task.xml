@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recording_task_layout"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:orientation="horizontal">
+    <TextView
+        android:id="@+id/recording_task_count_textview"
+        android:text="@string/label_recording_task_count"
+        android:textStyle="bold"
+        android:textSize="16dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBaseline="@id/record_video_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/record_video_button"
+        android:text="@string/button_record_video"
+        android:layout_margin="10dp"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/white"
+        android:textSize="16dp"
+        android:background="@color/highLight"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+  </RelativeLayout>
+  <android.support.v7.widget.RecyclerView
+      android:id="@+id/recording_task_recyclerview"
+      android:layout_margin="10dp"
+      android:layout_width="match_parent"
+      android:layout_height="fill_parent" />
+</LinearLayout>

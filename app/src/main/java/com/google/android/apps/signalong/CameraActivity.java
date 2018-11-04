@@ -192,7 +192,8 @@ public class CameraActivity extends BaseActivity implements
     }
   }
 
-  public void onFailureResponse() {
+  public void onFailureResponse(Throwable t) {
+    Log.e(TAG, String.valueOf(t));
   }
 
   private void startWithPromptData() {

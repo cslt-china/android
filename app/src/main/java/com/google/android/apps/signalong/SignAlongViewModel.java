@@ -31,14 +31,8 @@ import retrofit2.Response;
  */
 public class SignAlongViewModel extends AndroidViewModel {
 
-  private static final Integer PAGE_SIZE = 8;
-  /* This is used as a parameter for the request to get all the videos.*/
-  private static final String SELF_ALL_VIDEO_STATUS = "all";
-  /* This is used as a parameter for the request to get the not approve videos.*/
-  private static final String SELF_NOT_APPROVE_VIDEO_STATUS = "rejected";
   private final UserApi userApi;
   private final MutableLiveData<Boolean> isLoginLiveData;
-
 
   public SignAlongViewModel(@NonNull Application application) {
     super(application);

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/review_task_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:orientation="horizontal">
+    <TextView
+        android:id="@+id/review_task_count_textview"
+        android:text="@string/label_review_task_count"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:layout_alignBaseline="@id/review_video_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/review_video_button"
+        android:text="@string/button_review_video"
+        android:textSize="16dp"
+        android:layout_margin="10dp"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/white"
+        android:background="@color/highLight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+  </RelativeLayout>
+  <android.support.v7.widget.RecyclerView
+      android:id="@+id/review_task_recyclerview"
+      android:layout_margin="10dp"
+      android:layout_width="match_parent"
+      android:layout_height="fill_parent" />
+</LinearLayout>

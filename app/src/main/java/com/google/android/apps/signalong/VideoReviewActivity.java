@@ -1,20 +1,16 @@
 package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.google.android.apps.signalong.jsonentities.ReviewVideoResponse;
-import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse.DataBean;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.utils.ActivityUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
-import java.util.ArrayList;
 import java.util.List;
 import retrofit2.Response;
 
@@ -57,7 +53,7 @@ public class VideoReviewActivity extends BaseActivity implements
 
   @Override
   public void initViews() {
-    approveRejectButtonsLayout = (RelativeLayout) findViewById(R.id.approve_reject_buttons_layout);
+    approveRejectButtonsLayout = findViewById(R.id.approve_reject_buttons_layout);
     videoView = (VideoViewFragment) getSupportFragmentManager().findFragmentById(
         R.id.fragment_video_view);
     videoView.setVideoViewCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -107,7 +103,8 @@ public class VideoReviewActivity extends BaseActivity implements
     }
   }
 
-  public void onFailureResponse() {
+  public void onFailureResponse(Throwable t) {
+    Log.e(TAG, String.valueOf(t));
     ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
     finish();
   }

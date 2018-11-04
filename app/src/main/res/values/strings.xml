@@ -78,8 +78,12 @@
   <string name="btn_open_camera">进入录制视频</string>
 
   <!-- activity_sign_along -->
+  <string name="label_recording_task_page_title">待录制</string>
+  <string name="label_review_task_page_title">待评审</string>
+  <string name="label_my_recording_page_title">已录制</string>
   <string name="label_recording_task_count">待录制任务 %1$d 个</string>
   <string name="label_review_task_count">待评审任务 %1$d 个</string>
+
   <string name="button_record_video">开始录制</string>
   <string name="button_review_video">开始评审</string>
   <string name="tip_video_creation_time">创建时间: %1$s</string>
@@ -106,7 +110,7 @@
   <string name="btn_dialog_help_ok">确定</string>
 
   <!-- item_recording_data_view -->
-  <string name="label_my_video_gloss_text">录制手语</string>
+  <string name="label_my_video_gloss_text">手语</string>
   <string name="label_my_video_creation_time">创建时间</string>
   <string name="tip_request_fail">请求失败</string>
   <string name="label_empty_video_list">\(暂无\)</string>
