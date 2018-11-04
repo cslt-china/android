@@ -1,25 +1,20 @@
 package com.google.android.apps.signalong;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.provider.ContactsContract.Profile;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.arch.lifecycle.ViewModelProviders;
-import android.support.v4.app.Person;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 import com.google.android.apps.signalong.MyVideoViewModel.PersonalVideoStatus;
-import com.google.android.apps.signalong.jsonentities.ProfileResponse;
-import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.ScoresBean;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.utils.ToastUtils;
-import com.google.android.apps.signalong.widget.TaskView;
+import com.google.android.apps.signalong.widget.RecordedDataView;
+import com.google.android.apps.signalong.widget.RecordedDataViewAdapter;
 import com.google.android.apps.signalong.widget.TaskView.TaskType;
-import com.google.android.apps.signalong.widget.TaskViewAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,13 +25,10 @@ import java.util.Map;
 import retrofit2.Response;
 
 public class MyVideoFragment extends Fragment implements
-    MyVideoViewModel.PersonalVideoListResponseCallbacks,
-    MyVideoViewModel.PersonalProfileResponseCallbacks {
+    MyVideoViewModel.PersonalVideoListResponseCallbacks {
   private static final String TAG = "MyVideoFragment";
 
   private static final TaskType TASK_TYPE = TaskType.MY_RECORDING;
-
-  private static final int SPAN_COUNT = 4;
 
   private static final Map<PersonalVideoStatus, Pair<Integer, Integer>>
       PERSONAL_VIDEO_STATUS_VIEW_ID_MAP = new HashMap<>();
@@ -50,8 +42,7 @@ public class MyVideoFragment extends Fragment implements
   };
 
   private View viewContainer;
-  private Map<PersonalVideoStatus, TaskViewAdapter> taskViewAdapterMap;
-  private TaskViewAdapter taskViewAdapter;
+  private RecordedDataViewAdapter taskViewAdapter;
   private OnClickListener taskViewOnClickListener;
   private MyVideoViewModel myVideoViewModel;
 
@@ -65,16 +56,12 @@ public class MyVideoFragment extends Fragment implements
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     viewContainer = inflater.inflate(R.layout.fragment_my_video, container, false);
-    taskViewAdapter = new TaskViewAdapter();
-    taskViewAdapterMap = new HashMap<>();
-    for(PersonalVideoStatus status : PERSONAL_VIDEO_STATUS_VIEW_ID_MAP.keySet()) {
-      taskViewAdapterMap.put(status, new TaskViewAdapter());
-    }
+    taskViewAdapter = new RecordedDataViewAdapter();
 
     taskViewOnClickListener = new OnClickListener() {
       @Override
       public void onClick(View v) {
-        VideoListResponse.DataBeanList.DataBean data = ((TaskView) v).getVideoData();
+        VideoListResponse.DataBeanList.DataBean data = ((RecordedDataView) v).getData();
         ViewMyVideoActivity.startActivity(getActivity(), data);
       }
     };
@@ -88,10 +75,9 @@ public class MyVideoFragment extends Fragment implements
     initRecyclerView(R.id.my_recent_videos_recyclerview, taskViewAdapter);
   }
 
-  private void initRecyclerView(int recylcerViewId, TaskViewAdapter adapter) {
+  private void initRecyclerView(int recylcerViewId, RecordedDataViewAdapter adapter) {
     RecyclerView recyclerView = viewContainer.findViewById(recylcerViewId);
-    recyclerView.setLayoutManager(new GridLayoutManager(getActivity().getApplicationContext(),
-        SPAN_COUNT));
+    recyclerView.setLayoutManager(new GridLayoutManager(getActivity().getApplicationContext(), 1));
     recyclerView.setAdapter(adapter);
   }
 
@@ -102,47 +88,12 @@ public class MyVideoFragment extends Fragment implements
   }
 
   private void initView() {
-    myVideoViewModel.getProfile(this);
     taskViewAdapter.initVideolist(getActivity().getApplicationContext(), TASK_TYPE,
         taskViewOnClickListener);
     for(PersonalVideoStatus status : PERSONAL_VIDEO_STATUS_VIEW_ID_MAP.keySet()) {
       Log.i(TAG, "initView for status " + status);
       myVideoViewModel.getPersonalVideoList(status, this);
     }
-  }
-
-  public void onSuccessPersonalProfileResponse(Response<ProfileResponse> response) {
-    if (response == null || !response.isSuccessful()) {
-      ToastUtils.show(getActivity().getApplicationContext(), getString(R.string.tip_connect_fail));
-      return;
-    }
-    if (response.body() == null ) {
-      ((TextView) viewContainer.findViewById(R.id.my_task_profile_title_textview))
-          .setText(getString(R.string.label_loading));
-      return;
-    }
-    if (response.body().getCode() != 0) {
-      return;
-    }
-
-    ProfileResponse.DataBean data = response.body().getData();
-    ((TextView) viewContainer.findViewById(R.id.my_task_profile_title_textview))
-        .setText(String.format(getString(R.string.label_task_profile_title),
-            data.getUsername()));
-    ScoresBean scoresBean = data.getScores();
-    ((TextView) viewContainer.findViewById(R.id.my_uploaded_video_count_textview))
-        .setText(String.format(getString(R.string.label_uploaded_video_count),
-            scoresBean.getVideoCreationCount()));
-    ((TextView) viewContainer.findViewById(R.id.my_recording_score_textview))
-        .setText(
-            String.format(getString(R.string.label_my_recording_score),
-                scoresBean.getTotalScore() - scoresBean.getVideoReviewScore()));
-    ((TextView) viewContainer.findViewById(R.id.my_reviewed_video_count_textview))
-        .setText(String.format(getString(R.string.label_reviewed_video_count),
-            scoresBean.getVideoReviewCount()));
-    ((TextView) viewContainer.findViewById(R.id.my_review_score_textview))
-        .setText(String.format(getString(R.string.label_my_review_score),
-            scoresBean.getVideoReviewScore()));
   }
 
   public void onSuccessPersonalVideoListResponse(

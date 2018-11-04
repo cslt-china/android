@@ -28,7 +28,7 @@
     <Button
         android:layout_marginEnd="10dp"
         android:id="@+id/btn_home_setting"
-        android:background="@drawable/setting_button"
+        android:background="@drawable/ic_person_24p_4x"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_gravity="end"/>
@@ -74,7 +74,7 @@
           android:id="@+id/recording_task_recyclerview"
           android:layout_margin="10dp"
           android:layout_width="match_parent"
-          android:layout_height="60dp" />
+          android:layout_height="80dp" />
     </LinearLayout>
 
     <View
@@ -87,7 +87,7 @@
         android:id="@+id/review_task_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
       <RelativeLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
@@ -116,8 +116,14 @@
           android:id="@+id/review_task_recyclerview"
           android:layout_margin="10dp"
           android:layout_width="match_parent"
-          android:layout_height="60dp" />
+          android:layout_height="80dp" />
     </LinearLayout>
+
+    <View
+        android:layout_height="1dp"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="10dp"
+        android:background="@color/light_grey" />
 
     <fragment
         android:id="@+id/fragment_my_videos"

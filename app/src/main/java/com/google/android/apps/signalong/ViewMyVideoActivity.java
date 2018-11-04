@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;

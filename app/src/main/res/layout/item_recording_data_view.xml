@@ -10,9 +10,7 @@
   <android.support.v7.widget.CardView
       xmlns:card_view="http://schemas.android.com/apk/res-auto"
       style="@style/TaskCard"
-      android:id="@+id/task_cardview"
-      android:layout_gravity="center"
-      android:layout_margin="@dimen/fab_margin"
+      android:id="@+id/recorded_data_cardview"
       android:elevation="3dp"
       android:layout_width="match_parent"
       android:layout_height="match_parent">

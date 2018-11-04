@@ -14,39 +14,37 @@ import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList;
 import com.google.android.apps.signalong.widget.TaskView.TaskType;
+import java.security.InvalidParameterException;
+import java.util.List;
 
-public class TaskViewAdapter extends RecyclerView.Adapter<TaskViewAdapter.TaskViewHolder>{
+public class RecordedDataViewAdapter extends
+    RecyclerView.Adapter<RecordedDataViewAdapter.ViewHolder>{
   private static final String TAG = "TaskViewAdapter";
 
-  private VideoListResponse.DataBeanList videoList;
-  private SignPromptBatchResponse signPromptList;
+  private DataBeanList videoList;
   private TaskView.TaskType taskType;
   private Context context;
   private OnClickListener listener;
 
-  public static class TaskViewHolder extends RecyclerView.ViewHolder {
-    public TaskView taskView;
+  public static class ViewHolder extends RecyclerView.ViewHolder {
+    public RecordedDataView view;
 
-    public TextView glossTextView;
-
-    public TaskViewHolder(TaskView view) {
+    public ViewHolder(RecordedDataView view) {
       super(view);
-      taskView = view;
+      this.view = view;
     }
   }
 
-  public TaskViewAdapter() {
+  public RecordedDataViewAdapter() {
     context = null;
     taskType = null;
     videoList = null;
-    signPromptList = null;
   }
 
-  public TaskViewAdapter(Context context, TaskType taskType) {
+  public RecordedDataViewAdapter(Context context, TaskType taskType) {
     this.context = context;
     this.taskType = taskType;
     videoList = null;
-    signPromptList = null;
   }
 
   public boolean initVideolist(Context context, TaskType taskType,
@@ -90,51 +88,31 @@ public class TaskViewAdapter extends RecyclerView.Adapter<TaskViewAdapter.TaskVi
     notifyDataSetChanged();
   }
 
-  public void setSignPromptList(Context context, SignPromptBatchResponse signPromptList,
-      @Nullable OnClickListener listener) {
-    this.context = context;
-    this.signPromptList = signPromptList;
-    this.taskType = TaskType.NEW_RECORDING;
-    this.listener = listener;
-    notifyDataSetChanged();
-  }
-
   @Override
-  public TaskViewAdapter.TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    TaskView view = new TaskView(parent.getContext(), null);
-    TaskViewHolder viewHolder = new TaskViewHolder(view);
+  public RecordedDataViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    RecordedDataView view = new RecordedDataView(parent.getContext(), null);
+    ViewHolder viewHolder = new ViewHolder(view);
     return viewHolder;
   }
 
   @Override
-  public void onBindViewHolder(TaskViewHolder viewHolder, int position) {
-    if (taskType == TaskType.NEW_RECORDING) {
-      viewHolder.taskView.setData(signPromptList.getData().get(position), taskType);
-    } else if (taskType == TaskType.MY_RECORDING || taskType == TaskType.NEW_REVIEW){
-      viewHolder.taskView.setData(videoList.getData().get(position), taskType);
+  public void onBindViewHolder(ViewHolder viewHolder, int position) {
+    if (taskType == TaskType.MY_RECORDING || taskType == TaskType.NEW_REVIEW){
+      viewHolder.view.setData(videoList.getData().get(position), taskType);
     } else {
-      Log.e(TAG, "task type " + taskType  + " cannot be binded with view holder!!!");
-      return;
+      throw new InvalidParameterException(
+          "task type " + taskType  + " cannot be binded with view holder!!!");
     }
     if (this.listener != null) {
-      viewHolder.taskView.setOnClickListener(this.listener);
+      viewHolder.view.setOnClickListener(this.listener);
     }
   }
 
   @Override
   public int getItemCount() {
-    if (taskType == TaskType.UNKNOWN) {
+    if (videoList == null || videoList.getData() == null) {
       return 0;
-    } else if (taskType == TaskType.NEW_RECORDING) {
-      if (signPromptList == null || signPromptList.getData() == null) {
-        return 0;
-      }
-      return signPromptList.getData().size();
-    } else {
-      if (videoList == null || videoList.getData() == null) {
-        return 0;
-      }
-      return videoList.getData().size();
     }
+    return videoList.getData().size();
   }
 }

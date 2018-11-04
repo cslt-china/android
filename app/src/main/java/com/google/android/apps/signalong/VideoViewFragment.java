@@ -95,6 +95,7 @@ public class VideoViewFragment extends BaseFragment {
   public void setVisibility(int visibility) {
     //downloadProgressBar.setVisibility(visibility);
     videoView.setVisibility(visibility);
+    replayButton.setVisibility(visibility);
     super.setVisibility(visibility);
   }
 

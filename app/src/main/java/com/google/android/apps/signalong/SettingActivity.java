@@ -2,19 +2,22 @@ package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import com.google.android.apps.signalong.jsonentities.ProfileResponse;
+import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.ScoresBean;
+import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences.TimingType;
 import com.google.android.apps.signalong.widget.HelpDialog;
 import com.google.common.collect.ImmutableMap;
+import retrofit2.Response;
 
 /** SettingActivity is be used to set multiple information by user. */
-public class SettingActivity extends BaseActivity {
+public class SettingActivity extends BaseActivity implements
+    SettingViewModel.PersonalProfileResponseCallbacks {
   public static final Integer LOGOUT_SUCCESS = 4;
   public static final Integer LOGOUT_FAIL = 5;
   private static final String TAG = "SettingActivity";
@@ -48,13 +51,7 @@ public class SettingActivity extends BaseActivity {
 
   @Override
   public void initViews() {
-    Toolbar toolbar = findViewById(R.id.setting_toolbar);
-    setSupportActionBar(toolbar);
-    final Drawable upArrow = getResources().getDrawable(R.drawable.back);
-
-    getSupportActionBar().setHomeAsUpIndicator(upArrow);
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    toolbar.setNavigationOnClickListener(v -> finish());
+    settingViewModel.getProfile(this);
 
     initSeekBar(
       findViewById(R.id.prepare_time_seek_bar),
@@ -123,4 +120,39 @@ public class SettingActivity extends BaseActivity {
           public void onStopTrackingTouch(SeekBar seekBar) {}
         });
   }
+
+  public void onSuccessPersonalProfileResponse(Response<ProfileResponse> response) {
+    if (response == null || !response.isSuccessful()) {
+      ToastUtils.show(getApplicationContext(), getString(R.string.tip_connect_fail));
+      return;
+    }
+    if (response.body() == null ) {
+      ((TextView) findViewById(R.id.my_profile_title_textview))
+          .setText(getString(R.string.label_loading));
+      return;
+    }
+    if (response.body().getCode() != 0) {
+      return;
+    }
+
+    ProfileResponse.DataBean data = response.body().getData();
+    ((TextView) findViewById(R.id.my_profile_title_textview))
+        .setText(String.format(getString(R.string.label_my_profile_title),
+            data.getUsername()));
+    ScoresBean scoresBean = data.getScores();
+    ((TextView) findViewById(R.id.my_total_score_textview))
+        .setText(String.valueOf(data.getScores().getTotalScore()));
+    ((TextView) findViewById(R.id.my_recording_score_textview))
+        .setText(
+            String.format(getString(R.string.label_my_recording_score),
+                scoresBean.getTotalScore() - scoresBean.getVideoReviewScore()));
+    ((TextView) findViewById(R.id.my_review_score_textview))
+        .setText(String.format(getString(R.string.label_my_review_score),
+            scoresBean.getVideoReviewScore()));
+  }
+
+  public void onFailureResponse(Throwable t) {
+    Log.e(TAG, String.valueOf(t));
+  }
+
 }

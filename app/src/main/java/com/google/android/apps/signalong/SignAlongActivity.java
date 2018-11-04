@@ -23,9 +23,10 @@ import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import com.google.android.apps.signalong.utils.NetworkUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 
-import com.google.android.apps.signalong.widget.TaskView;
+import com.google.android.apps.signalong.widget.PromptDataView;
+import com.google.android.apps.signalong.widget.PromptDataViewAdapter;
+import com.google.android.apps.signalong.widget.RecordedDataViewAdapter;
 import com.google.android.apps.signalong.widget.TaskView.TaskType;
-import com.google.android.apps.signalong.widget.TaskViewAdapter;
 import java.util.List;
 import retrofit2.Response;
 
@@ -44,8 +45,8 @@ public class SignAlongActivity extends BaseActivity implements
   private SignAlongViewModel signAlongViewModel;
   private CameraViewModel cameraViewModel;
   private VideoReviewViewModel videoReviewViewModel;
-  private TaskViewAdapter recordingTaskViewAdapter;
-  private TaskViewAdapter reviewTaskViewAdapter;
+  private PromptDataViewAdapter recordingTaskViewAdapter;
+  private RecordedDataViewAdapter reviewTaskViewAdapter;
   private List<DataBean> unreviewedVideoList;
   private SignPromptBatchResponse promptList;
 
@@ -103,11 +104,15 @@ public class SignAlongActivity extends BaseActivity implements
             }
         );
 
-    recordingTaskViewAdapter = new TaskViewAdapter();
-    setRecyclerView(R.id.recording_task_recyclerview, recordingTaskViewAdapter, SPAN_COUNT);
+    recordingTaskViewAdapter = new PromptDataViewAdapter();
+    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recording_task_recyclerview);
+    recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
+    recyclerView.setAdapter(recordingTaskViewAdapter);
 
-    reviewTaskViewAdapter = new TaskViewAdapter();
-    setRecyclerView(R.id.review_task_recyclerview, reviewTaskViewAdapter, SPAN_COUNT);
+    reviewTaskViewAdapter = new RecordedDataViewAdapter();
+    recyclerView = (RecyclerView) findViewById(R.id.review_task_recyclerview);
+    recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 1));
+    recyclerView.setAdapter(reviewTaskViewAdapter);
   }
 
   @Override
@@ -160,13 +165,6 @@ public class SignAlongActivity extends BaseActivity implements
     }
   }
 
-  private RecyclerView setRecyclerView(int viewId, TaskViewAdapter adapter, int columnSpan) {
-    RecyclerView recyclerView = (RecyclerView) findViewById(viewId);
-    recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), columnSpan));
-    recyclerView.setAdapter(adapter);
-    return recyclerView;
-  }
-
   private void startConfirmAgreementActivity() {
     Intent intent = new Intent(getApplicationContext(), AgreementActivity.class);
     startActivity(intent);
@@ -207,8 +205,6 @@ public class SignAlongActivity extends BaseActivity implements
       this.unreviewedVideoList = response.body().getDataBeanList().getData();
       reviewTaskViewAdapter.setVideoList(
           getApplicationContext(), response.body().getDataBeanList(), TaskType.NEW_REVIEW, null);
-    } else {
-      // ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
     }
   }
 
@@ -223,16 +219,14 @@ public class SignAlongActivity extends BaseActivity implements
           .setText(String.format(getString(R.string.label_recording_task_count),
               promptList.getData() == null ? 0 : promptList.getData().size()));
       Activity activity = this;
-      recordingTaskViewAdapter.setSignPromptList(getApplicationContext(), response.body(),
+      recordingTaskViewAdapter.setPromptList(getApplicationContext(), response.body(),
           new OnClickListener() {
             @Override
             public void onClick(View v) {
-              SignPromptBatchResponse.DataBean data = ((TaskView) v).getPromptData();
+              SignPromptBatchResponse.DataBean data = ((PromptDataView) v).getData();
               ActivityUtils.startCameraActivity(activity, new SignPromptBatchResponse(data));
             }
           });
-    } else {
-      // ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
     }
   }
 

@@ -87,8 +87,10 @@
   <string name="no_new_task">没有新的任务</string>
 
   <!-- activity_setting -->
+  <string name="label_recording_setting_title">手语录制设置</string>
   <string name="tv_prepare_time">录制准备时长</string>
   <string name="tv_record_time">录制时长调整</string>
+  <string name="label_other_setting_title">其他设置</string>
   <string name="btn_help"> 积分规则介绍</string>
   <string name="btn_change_password">修改密码</string>
   <string name="btn_logout">退出帐号</string>
@@ -103,7 +105,7 @@
   <string name="label_confirm_password">确认密码</string>
   <string name="btn_dialog_help_ok">确定</string>
 
-  <!-- activity_view_my_video -->
+  <!-- item_recording_data_view -->
   <string name="label_my_video_gloss_text">录制手语</string>
   <string name="label_my_video_creation_time">创建时间</string>
   <string name="tip_request_fail">请求失败</string>
@@ -112,19 +114,22 @@
   <string name="label_gloss_approved_counter">评为正确</string>
   <string name="label_gloss_rejected_counter">评为错误</string>
 
+  <!--  -->
   <string name="label_gloss_status_rejected">未通过</string>
   <string name="label_gloss_status_pending_approval">待评审</string>
   <string name="label_gloss_status_approved">已通过</string>
 
-  <!-- fragment_my_videos -->
-  <string name="label_task_profile_title">%1$s 已完成的任务</string>
+  <!-- item_profile_data_view -->
+  <string name="label_my_profile_title">%1$s, 您目前的总积分是</string>
+  <string name="label_my_recording_score">录制积分 %1$d， </string>
+  <string name="label_my_review_score">评审积分 %1$d</string>
+
+  <!-- fragment_my_videos-->
   <string name="label_uploaded_video_count">录制： %1$d 段</string>
-  <string name="label_my_recording_score">录制任务积分： %1$d </string>
   <string name="label_rejected_video_count">未通过： %1$d 段</string>
   <string name="label_pending_video_count">待评审： %1$d 段</string>
   <string name="label_accepted_video_count">已通过： %1$d 段</string>
   <string name="label_reviewed_video_count">审核： %1$d 段</string>
-  <string name="label_my_review_score">审核任务积分： %1$d </string>
 
   <!-- activity_video_review -->
   <string name="button_review_result_approve">正确</string>

@@ -5,22 +5,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-  <android.support.v7.widget.Toolbar
-      android:id="@+id/setting_toolbar"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:background="?attr/colorPrimary"
-      android:minHeight="?attr/actionBarSize"
-      android:theme="?attr/actionBarTheme"
-      app:title="@string/title_setting"
-      app:titleTextColor="@color/white" />
+  <include layout="@layout/item_profile_data_view"></include>
 
   <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
       android:padding="18dp">
-
+    <TextView
+        android:text="@string/label_recording_setting_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/highLight"/>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -65,14 +61,9 @@
       </LinearLayout>
     </RelativeLayout>
 
-    <View
-        style="@style/Spacer"
-        android:background="@color/light_grey" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
         android:layout_marginBottom="18dp">
 
       <TextView
@@ -116,26 +107,23 @@
         style="@style/Spacer"
         android:background="@color/light_grey" />
 
+    <TextView
+        android:text="@string/label_other_setting_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/highLight"/>
     <Button
         android:id="@+id/help_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
         android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:text="@string/btn_help" />
-
-    <View
-        style="@style/Spacer"
-        android:background="@color/light_grey" />
 
     <Button
         android:id="@+id/change_password_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
         android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:text="@string/btn_change_password" />
@@ -149,8 +137,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
         android:gravity="center"
         android:text="@string/btn_logout" />
 
