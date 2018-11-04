@@ -88,18 +88,16 @@ public class VideoReviewActivity extends BaseActivity implements
         findViewById(R.id.finish_layout).setVisibility(View.VISIBLE);
       }
     } else {
-      ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
+      ToastUtils.show(getApplicationContext(), "Cannot download unreviewed video list!!!");
     }
   }
 
   public void onSuccessReviewVideoResponse(Response<ReviewVideoResponse> response) {
-    if (response.isSuccessful() && response.body().getCode() == 0) {
-      if (unreviewedVideoList != null) {
-        unreviewedVideoList.remove(0);
-        nextUnreviewedVideoData();
-      }
+    if (response.isSuccessful() && response.body().getCode() == 0 && unreviewedVideoList != null) {
+      unreviewedVideoList.remove(0);
+      nextUnreviewedVideoData();
     } else {
-      ToastUtils.show(getApplicationContext(), getString(R.string.tip_request_fail));
+      ToastUtils.show(getApplicationContext(), "Cannot upload review result!!!");
     }
   }
 
