@@ -3,12 +3,12 @@ package com.google.android.apps.signalong;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse.VideoStatus;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.google.android.apps.signalong.utils.ResourceUtils;
 
 public class MyVideoFragment extends BaseFragment {
   private static final String TAG = "MyVideoFragment";
@@ -19,17 +19,15 @@ public class MyVideoFragment extends BaseFragment {
     View viewContainer = inflater.inflate(R.layout.fragment_my_video, container, false);
     Resources res = getResources();
     MyVideoPagerAdapter adapter = new MyVideoPagerAdapter(getChildFragmentManager());
+    Resources resource = getResources();
     adapter.addFragment(
-        getString(R.string.label_approved_video_title),
-        ResourcesCompat.getDrawable(res, R.drawable.video_status_approved_filled_24px, null),
+        ResourceUtils.getVideoStatusPageTitle(resource, VideoStatus.APPROVED),
         MyVideoPerStatusFragment.newInstance(VideoStatus.APPROVED));
     adapter.addFragment(
-        getString(R.string.label_pending_video_title),
-        ResourcesCompat.getDrawable(res, R.drawable.video_status_pending_filled_24px, null),
+        ResourceUtils.getVideoStatusPageTitle(resource, VideoStatus.PENDING_APPROVAL),
         MyVideoPerStatusFragment.newInstance(VideoStatus.PENDING_APPROVAL));
     adapter.addFragment(
-        getString(R.string.label_rejected_video_title),
-        ResourcesCompat.getDrawable(res, R.drawable.video_status_rejected_filled_24px, null),
+        ResourceUtils.getVideoStatusPageTitle(resource, VideoStatus.REJECTED),
         MyVideoPerStatusFragment.newInstance(VideoStatus.REJECTED));
 
     ViewPager viewPager = viewContainer.findViewById(R.id.my_video_viewpager);

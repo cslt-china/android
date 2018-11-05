@@ -11,6 +11,9 @@
   <TextView
       android:id="@+id/total_video_count_textview"
       android:textColor="@color/highLight"
+      android:layout_margin="5dp"
+      android:gravity="center_horizontal"
+      android:textSize="16dp"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"/>
 

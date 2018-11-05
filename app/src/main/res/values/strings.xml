@@ -118,20 +118,15 @@
   <string name="label_gloss_approved_counter">评为正确</string>
   <string name="label_gloss_rejected_counter">评为错误</string>
 
-  <!--  -->
-  <string name="label_gloss_status_rejected">未通过</string>
-  <string name="label_gloss_status_pending_approval">待评审</string>
-  <string name="label_gloss_status_approved">已通过</string>
-
   <!-- item_profile_data_view -->
   <string name="label_my_profile_title">%1$s, 您目前的总积分是</string>
   <string name="label_my_recording_score">录制积分 %1$d， </string>
   <string name="label_my_review_score">评审积分 %1$d</string>
 
   <!-- fragment_my_videos-->
-  <string name="label_approved_video_title">通过</string>
-  <string name="label_pending_video_title">待评审</string>
-  <string name="label_rejected_video_title">未通过</string>
+  <string name="label_video_status_approved">通过</string>
+  <string name="label_video_status_pending">待定</string>
+  <string name="label_video_status_rejected">未通过</string>
   <string name="label_video_total_count">共 %1$d 段</string>
 
   <!-- activity_video_review -->

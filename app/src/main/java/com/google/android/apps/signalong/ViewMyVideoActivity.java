@@ -4,14 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.support.v7.widget.CardView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
+import com.google.android.apps.signalong.jsonentities.VideoListResponse.VideoStatus;
+import com.google.android.apps.signalong.utils.ResourceUtils;
 import com.google.android.apps.signalong.utils.TimerUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
-import com.google.android.apps.signalong.widget.RecordedDataView;
 import com.google.android.apps.signalong.widget.TaskView.TaskType;
-import java.security.InvalidParameterException;
 
 
 public class ViewMyVideoActivity extends BaseActivity {
@@ -54,30 +54,14 @@ public class ViewMyVideoActivity extends BaseActivity {
     ((TextView) findViewById(R.id.gloss_text_textview)).setText(data.getGlossText());
     ((TextView) findViewById(R.id.gloss_creation_time_textview))
         .setText(TimerUtils.convertTimestamp(data.getCreatedTime()));
-    ((TextView) findViewById(R.id.gloss_status_textview))
-        .setText(getResources().getText(
-            RecordedDataView.GLOSS_STATUS_LABEL_ID_MAP.get(data.getStatus())));
+    ((ImageButton) findViewById(R.id.gloss_status_button))
+        .setImageDrawable(
+            ResourceUtils.getVideoStatusIcon(
+                getResources(), VideoStatus.valueOf(data.getStatus())));
     ((TextView) findViewById(R.id.gloss_approved_counter_textview))
         .setText(String.valueOf(data.getApprovedReviewCounter()));
     ((TextView) findViewById(R.id.gloss_rejected_counter_textview))
         .setText(String.valueOf(data.getRejectedReviewCounter()));
-
-    CardView card = findViewById(R.id.recorded_data_cardview);
-    switch (data.getStatus()) {
-      case "APPROVED":
-        card.setCardBackgroundColor(getResources().getColor(R.color.green, null));
-        break;
-      case "PENDING_APPROVAL":
-        card.setCardBackgroundColor(getResources().getColor(R.color.yellow, null));
-        break;
-      case "REJECTED":
-        card.setCardBackgroundColor(getResources().getColor(R.color.red, null));
-        break;
-      default:
-        throw new InvalidParameterException(
-            "cannot init my video in the status of " + data.getStatus());
-    }
-
   }
 
   public static void startActivity(
