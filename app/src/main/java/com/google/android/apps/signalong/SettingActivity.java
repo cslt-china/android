@@ -66,7 +66,7 @@ public class SettingActivity extends BaseActivity implements
     findViewById(R.id.logout_button).setOnClickListener(view -> {
       CameraViewModel cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
 
-      AbortUploadingDialog.check(this, getString(R.string.enforce_exit),
+      AbortUploadingDialog.check(this, getString(R.string.enforce_logout),
           getString(R.string.cancel),
           cameraViewModel,
           ()->logout(), null);

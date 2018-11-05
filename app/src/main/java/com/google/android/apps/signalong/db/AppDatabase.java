@@ -16,7 +16,6 @@ import com.google.android.apps.signalong.db.dbentities.VideoUploadTask;
 public abstract class AppDatabase extends RoomDatabase {
   public abstract VideoUploadTaskDao videoUploadTaskDao();
 
-  private static final String DATABASE = "/sdcard/videotask";
   private static volatile AppDatabase instance;
 
   public static AppDatabase getDatabase(final Context context) {
@@ -24,7 +23,7 @@ public abstract class AppDatabase extends RoomDatabase {
       synchronized (AppDatabase.class) {
         if (instance == null) {
           instance =
-              Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, DATABASE)
+              Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, context.getDatabasePath("videotask").toString())
                   .build();
         }
       }

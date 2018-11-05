@@ -141,7 +141,7 @@ public class SignAlongActivity extends BaseActivity {
 
   @Override
   public void finish() {
-    AbortUploadingDialog.check(this, getString(R.string.enforce_logout), getString(R.string.cancel),
+    AbortUploadingDialog.check(this, getString(R.string.enforce_exit), getString(R.string.cancel),
         cameraViewModel,
         ()->super.finish(), null);
   }
