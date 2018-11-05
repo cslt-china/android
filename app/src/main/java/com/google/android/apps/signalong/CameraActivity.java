@@ -95,8 +95,9 @@ public class CameraActivity extends BaseActivity implements
 
   @Override
   public void onReferenceVideoViewCompletion() {
-    fireFsmEvent(FSMEvent.PrepareRecord);
   }
+
+  public void onStartRecordingClickListener() { fireFsmEvent(FSMEvent.PrepareRecord);}
 
   @Override
   public void onRejectRecordedVideo() {

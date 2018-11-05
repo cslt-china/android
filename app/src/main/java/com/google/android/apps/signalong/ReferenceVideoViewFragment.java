@@ -47,7 +47,7 @@ public class ReferenceVideoViewFragment extends BaseFragment {
         @Override
         public void onClick(View v) {
           videoView.stopPlayback();
-          viewCompletionCallback.onReferenceVideoViewCompletion();
+          viewCompletionCallback.onStartRecordingClickListener();
         }
       });
     } catch (ClassCastException e) {
@@ -65,6 +65,7 @@ public class ReferenceVideoViewFragment extends BaseFragment {
 
   public interface OnReferenceCompletionListerner {
     public void onReferenceVideoViewCompletion();
+    public void onStartRecordingClickListener();
   }
 
   public void setVisibility(int visibility) {
