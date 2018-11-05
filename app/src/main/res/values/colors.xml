@@ -11,7 +11,7 @@
     <color name="white">#ffffff</color>
     <color name="dialogBackground">#F2F3F4</color>
     <color name="dark">#797D7F </color>
-    <color name="back">#000000</color>
+    <color name="black">#000000</color>
     <color name="light_grey">#DCDCDC</color>
     <color name="disabled_green">#7F66AC5B</color>
     <!-- The following colors are picked from https://www.sessions.edu/color-calculator/
