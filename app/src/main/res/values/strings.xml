@@ -129,11 +129,10 @@
   <string name="label_my_review_score">评审积分 %1$d</string>
 
   <!-- fragment_my_videos-->
-  <string name="label_uploaded_video_count">录制： %1$d 段</string>
-  <string name="label_rejected_video_count">未通过： %1$d 段</string>
-  <string name="label_pending_video_count">待评审： %1$d 段</string>
-  <string name="label_accepted_video_count">已通过： %1$d 段</string>
-  <string name="label_reviewed_video_count">审核： %1$d 段</string>
+  <string name="label_approved_video_title">通过</string>
+  <string name="label_pending_video_title">待评审</string>
+  <string name="label_rejected_video_title">未通过</string>
+  <string name="label_video_total_count">共 %1$d 段</string>
 
   <!-- activity_video_review -->
   <string name="button_review_result_approve">正确</string>
