@@ -147,14 +147,12 @@
   <!-- fragment_intro -->
   <string name="button_ok">确定</string>
   <string name="button_back">返回</string>
-  <string name="label_content_intro_check_list">需要录制的手语提示文字将自动派发给你,将以 10 个为一组。您可以根据个人手语语速在设置中调整录制的快慢。</string>
-  <string name="label_title_intro_check_list">自动发放录制任务</string>
-  <string name="label_content_intro_pause_recording">您可以在任何时候暂停录制，系统会调出相应的通用手语规范视频供您查看学习。您也可以在任何时候返回主界面，已经完成的录制视频会保留在服务器上。</string>
-  <string name="label_title_intro_pause_recording">暂停或退出录制</string>
-  <string name="label_content_intro_align_body">将手机稳定放在 30-40 厘米的水平位置,确保身体在识别区域内，否则无法符合要求。</string>
-  <string name="label_title_intro_align_body">留意动作录制范围</string>
-  <string name="label_content_intro_review">请判断手语视频是否符合国家通用手语的规范，您的评价会获得积分，积分可用于后续活动。接下来就看你的啦。</string>
-  <string name="label_title_intro_review">审查手语视频</string>
+  <string name="label_content_intro_check_list">需要录制的手语提示文字将自动派发给你, 您可以根据个人手语语速在设置中调整录制的快慢。您也可以在任何时候返回主界面，已经完成的录制视频会保留在服务器上。</string>
+  <string name="label_title_intro_check_list">录制任务</string>
+  <string name="label_content_intro_align_body">在录制任务倒计时阶段，请将手机稳定放在 30-40 厘米的水平位置，确保身体在识别区域内。</string>
+  <string name="label_title_intro_align_body">调整视角</string>
+  <string name="label_content_intro_review">请判断手语视频是否符合国家通用手语的规范，是否在时间和空间上完备清晰。接下来就看你的啦。</string>
+  <string name="label_title_intro_review">评审任务</string>
   <string name="label_recording_time">录制时间</string>
 
   <!-- activity_change_password -->

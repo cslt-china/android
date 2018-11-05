@@ -40,8 +40,6 @@ public class IntroRecordActivity extends BaseActivity {
     fragmentList.add(
         IntroFragment.newInstance(IntroFragmentType.RECORDING_LIST, fragmentListener));
     fragmentList.add(
-        IntroFragment.newInstance(IntroFragmentType.PAUSE_RECORDING, fragmentListener));
-    fragmentList.add(
         IntroFragment.newInstance(IntroFragmentType.ALIGN_BODY, fragmentListener));
     ((ViewPager) findViewById(R.id.intro_view_pager))
         .setAdapter(new IntroRecordFragmentAdapter(getSupportFragmentManager(), fragmentList));

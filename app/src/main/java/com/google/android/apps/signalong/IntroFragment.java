@@ -48,15 +48,6 @@ public class IntroFragment extends android.support.v4.app.Fragment {
         centerImageView.setImageResource(R.drawable.illustration_checklist);
         viewContainer.findViewById(R.id.ok_button).setVisibility(View.GONE);
         break;
-      case PAUSE_RECORDING:
-        ((ImageView) viewContainer.findViewById(R.id.middle_circle_image_view))
-            .setImageResource(R.drawable.select_circle);
-        contentTextView.setText(getString(R.string.label_content_intro_pause_recording));
-        titleTextView.setText(getString(R.string.label_title_intro_pause_recording));
-        // TODO(jxue): Add a drawable image for pause recording.
-        centerImageView.setImageResource(R.drawable.illustration_checklist);
-        viewContainer.findViewById(R.id.ok_button).setVisibility(View.GONE);
-        break;
       case ALIGN_BODY:
         ((ImageView) viewContainer.findViewById(R.id.right_circle_image_view))
             .setImageResource(R.drawable.select_circle);
