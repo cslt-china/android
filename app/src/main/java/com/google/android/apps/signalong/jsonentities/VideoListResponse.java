@@ -13,6 +13,18 @@ import java.util.List;
  */
 public class VideoListResponse extends BaseResponse{
 
+  /** The type of VideoStatus of a VideoListResponse DataBean object. */
+  public enum VideoStatus {
+    /* The request to get all videos of current user.*/
+    ALL,
+    /* The request to get of rejected videos current user.*/
+    REJECTED,
+    /* The request to get approved videos of current user.*/
+    APPROVED,
+    /* The request to get pending approval videos of current user.*/
+    PENDING_APPROVAL
+  }
+
   @SerializedName("data")
   private DataBeanList dataBeanList;
 

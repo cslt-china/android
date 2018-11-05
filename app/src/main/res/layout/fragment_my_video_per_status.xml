@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="10px"
+    android:id="@+id/fragment_my_videos_per_status_layout"
+    android:orientation="vertical">
+
+  <TextView
+      android:id="@+id/total_video_count_textview"
+      android:textColor="@color/highLight"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"/>
+
+  <android.support.v7.widget.RecyclerView
+      android:id="@+id/my_videos_per_status_recyclerview"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+
+  <fragment
+      android:id="@+id/fragment_my_video_view"
+      android:name="com.google.android.apps.signalong.VideoViewFragment"
+      android:layout_width="match_parent"
+      android:layout_height="500dp"
+      android:visibility="gone"/>
+
+</LinearLayout>
