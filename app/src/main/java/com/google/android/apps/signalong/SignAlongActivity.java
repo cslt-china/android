@@ -16,6 +16,7 @@ import com.google.android.apps.signalong.utils.IntroSharedPreferences.IntroType;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import com.google.android.apps.signalong.utils.NetworkUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
+import com.google.android.apps.signalong.widget.AbortUploadingDialog;
 
 /**
  * Android signalong App.
@@ -27,6 +28,7 @@ public class SignAlongActivity extends BaseActivity {
   public static final int REQUEST_UPGRADE_APP_PERMISSION_CODE = 7;
 
   private SignAlongViewModel signAlongViewModel;
+  private CameraViewModel cameraViewModel;
 
   @Override
   public int getContentView() {
@@ -57,6 +59,9 @@ public class SignAlongActivity extends BaseActivity {
                 startLoginActivity();
               }
             });
+
+    cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
+    cameraViewModel.startUploadThread();
   }
 
   @Override
@@ -136,15 +141,9 @@ public class SignAlongActivity extends BaseActivity {
 
   @Override
   public void finish() {
-    if (cameraViewModel.hasUnfinishedTask()) {
-      //TODO
-      AbortUploadingDialog dialog = new AbortUploadingDialog("TODO_OK", "TODO_CANCEL");
-      dialog.setOnConfirmed(()->{
-        super.finish();
-      });
-
-      dialog.show(getSupportFragmentManager(), AbortUploadingDialog.class.getSimpleName());
-    }
+    AbortUploadingDialog.check(this, getString(R.string.enforce_logout), getString(R.string.cancel),
+        cameraViewModel,
+        ()->super.finish(), null);
   }
 
   private void startConfirmAgreementActivity() {

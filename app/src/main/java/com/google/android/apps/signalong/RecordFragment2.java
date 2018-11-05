@@ -39,7 +39,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -358,8 +357,7 @@ public class RecordFragment2 extends BaseFragment {
   public void onPause() {
     if (mIsRecordingVideo) {
       // Stop recording
-      mMediaRecorder.stop();
-      mMediaRecorder.reset();
+      stopMediaRecorderSafely();
       mIsRecordingVideo = false;
     }
     closeCamera();
@@ -462,8 +460,7 @@ public class RecordFragment2 extends BaseFragment {
     }
   }
 
-  /*TODO remove it
-  private void mediaRecorderStop() {
+  private void stopMediaRecorderSafely() {
     if (mMediaRecorder == null) {
       return;
     }
@@ -475,8 +472,6 @@ public class RecordFragment2 extends BaseFragment {
 
       mMediaRecorder.stop();
       mMediaRecorder.reset();
-      mMediaRecorder.release();
-      mMediaRecorder = null;
     } catch (IllegalStateException e) {
       //Log.w("Exception", Log.getStackTraceString(e));
     } catch(RuntimeException e) {
@@ -485,7 +480,6 @@ public class RecordFragment2 extends BaseFragment {
       Log.w("Exception", Log.getStackTraceString(e));
     }
   }
-  */
 
   /**
    * Start the camera preview.
@@ -688,8 +682,7 @@ public class RecordFragment2 extends BaseFragment {
     // UI
     mIsRecordingVideo = false;
     // Stop recording
-    mMediaRecorder.stop();
-    mMediaRecorder.reset();
+    stopMediaRecorderSafely();
 
     startPreview();
   }

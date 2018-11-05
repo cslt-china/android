@@ -181,5 +181,10 @@
   <string name="upgrade_done">下载成功</string>
   <string name="upgrade_error">下载失败</string>
   <string name="upgrade_request_permission_hint">更新应用需要存储权限</string>
+  <string name="enforce_exit">强制退出</string>
+  <string name="cancel">取消</string>
+  <string name="enforce_logout">强制登出</string>
+  <string name="check_uploading">上传检查</string>
+  <string name="has_uploading_task">您有未上传成功的视频</string>
 
 </resources>

@@ -64,15 +64,13 @@ public class SettingActivity extends BaseActivity implements
       TimingType.RECORD_TIME_SCALE);
 
     findViewById(R.id.logout_button).setOnClickListener(view -> {
-          CameraViewModel cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
-          if (cameraViewModel.hasUnfinishedTask()) {
-            AbortUploadingDialog dialog = new AbortUploadingDialog("TODO_OK", "TODO_CANCEL");
-            dialog.setOnConfirmed(()->logout());
-            dialog.show(getSupportFragmentManager(), AbortUploadingDialog.class.getSimpleName());
-          } else {
-            logout();
-          }
-        });
+      CameraViewModel cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
+
+      AbortUploadingDialog.check(this, getString(R.string.enforce_exit),
+          getString(R.string.cancel),
+          cameraViewModel,
+          ()->logout(), null);
+    });
 
     findViewById(R.id.help_button)
         .setOnClickListener(
