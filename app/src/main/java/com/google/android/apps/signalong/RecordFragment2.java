@@ -296,22 +296,35 @@ public class RecordFragment2 extends BaseFragment {
     }
   }
 
-  static private float getRatio(Size size) {
-    return (float)size.getWidth()/(float)size.getHeight();
+  static private int getHectoAspectRatio(Size size) {
+    return size.getWidth() * 100 / size.getHeight();
   }
 
   private void setBestMatchVideoAndPreviewSize(Size[] choices, int viewWidth,
                                                int viewHeight) {
-    /*
-     The video size for deeplearing is much smaller than
-     which of camera captured video.
-     We need a fixed size which supported by as much as possible phone, and
-     suitble for portrait video.
-     So we select 1024x768.
-    */
-    mVideoSize = new Size(Config.RECORD_VIDEO_WIDTH,
-                          Config.RECORD_VIDEO_HEIGHT);
-    mPreviewSize = mVideoSize;
+    List<Size> bigEnough = new ArrayList<>();
+    for (Size choice : choices) {
+      int area = choice.getWidth() * choice.getHeight();
+      if (640*480 <= area && area <= 1280*720) {
+        bigEnough.add(choice);
+      }
+    }
+
+    final int expectHectoAspectRatio;
+
+    int orientation = getResources().getConfiguration().orientation;
+    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      expectHectoAspectRatio = viewWidth * 100 / viewHeight;
+    } else {
+      expectHectoAspectRatio = viewHeight * 100 / viewWidth;
+    }
+
+    Size best = Collections.min(bigEnough,
+        (Size lhs, Size rhs)-> Math.abs(getHectoAspectRatio(lhs) - expectHectoAspectRatio) -
+                Math.abs(getHectoAspectRatio(rhs) - expectHectoAspectRatio));
+
+    mPreviewSize = best;
+    mVideoSize = best;
   }
 
   @Override
@@ -597,10 +610,11 @@ public class RecordFragment2 extends BaseFragment {
            + System.currentTimeMillis() + ".mp4";
   }
 
-  private void startRecordingVideo(String videoFilePath) {
+  private void startRecordingVideo(String videoFilePath, int recordingTime) {
     if (null == mCameraDevice || !mTextureView.isAvailable() || null == mPreviewSize) {
       return;
     }
+
     try {
       closePreviewSession();
       setUpMediaRecorder(videoFilePath);
@@ -632,16 +646,18 @@ public class RecordFragment2 extends BaseFragment {
             @Override
             public void run() {
               // UI
-              mIsRecordingVideo = true;
-
-              // Start recording
-              mMediaRecorder.start();
               mMediaRecorder.setOnErrorListener(
                   (MediaRecorder mr, int what, int extra)-> {
                   String message = String.format("record error: %d %d",
                                                  what, extra);
                   mRecordCallback.onError(message);
                 });
+              mMediaRecorder.start();
+
+              progressAnimator.setDuration(Math.min(2, recordingTime) * 1000);
+              progressAnimator.start();
+
+              mIsRecordingVideo = true;
             }
           });
         }
@@ -741,23 +757,17 @@ public class RecordFragment2 extends BaseFragment {
     public void onCancel(Animator animator) {
       stopRecordingVideo();
       mRecordCallback.onCancel();
+      progressBar.setProgress(0);
     }
   };
 
   public void startRecord(String name, String videoFilePath, int recordingTime) {
     titleTextView.setText(String.format(getString(R.string.please_sign), name));
-    startRecordingVideo(videoFilePath);
-
-    if (recordingTime < 2) {
-      recordingTime = 2;
-    }
-    progressAnimator.setDuration(recordingTime * 1000);
-    progressAnimator.start();
+    startRecordingVideo(videoFilePath, recordingTime);
   }
 
   public void cancelRecording() {
     progressAnimator.cancel();
     progressBar.setProgress(0);
   }
-
 }
