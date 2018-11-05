@@ -198,7 +198,7 @@ public class CameraActivity extends BaseActivity implements
   }
 
   private void startWithPromptData() {
-    cameraViewModel.startUploadThread();
+    //cameraViewModel.startUploadThread();
     initFSM();
     isTaskReady = true;
     tryStartFSM();
@@ -239,7 +239,7 @@ public class CameraActivity extends BaseActivity implements
 
   @Override
   protected void onDestroy() {
-    cameraViewModel.stopUploadThread();
+    //cameraViewModel.stopUploadThread();
     showTopicTimer.cancel();
     super.onDestroy();
   }

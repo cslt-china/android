@@ -15,6 +15,9 @@ public interface VideoUploadTaskDao {
   @Query("SELECT * FROM videouploadtask")
   List<VideoUploadTask> getAll();
 
+  @Query("DELETE FROM videouploadtask")
+  void clear();
+
   @Insert
   void insert(VideoUploadTask videoUploadTask);
 

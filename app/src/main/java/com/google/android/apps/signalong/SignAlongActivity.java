@@ -134,6 +134,19 @@ public class SignAlongActivity extends BaseActivity {
     }
   }
 
+  @Override
+  public void finish() {
+    if (cameraViewModel.hasUnfinishedTask()) {
+      //TODO
+      AbortUploadingDialog dialog = new AbortUploadingDialog("TODO_OK", "TODO_CANCEL");
+      dialog.setOnConfirmed(()->{
+        super.finish();
+      });
+
+      dialog.show(getSupportFragmentManager(), AbortUploadingDialog.class.getSimpleName());
+    }
+  }
+
   private void startConfirmAgreementActivity() {
     Intent intent = new Intent(getApplicationContext(), AgreementActivity.class);
     startActivity(intent);

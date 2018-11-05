@@ -11,6 +11,7 @@ import com.google.android.apps.signalong.jsonentities.ProfileResponse.DataBean.S
 import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences;
 import com.google.android.apps.signalong.utils.VideoRecordingSharedPreferences.TimingType;
+import com.google.android.apps.signalong.widget.AbortUploadingDialog;
 import com.google.android.apps.signalong.widget.HelpDialog;
 import com.google.common.collect.ImmutableMap;
 import retrofit2.Response;
@@ -62,20 +63,17 @@ public class SettingActivity extends BaseActivity implements
       findViewById(R.id.textview_record_time),
       TimingType.RECORD_TIME_SCALE);
 
-    findViewById(R.id.logout_button)
-        .setOnClickListener(
-            view -> {
-              settingViewModel
-                  .logOut()
-                  .observe(
-                      this,
-                      logOut -> {
-                        if (logOut) {
-                          this.setResult(LOGOUT_SUCCESS);
-                          finish();
-                        }
-                      });
-            });
+    findViewById(R.id.logout_button).setOnClickListener(view -> {
+          CameraViewModel cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
+          if (cameraViewModel.hasUnfinishedTask()) {
+            AbortUploadingDialog dialog = new AbortUploadingDialog("TODO_OK", "TODO_CANCEL");
+            dialog.setOnConfirmed(()->logout());
+            dialog.show(getSupportFragmentManager(), AbortUploadingDialog.class.getSimpleName());
+          } else {
+            logout();
+          }
+        });
+
     findViewById(R.id.help_button)
         .setOnClickListener(
             view -> {
@@ -85,6 +83,16 @@ public class SettingActivity extends BaseActivity implements
       .setOnClickListener(
         view -> startActivityForResult(new Intent(getApplicationContext(), ChangePasswordActivity.class), 0)
       );
+  }
+
+  private void logout() {
+    settingViewModel.logOut().observe( this,
+        logOut -> {
+          if (logOut) {
+            this.setResult(LOGOUT_SUCCESS);
+            finish();
+          }
+        });
   }
 
   private void showHelpDialog() {

@@ -50,11 +50,14 @@ public class CameraViewModel extends AndroidViewModel {
 
   private final VideoUploadTaskDao videoUploadTaskDao;
   private final VideoApi videoApi;
-  private final MutableLiveData<Response<SignPromptBatchResponse>> signPromptBatchResponseLiveData;
+  private static final int UPLOAD_CONCURRENT = 3;
+
+  private Semaphore semaphore = new Semaphore(UPLOAD_CONCURRENT);
+  private volatile boolean threadExitFlag = false;
 
   public CameraViewModel(@NonNull Application application) {
     super(application);
-    signPromptBatchResponseLiveData = new MutableLiveData<>();
+    //signPromptBatchResponseLiveData = new MutableLiveData<>();
     videoApi = ApiHelper.getRetrofit().create(VideoApi.class);
     videoUploadTaskDao = AppDatabase.getDatabase(getApplication()).videoUploadTaskDao();
   }
@@ -99,11 +102,6 @@ public class CameraViewModel extends AndroidViewModel {
             });
   }
 
-  private static final int UPLOAD_CONCURRENT = 3;
-
-  private Semaphore semaphore = new Semaphore(UPLOAD_CONCURRENT);
-  private volatile boolean threadExitFlag = false;
-
   private boolean checkTaskFileValid(VideoUploadTask task, String name, String path) {
     if (path == null) {
       Log.i(TAG, String.format("unvalid %s, no %s path", task, name));
@@ -123,6 +121,21 @@ public class CameraViewModel extends AndroidViewModel {
     return checkTaskFileValid(task, "video", task.getVideoPath())
         && checkTaskFileValid(task, "image", task.getImagePath());
   }
+
+  public boolean hasUnfinishedTask() {
+    return true;
+    /*
+    List<VideoUploadTask> videoUploadTaskList = videoUploadTaskDao.getAll();
+    return videoUploadTaskList.isEmpty();
+    */
+  }
+
+  public void clearAllTask() {
+    stopUploadThread();
+    //TODO: when uploaded, remove a task not exists. try catch...
+    //可以上传的时候马上 clearAllTask, 查看结果
+    videoUploadTaskDao.clear();
+  }
   /**
    * Used to take out video upload task list from the database and then save them to the
    * LinkedBlockingDeque to continue uploading.
@@ -133,6 +146,14 @@ public class CameraViewModel extends AndroidViewModel {
         () -> {
           List<VideoUploadTask> runingList = Collections.synchronizedList(new ArrayList<>());
           while (!threadExitFlag) {
+            /*
+            if (true) {
+              TimerUtils.enoughSleep(2000);
+              continue;
+            }
+            */
+
+
             List<VideoUploadTask> videoUploadTaskList = videoUploadTaskDao.getAll();
             videoUploadTaskList.removeAll(runingList);
 
@@ -278,5 +299,4 @@ public class CameraViewModel extends AndroidViewModel {
 
     void onFailureResponse(Throwable t);
   }
-
 }

@@ -664,6 +664,7 @@ public class RecordFragment2 extends BaseFragment {
 
         @Override
         public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+          Log.e("wxg", "camera configre error");
           mCameraCallback.onError("device configure failed");
         }
       }, mBackgroundHandler);
