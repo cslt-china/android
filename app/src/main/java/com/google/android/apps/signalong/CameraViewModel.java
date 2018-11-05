@@ -122,19 +122,25 @@ public class CameraViewModel extends AndroidViewModel {
         && checkTaskFileValid(task, "image", task.getImagePath());
   }
 
-  public boolean hasUnfinishedTask() {
-    return true;
-    /*
-    List<VideoUploadTask> videoUploadTaskList = videoUploadTaskDao.getAll();
-    return videoUploadTaskList.isEmpty();
-    */
+  public interface OnCheckResult {
+    void onResult(List<VideoUploadTask> tasks);
   }
 
-  public void clearAllTask() {
-    stopUploadThread();
-    //TODO: when uploaded, remove a task not exists. try catch...
-    //可以上传的时候马上 clearAllTask, 查看结果
-    videoUploadTaskDao.clear();
+  public void checkUnfinishedTask(OnCheckResult onCheckResult) {
+    new Thread(()->{
+      List<VideoUploadTask> videoUploadTaskList = videoUploadTaskDao.getAll();
+      onCheckResult.onResult(videoUploadTaskList);
+    }).start();
+  }
+
+  public void clearAllTask(Runnable callback) {
+    new Thread(()->{
+      stopUploadThread();
+      //TODO: when uploaded, remove a task not exists. try catch...
+      //可以上传的时候马上 clearAllTask, 查看结果
+      videoUploadTaskDao.clear();
+      callback.run();
+    }).start();
   }
   /**
    * Used to take out video upload task list from the database and then save them to the
@@ -146,13 +152,6 @@ public class CameraViewModel extends AndroidViewModel {
         () -> {
           List<VideoUploadTask> runingList = Collections.synchronizedList(new ArrayList<>());
           while (!threadExitFlag) {
-            /*
-            if (true) {
-              TimerUtils.enoughSleep(2000);
-              continue;
-            }
-            */
-
 
             List<VideoUploadTask> videoUploadTaskList = videoUploadTaskDao.getAll();
             videoUploadTaskList.removeAll(runingList);
