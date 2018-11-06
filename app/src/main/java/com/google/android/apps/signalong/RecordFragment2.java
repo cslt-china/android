@@ -582,7 +582,7 @@ public class RecordFragment2 extends BaseFragment {
     mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
     mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
     mMediaRecorder.setOutputFile(videoFilePath);
-    mMediaRecorder.setVideoEncodingBitRate(10000000);
+    mMediaRecorder.setVideoEncodingBitRate(4*1000*1000);
     mMediaRecorder.setVideoFrameRate(30);
     mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
     mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
