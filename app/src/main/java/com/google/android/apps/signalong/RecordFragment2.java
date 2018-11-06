@@ -562,8 +562,8 @@ public class RecordFragment2 extends BaseFragment {
     //scale to bufferRect
     matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
     float scale = Math.max(
-        (float) viewHeight / mPreviewSize.getHeight(),
-        (float) viewWidth / mPreviewSize.getWidth());
+        (float) viewHeight / mPreviewSize.getWidth(),
+        (float) viewWidth / mPreviewSize.getHeight());
     //rescale to restore view width or height
     matrix.postScale(scale, scale, centerX, centerY);
 
