@@ -579,10 +579,14 @@ public class RecordFragment2 extends BaseFragment {
     if (null == activity) {
       return;
     }
+    // 1280x720 use 5Mbps, other scales bitrate by area.
+    // for 720p baseline 5Mpbs is much better than 4Mbps
+    long bitrate = (long)mVideoSize.getWidth() * mVideoSize.getHeight() * 5 * 1000 * 1000 /
+                   (1280 * 720);
     mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
     mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
     mMediaRecorder.setOutputFile(videoFilePath);
-    mMediaRecorder.setVideoEncodingBitRate(4*1000*1000);
+    mMediaRecorder.setVideoEncodingBitRate((int)bitrate);
     mMediaRecorder.setVideoFrameRate(30);
     mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
     mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
