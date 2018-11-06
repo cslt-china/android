@@ -60,7 +60,6 @@ public class DownloadFileTask
 
   @Override
   protected void onProgressUpdate(Integer... progress) {
-    Log.i(TAG, "progress = " + progress);
     callbacks.onProgressUpdate(progress[0]);
   }
 

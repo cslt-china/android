@@ -57,7 +57,6 @@ public class CameraViewModel extends AndroidViewModel {
 
   public CameraViewModel(@NonNull Application application) {
     super(application);
-    //signPromptBatchResponseLiveData = new MutableLiveData<>();
     videoApi = ApiHelper.getRetrofit().create(VideoApi.class);
     videoUploadTaskDao = AppDatabase.getDatabase(getApplication()).videoUploadTaskDao();
   }

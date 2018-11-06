@@ -20,7 +20,7 @@ import retrofit2.Response;
 public class MyVideoViewModel extends AndroidViewModel {
   private static final String TAG = "MyVideoViewModel";
 
-  private static final int LIST_SIZE = 8;
+  private static final int LIST_SIZE = 100;
   private final VideoApi videoApi;
 
   public MyVideoViewModel(@NonNull Application application) {
