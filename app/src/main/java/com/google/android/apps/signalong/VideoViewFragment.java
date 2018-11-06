@@ -1,6 +1,7 @@
 package com.google.android.apps.signalong;
 
-import android.arch.lifecycle.LiveData;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,15 +12,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
 
 import com.google.android.apps.signalong.api.ApiHelper;
 import com.google.android.apps.signalong.api.VideoApi;
-import com.google.android.apps.signalong.service.DownloadFileService;
-import com.google.android.apps.signalong.service.DownloadFileService.DownloadStatus;
-import com.google.android.apps.signalong.service.DownloadFileServiceImpl;
+import com.google.android.apps.signalong.service.DownloadFileTask;
+import com.google.android.apps.signalong.service.DownloadImageTask;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.ToastUtils;
 
@@ -28,7 +27,8 @@ import java.io.IOException;
 
 import static android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START;
 
-public class VideoViewFragment extends BaseFragment {
+public class VideoViewFragment extends BaseFragment implements
+    DownloadFileTask.DownloadFileCallbacks, DownloadImageTask.DownloadImageCallbacks {
   private static final String TAG = "[VideoViewFragment]";
 
   private View viewContainer;
@@ -38,13 +38,9 @@ public class VideoViewFragment extends BaseFragment {
   private String tmpFileForPlayer;
   private File tmpDir;
 
-  private DownloadFileService downloadVideoFileService;
-
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    downloadVideoFileService = new DownloadFileServiceImpl(
-        ApiHelper.getRetrofit().create(VideoApi.class));
   }
 
   @Override
@@ -109,6 +105,26 @@ public class VideoViewFragment extends BaseFragment {
     }
   }
 
+  public void onImageDownloaded(Bitmap bitmap) {
+    if (!videoView.isPlaying()) {
+      videoView.setBackground(new BitmapDrawable(videoView.getResources(), bitmap));
+    }
+  }
+
+  public void onDownloadFailure(String errorMessage) {
+    ToastUtils.show(getContext(),
+        getString(R.string.tip_video_download_failure) + errorMessage);
+  }
+
+  public void onProgressUpdate(int progress) {
+    downloadProgressBar.setProgress(progress);
+  }
+
+  public void onDownloadSuccess(String downloadedFilePath) {
+    downloadProgressBar.setVisibility(View.GONE);
+    startPlayback(downloadedFilePath);
+  }
+
   protected void replay() {
     if (videoView.isPlaying() && videoView.canSeekBackward()) {
       videoView.seekTo(0);
@@ -124,23 +140,18 @@ public class VideoViewFragment extends BaseFragment {
   //TODO: extract common logic of downloadAndDisplayThumbnail
   //and downloadAndPlayVideo
   private void downloadAndDisplayThumbnail(Uri uri) {
-    if (uri.getScheme() == "file") {
+    if (uri.getScheme() == "file" ) {
       videoView.setBackground(Drawable.createFromPath(uri.getPath()));
     } else {
       String localPath =
           new File(tmpDir, uri.getLastPathSegment()).getPath();
 
-      downloadFile(uri.toString(), localPath)
-          .observe(
-              this,
-              downloadStatusData -> {
-                if (downloadStatusData.statusType == DownloadStatus.Type.SUCCESS) {
-                  if (!videoView.isPlaying()) {
-                    videoView.setBackground(Drawable.createFromPath(localPath));
-                  }
-                }
-              });
-    }
+      if (FileUtils.isFileExist(localPath)) {
+        videoView.setBackground(Drawable.createFromPath(localPath));
+      } else {
+        new DownloadImageTask(this).execute(uri.toString());
+      }
+      }
   }
 
   private void downloadAndPlayVideo(Uri uri) {
@@ -158,25 +169,8 @@ public class VideoViewFragment extends BaseFragment {
       downloadProgressBar.setVisibility(View.VISIBLE);
       downloadProgressBar.bringToFront();
 
-      this.downloadFile(uri.toString(), localPath)
-          .observe(
-              this,
-              downloadStatusData -> {
-                switch (downloadStatusData.statusType) {
-                  case SUCCESS:
-                    downloadProgressBar.setVisibility(View.GONE);
-                    startPlayback(localPath);
-                    break;
-                  case LOADING:
-                    downloadProgressBar.setProgress(downloadStatusData.percent);
-                    break;
-                  case FAILED:
-                    ToastUtils.show(getActivity().getApplicationContext(),
-                                    getString(R.string.tip_video_download_failure));
-                    Log.e("Failed downloading %s", uri.toString());
-                    break;
-                }
-              });
+      new DownloadFileTask(ApiHelper.getRetrofit().create(VideoApi.class), this)
+          .execute(uri.toString(), localPath);
     }
   }
 
@@ -214,8 +208,4 @@ public class VideoViewFragment extends BaseFragment {
     videoView.start();
   }
 
-  private LiveData<DownloadFileService.DownloadStatus> downloadFile(
-      String downloadUrl, String outputFilepath) {
-    return downloadVideoFileService.downloadFile(downloadUrl, outputFilepath);
-  }
 }

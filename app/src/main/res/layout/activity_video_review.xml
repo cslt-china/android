@@ -40,6 +40,15 @@
       android:paddingBottom="20dp"
       android:visibility="invisible">
     <Button
+        android:id="@+id/review_result_reject_button"
+        android:layout_alignParentRight="true"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginEnd="50dp"
+        android:background="@color/red"
+        android:textColor="@color/white"
+        android:text="@string/button_review_result_reject" />
+    <Button
         android:id="@+id/review_result_approve_button"
         android:layout_alignParentLeft="true"
         android:layout_height="wrap_content"
@@ -48,15 +57,6 @@
         android:background="@color/green"
         android:textColor="@color/white"
 	      android:text="@string/button_review_result_approve" />
-    <Button
-        android:id="@+id/review_result_reject_button"
-        android:layout_alignParentRight="true"
-        android:layout_height="wrap_content"
-	      android:layout_width="wrap_content"
-        android:layout_marginEnd="50dp"
-        android:background="@color/red"
-        android:textColor="@color/white"
-	      android:text="@string/button_review_result_reject" />
   </RelativeLayout>
   <LinearLayout
       android:id="@+id/finish_layout"
