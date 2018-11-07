@@ -17,6 +17,7 @@ import java.util.Map;
 public class ResourceUtils {
 
   private static final String TAG = "ResourceUtils";
+  private static final int DRAWABLE_OFFSET = 10;
 
   private static final Map<VideoStatus, Integer> VIDEO_STATUS_LABEL_ID_MAP = new HashMap<>();
 
@@ -39,7 +40,12 @@ public class ResourceUtils {
   }
 
   public static Drawable getVideoStatusIcon(Resources resource, VideoStatus status) {
-    return ResourcesCompat.getDrawable(resource, VIDEO_STATUS_ICON_ID_MAP.get(status), null);
+    Drawable drawable = ResourcesCompat.getDrawable(resource, VIDEO_STATUS_ICON_ID_MAP.get(status),
+        null);
+    drawable.setBounds(DRAWABLE_OFFSET, DRAWABLE_OFFSET,
+        drawable.getIntrinsicWidth()-DRAWABLE_OFFSET,
+        drawable.getIntrinsicHeight()-DRAWABLE_OFFSET);
+    return drawable;
   }
 
   public static CharSequence getVideoStatusPageTitle(Resources resource, VideoStatus status) {
@@ -54,8 +60,6 @@ public class ResourceUtils {
     String spacedLabel = (label == null || label.isEmpty()) ? "" : "    " + label;
     SpannableStringBuilder stringBuilder = new SpannableStringBuilder(spacedLabel);
     try {
-      icon.setBounds(
-          5, 5, icon.getIntrinsicWidth(), icon.getIntrinsicHeight());
       ImageSpan span = new ImageSpan(icon, DynamicDrawableSpan.ALIGN_BASELINE);
       stringBuilder.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     } catch (Exception e) {

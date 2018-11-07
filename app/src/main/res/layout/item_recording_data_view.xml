@@ -22,10 +22,16 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="horizontal">
+        <ImageButton
+            android:id="@+id/gloss_status_button"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
         <TextView
             android:text="@string/label_my_video_gloss_text"
             android:textSize="16dp"
-            android:paddingRight="10dp"
+            android:paddingHorizontal="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
@@ -53,24 +59,6 @@
               android:id="@+id/gloss_creation_time_textview"
               android:textSize="16dp"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-          <TextView
-              android:text="@string/label_gloss_status"
-              android:textSize="16dp"
-              android:paddingRight="10dp"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"/>
-          <ImageButton
-              android:id="@+id/gloss_status_button"
-              android:background="@android:color/transparent"
-              android:layout_gravity="center_vertical"
-              android:layout_width="wrap_content"
               android:layout_height="wrap_content" />
         </LinearLayout>
       </LinearLayout>

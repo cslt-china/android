@@ -18,7 +18,7 @@ public class VideoReviewViewModel extends AndroidViewModel {
 
   private static final String TAG = "VideoReviewViewModel";
   /* Load size per page.*/
-  private static final Integer LIMIT_SIZE = 8;
+  private static final Integer LIMIT_SIZE = 1000;
   private final VideoApi videoApi;
 
   public VideoReviewViewModel(@NonNull Application application) {

@@ -38,7 +38,7 @@ import retrofit2.Response;
 public class CameraViewModel extends AndroidViewModel {
   private static final String TAG = "CameraViewModel";
 
-  private static final int PROMPT_BATCH_LIMIT = 10;
+  private static final int PROMPT_BATCH_LIMIT = 100;
   /* Internet video file type.*/
   private static final String MEDIA_VIDEO = "video/mp4";
   /* Internet image file type.*/
