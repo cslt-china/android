@@ -7,7 +7,7 @@
       android:background="@color/black"
       android:layout_alignParentTop="true"
       android:layout_width="match_parent"
-      android:layout_height="160dp"
+      android:layout_height="130dp"
       android:paddingTop="20dp"
       android:orientation="vertical">
     <TextView
@@ -26,38 +26,53 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
   </LinearLayout>
-  <fragment
-      android:id="@+id/fragment_video_view"
-      android:name="com.google.android.apps.signalong.VideoViewFragment"
+  <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_marginTop="160dp"/>
-  <RelativeLayout
-      android:id="@+id/approve_reject_buttons_layout"
-      android:layout_alignParentBottom="true"
-      android:layout_width="match_parent"
-      android:layout_height="100dp"
-      android:paddingBottom="20dp"
-      android:visibility="invisible">
-    <Button
-        android:id="@+id/review_result_approve_button"
-        android:layout_alignParentRight="true"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_marginEnd="50dp"
-        android:background="@color/green"
-        android:textColor="@color/white"
-        android:text="@string/button_review_result_approve" />
-    <Button
-        android:id="@+id/review_result_reject_button"
-        android:layout_alignParentLeft="true"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_marginStart="50dp"
-        android:background="@color/red"
-        android:textColor="@color/white"
-        android:text="@string/button_review_result_reject" />
-  </RelativeLayout>
+      android:layout_height="fill_parent"
+      android:orientation="vertical">
+    <fragment
+        android:id="@+id/fragment_video_view"
+        android:name="com.google.android.apps.signalong.VideoViewFragment"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="130dp"
+        android:layout_marginBottom="50dp"/>
+    <LinearLayout
+        android:id="@+id/approve_reject_buttons_layout"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/black"
+        android:layout_marginTop="-50dp"
+        android:orientation="horizontal">
+      <RelativeLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/review_result_approve_button"
+            android:layout_alignParentRight="true"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:enabled="false"
+            android:background="@drawable/approval_button_background"
+            android:textColor="@color/white"
+            android:text="@string/button_review_result_approve" />
+        <Button
+            android:id="@+id/review_result_reject_button"
+            android:layout_alignParentLeft="true"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:enabled="false"
+            android:background="@drawable/reject_button_background"
+            android:textColor="@color/white"
+            android:text="@string/button_review_result_reject" />
+      </RelativeLayout>
+    </LinearLayout>
+  </LinearLayout>
   <LinearLayout
       android:id="@+id/finish_layout"
       android:visibility="gone"

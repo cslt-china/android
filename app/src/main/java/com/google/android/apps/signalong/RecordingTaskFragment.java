@@ -67,7 +67,7 @@ public class RecordingTaskFragment extends BaseFragment implements
             });
 
     RecyclerView recyclerView = viewContainer.findViewById(R.id.recording_task_recyclerview);
-    recyclerView.setLayoutManager(new GridLayoutManager(getActivity().getApplicationContext(), 2));
+    recyclerView.setLayoutManager(new GridLayoutManager(getActivity().getApplicationContext(), 1));
     recyclerView.setAdapter(taskViewAdapter);
   }
 

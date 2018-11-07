@@ -13,11 +13,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.util.Log;
 
+import android.widget.VideoView;
 import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.VideoScreenUtils;
 
 
-public class SelfAssessRecordedVideoFragment extends BaseFragment {
+public class SelfAssessRecordedVideoFragment extends BaseFragment
+    implements VideoViewFragment.VideoPlayCompletionCallback {
   private static final String TAG = "SelfAssessRecordedVideo";
   private VideoViewFragment videoView;
   private TextView titleTextView;
@@ -45,14 +47,7 @@ public class SelfAssessRecordedVideoFragment extends BaseFragment {
   public void onStart() {
     super.onStart();
     try {
-      videoView.setVideoViewCompletionListener(new OnCompletionListener() {
-        @Override
-        public void onCompletion(MediaPlayer mp) {
-          Log.i(TAG, "video view completed.");
-          retryButton.setEnabled(true);
-          submitButton.setEnabled(true);
-        }
-      });
+      videoView.setVideoViewCompletionListener(this);
       selfAssessmentCallback = (OnSelfAssessRecordedVideoListerner) getActivity();
       retryButton.setOnClickListener(new OnClickListener() {
         @Override
@@ -72,6 +67,11 @@ public class SelfAssessRecordedVideoFragment extends BaseFragment {
       throw new ClassCastException(getActivity().toString()
           + " must implet OnReferenceCompletionListerner");
     }
+  }
+
+  public void onVideoPlayCompletion() {
+    retryButton.setEnabled(true);
+    submitButton.setEnabled(true);
   }
 
   public void playRecorded(String title, String videoPath) {

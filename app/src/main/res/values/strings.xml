@@ -1,6 +1,6 @@
 <resources>
   <string name="signalong" translation_description="The launcher name.">SignAlong</string>
-  <string name="app_name">手语数据收集</string>
+  <string name="app_name">手语数据采集</string>
   <!-- activity_collect_data_menu-->
   <string name="btn_standard_data">标准数据</string>
   <string name="btn_test_data">测试数据</string>
@@ -83,7 +83,9 @@
   <string name="label_my_recording_page_title">已录制</string>
   <string name="label_recording_task_count">待录制任务 %1$d 个</string>
   <string name="label_review_task_count">待评审任务 %1$d 个</string>
-
+  <string name="label_prompt_approved_video_counter">有效视频</string>
+  <string name="label_prompt_rejected_video_counter">无效视频</string>
+  <string name="label_prompt_pending_video_counter">待评视频</string>
   <string name="button_record_video">开始录制</string>
   <string name="button_review_video">开始评审</string>
   <string name="tip_video_creation_time">创建时间: %1$s</string>
@@ -133,7 +135,7 @@
   <string name="button_review_result_approve">正确</string>
   <string name="button_review_result_reject">错误</string>
   <string name="label_review_word_prompt">审核 \"%1$s\"</string>
-  <string name="label_task_number">任务 %1$d</string>
+  <string name="label_task_number"># %1$d</string>
   <string name="tip_finish_count_task"> 你已经完成了 %1$d 次审核，辛苦你了！</string>
   <string name="tip_no_task"> 你没打过评分！</string>
   <string name="label_finish_all">你太给力啦！所有视频都被你审核过了，明天再来！</string>

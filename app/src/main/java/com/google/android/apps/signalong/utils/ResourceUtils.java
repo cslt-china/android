@@ -62,6 +62,7 @@ public class ResourceUtils {
     try {
       ImageSpan span = new ImageSpan(icon, DynamicDrawableSpan.ALIGN_BASELINE);
       stringBuilder.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      Log.i(TAG, stringBuilder.toString());
     } catch (Exception e) {
       Log.e(TAG, "Cannot create spannable string for page title!!!");
     }

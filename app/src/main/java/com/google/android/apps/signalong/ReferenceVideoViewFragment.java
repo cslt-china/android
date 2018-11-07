@@ -12,7 +12,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.util.Log;
 
-public class ReferenceVideoViewFragment extends BaseFragment {
+public class ReferenceVideoViewFragment extends BaseFragment implements
+    VideoViewFragment.VideoPlayCompletionCallback {
   private static final String TAG = "ReferenceVideoViewFrag";
   private VideoViewFragment videoView;
   private TextView titleTextView;
@@ -37,12 +38,7 @@ public class ReferenceVideoViewFragment extends BaseFragment {
     super.onStart();
     try {
       viewCompletionCallback = (OnReferenceCompletionListerner) getActivity();
-      videoView.setVideoViewCompletionListener(new OnCompletionListener() {
-        @Override
-        public void onCompletion(MediaPlayer mp) {
-          viewCompletionCallback.onReferenceVideoViewCompletion();
-        }
-      });
+      videoView.setVideoViewCompletionListener(this);
       startRecordingTextView.setOnClickListener(new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -54,6 +50,10 @@ public class ReferenceVideoViewFragment extends BaseFragment {
       throw new ClassCastException(getActivity().toString()
           + " must implet OnReferenceCompletionListerner");
     }
+  }
+
+  public void onVideoPlayCompletion() {
+    viewCompletionCallback.onReferenceVideoViewCompletion();
   }
 
   public void playReference(String title, String videoPath,

@@ -32,37 +32,47 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <fragment
-        android:id="@+id/fragment_recorded_video"
-        android:name="com.google.android.apps.signalong.VideoViewFragment"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="130dp"/>
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+        <fragment
+            android:id="@+id/fragment_recorded_video"
+            android:name="com.google.android.apps.signalong.VideoViewFragment"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="130dp"
+            android:layout_marginBottom="50dp"/>
 
-    <RelativeLayout
-        android:id="@+id/layout_retry_submit_buttons"
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginTop="-100dp"
-        android:padding="20dp">
-        <Button
-            android:id="@+id/button_retry"
-            android:text="@string/btn_retry"
-            android:layout_alignParentLeft="true"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_marginStart="50dp"
-            android:background="@color/red"
-            android:textColor="@color/white" />
-        <Button
-            android:id="@+id/button_submit"
-            android:text="@string/btn_submit"
-            android:layout_alignParentRight="true"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_marginEnd="50dp"
-            android:background="@color/green"
-            android:textColor="@color/white" />
-    </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/layout_retry_submit_buttons"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="-50dp"
+            android:background="@color/black">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/button_retry"
+                    android:text="@string/btn_retry"
+                    android:layout_alignParentLeft="true"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_margin="10dp"
+                    android:background="@color/red"
+                    android:textColor="@color/white" />
+                <Button
+                    android:id="@+id/button_submit"
+                    android:text="@string/btn_submit"
+                    android:layout_alignParentRight="true"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_margin="10dp"
+                    android:background="@color/green"
+                    android:textColor="@color/white" />
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>

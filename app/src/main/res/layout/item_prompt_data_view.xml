@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@android:color/transparent" >
 
@@ -11,18 +11,76 @@
       xmlns:card_view="http://schemas.android.com/apk/res-auto"
       style="@style/TaskCard.Prompt"
       android:id="@+id/prompt_data_cardview"
-      android:layout_width="150dp"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
       <TextView
           android:id="@+id/gloss_text_textview"
           android:textSize="30dp"
-          android:gravity="center"
           android:layout_width="match_parent"
           android:layout_height="wrap_content" />
-    </LinearLayout>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:orientation="horizontal" >
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+          <TextView
+              android:text="@string/label_prompt_approved_video_counter"
+              android:textSize="16dp"
+              android:paddingRight="10dp"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"/>
+          <TextView
+              android:id="@+id/approved_video_count_textview"
+              android:textSize="30dp"
+              android:gravity="center"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+          <TextView
+              android:text="@string/label_prompt_rejected_video_counter"
+              android:textSize="16dp"
+              android:paddingRight="10dp"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"/>
+          <TextView
+              android:id="@+id/rejected_video_count_textview"
+              android:textSize="30dp"
+              android:gravity="center"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+          <TextView
+              android:text="@string/label_prompt_pending_video_counter"
+              android:textSize="16dp"
+              android:paddingRight="10dp"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"/>
+          <TextView
+              android:id="@+id/pending_video_count_textview"
+              android:textSize="30dp"
+              android:gravity="center"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content" />
+        </LinearLayout>
+      </LinearLayout>
+      </LinearLayout>
   </android.support.v7.widget.CardView>
 </LinearLayout>

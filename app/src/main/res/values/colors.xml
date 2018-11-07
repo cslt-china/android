@@ -19,6 +19,7 @@
          tetradic harmony.
      -->
     <color name="red">#C43F38</color>
+    <color name="disabled_red">#fc7f77</color>
     <color name="green">#38C454</color>
     <color name="yellow">#C48538</color>
     <color name="blue">#4638c4</color>

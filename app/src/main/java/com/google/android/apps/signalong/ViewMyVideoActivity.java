@@ -14,7 +14,8 @@ import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.android.apps.signalong.widget.TaskView.TaskType;
 
 
-public class ViewMyVideoActivity extends BaseActivity {
+public class ViewMyVideoActivity extends BaseActivity
+  implements  VideoViewFragment.VideoPlayCompletionCallback {
   private static final String TAG = "ViewMyVideoActivity";
 
   // The intent param to pass video databean from caller activity.
@@ -42,11 +43,7 @@ public class ViewMyVideoActivity extends BaseActivity {
 
     videoView = (VideoViewFragment) getSupportFragmentManager().findFragmentById(
         R.id.fragment_my_video_view);
-    videoView.setVideoViewCompletionListener(new MediaPlayer.OnCompletionListener() {
-      @Override
-      public void onCompletion(MediaPlayer mp) {
-      }
-    });
+    videoView.setVideoViewCompletionListener(this);
     videoView.viewVideo(Uri.parse(data.getVideoPath()),
         Uri.parse(data.getThumbnail()));
 
@@ -63,6 +60,8 @@ public class ViewMyVideoActivity extends BaseActivity {
     ((TextView) findViewById(R.id.gloss_rejected_counter_textview))
         .setText(String.valueOf(data.getRejectedReviewCounter()));
   }
+
+  public void onVideoPlayCompletion() {}
 
   public static void startActivity(
       Activity sourceActivity, VideoListResponse.DataBeanList.DataBean myVideoData) {

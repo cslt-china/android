@@ -5,7 +5,8 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.google.android.apps.signalong.jsonentities.ReviewVideoResponse;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
@@ -17,7 +18,8 @@ import retrofit2.Response;
 /** VideoReviewActivity implements review video by user. */
 public class VideoReviewActivity extends BaseActivity implements
     VideoReviewViewModel.UnreviewedVideoListResponseCallbacks,
-    VideoReviewViewModel.ReviewVideoResponseCallbacks {
+    VideoReviewViewModel.ReviewVideoResponseCallbacks,
+    VideoViewFragment.VideoPlayCompletionCallback {
   private static final String TAG = "[VideoReviewActivity]";
 
   /* This provides parameters for communication between activities for videoReviewActivity. */
@@ -30,7 +32,8 @@ public class VideoReviewActivity extends BaseActivity implements
   private VideoReviewViewModel videoReviewViewModel;
   private List<VideoListResponse.DataBeanList.DataBean> unreviewedVideoList;
   private VideoListResponse.DataBeanList.DataBean currentUnreviewedVideoData;
-  private RelativeLayout approveRejectButtonsLayout;
+  private Button approvalButton;
+  private Button rejectButton;
   private Integer counter;
   private VideoViewFragment videoView;
 
@@ -53,22 +56,19 @@ public class VideoReviewActivity extends BaseActivity implements
 
   @Override
   public void initViews() {
-    approveRejectButtonsLayout = findViewById(R.id.approve_reject_buttons_layout);
     videoView = (VideoViewFragment) getSupportFragmentManager().findFragmentById(
         R.id.fragment_video_view);
-    videoView.setVideoViewCompletionListener(new MediaPlayer.OnCompletionListener() {
-      @Override
-      public void onCompletion(MediaPlayer mp) {
-        approveRejectButtonsLayout.setVisibility(View.VISIBLE);
-      }
-    });
+    videoView.setVideoViewCompletionListener(this);
     findViewById(R.id.ok_button).setOnClickListener(view -> finish());
-    findViewById(R.id.review_result_reject_button).setOnClickListener(
+    rejectButton = findViewById(R.id.review_result_reject_button);
+    rejectButton.setOnClickListener(
         view -> videoReviewViewModel.reviewVideo(
             currentUnreviewedVideoData.getUuid(), REVIEW_REJECT, this));
-    findViewById(R.id.review_result_approve_button).setOnClickListener(
+    approvalButton = findViewById(R.id.review_result_approve_button);
+    approvalButton.setOnClickListener(
         view -> videoReviewViewModel.reviewVideo(
             currentUnreviewedVideoData.getUuid(),REVIEW_APPROVE, this));
+    enableReviewButtons(false);
     unreviewedVideoList = ActivityUtils.parseReviewTaskFromIntent(this);
     if (unreviewedVideoList == null || unreviewedVideoList.isEmpty()) {
       Log.i(TAG, "fetch unreviewed video list from server");
@@ -78,13 +78,17 @@ public class VideoReviewActivity extends BaseActivity implements
     }
   }
 
+  public void onVideoPlayCompletion() {
+    enableReviewButtons(true);
+  }
+
   public void onSuccessUnreviewedVideoListResponse(Response<VideoListResponse> response) {
     if (response.isSuccessful() && response.body().getCode() == 0) {
       unreviewedVideoList = response.body().getDataBeanList().getData();
       if (unreviewedVideoList != null && !unreviewedVideoList.isEmpty()) {
         nextUnreviewedVideoData();
       } else {
-        approveRejectButtonsLayout.setVisibility(View.GONE);
+        enableReviewButtons(false);
         findViewById(R.id.finish_layout).setVisibility(View.VISIBLE);
       }
     } else {
@@ -107,6 +111,11 @@ public class VideoReviewActivity extends BaseActivity implements
     finish();
   }
 
+  private void enableReviewButtons(boolean enable) {
+    approvalButton.setEnabled(enable);
+    rejectButton.setEnabled(enable);
+  }
+
   private void nextUnreviewedVideoData() {
     if (!unreviewedVideoList.isEmpty()) {
       counter++;
@@ -118,7 +127,7 @@ public class VideoReviewActivity extends BaseActivity implements
               String.format(
                   getString(R.string.label_review_word_prompt),
                   currentUnreviewedVideoData.getGlossText()));
-      approveRejectButtonsLayout.setVisibility(View.INVISIBLE);
+      enableReviewButtons(false);
       videoView.viewVideo(Uri.parse(currentUnreviewedVideoData.getVideoPath()),
                           Uri.parse(currentUnreviewedVideoData.getThumbnail()));
     } else {

@@ -39,8 +39,14 @@ public class SignPromptBatchResponse extends BaseResponse {
     @SerializedName("gloss_type")
     private int glossType;
 
-    @SerializedName("video_count")
-    private int videoCount;
+    @SerializedName("approved_video_count")
+    private int approvedVideoCount;
+
+    @SerializedName("rejected_video_count")
+    private int rejectedVideoCount;
+
+    @SerializedName("pending_approval_video_count")
+    private int pendingApprovalVideoCount;
 
     @SerializedName("sample_video")
     private SampleVideoBean sampleVideo;
@@ -64,7 +70,9 @@ public class SignPromptBatchResponse extends BaseResponse {
       this.id = in.readInt();
       this.text = in.readString();
       this.glossType = in.readInt();
-      this.videoCount = in.readInt();
+      this.approvedVideoCount = in.readInt();
+      this.rejectedVideoCount = in.readInt();
+      this.pendingApprovalVideoCount = in.readInt();
       this.duration = in.readInt();
       this.sampleVideo = in.readParcelable(SampleVideoBean.class.getClassLoader());
     }
@@ -79,7 +87,9 @@ public class SignPromptBatchResponse extends BaseResponse {
       dest.writeInt(this.id);
       dest.writeString(this.text);
       dest.writeInt(this.glossType);
-      dest.writeInt(this.videoCount);
+      dest.writeInt(this.approvedVideoCount);
+      dest.writeInt(this.rejectedVideoCount);
+      dest.writeInt(this.pendingApprovalVideoCount);
       dest.writeInt(this.duration);
       dest.writeParcelable(this.sampleVideo, flags);
     }
@@ -99,6 +109,12 @@ public class SignPromptBatchResponse extends BaseResponse {
     public int getDuration() {
       return duration;
     }
+
+    public int getApprovedVideoCount() { return approvedVideoCount; }
+
+    public int getRejectedVideoCount() { return rejectedVideoCount; }
+
+    public int getPendingApprovalVideoCount() { return pendingApprovalVideoCount; }
 
     public void setText(String text) {
       this.text = text;

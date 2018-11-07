@@ -3,10 +3,12 @@ package com.google.android.apps.signalong;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.media.MediaPlayer;
+import android.provider.MediaStore.Video;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,22 +86,30 @@ public class VideoViewFragment extends BaseFragment implements
     super.onDestroy();
   }
 
-  public void setVideoViewCompletionListener(MediaPlayer.OnCompletionListener listener) {
-    videoView.setOnCompletionListener(listener);
+  @Override
+  public void onResume() {
+    videoView.setVisibility(View.VISIBLE);
+    super.onResume();
+  }
+
+  public void setVideoViewCompletionListener(VideoPlayCompletionCallback callback) {
+    videoView.setOnCompletionListener(new OnCompletionListener() {
+      @Override
+      public void onCompletion(MediaPlayer mp) {
+        replayButton.setVisibility(View.VISIBLE);
+        callback.onVideoPlayCompletion();
+      }
+    });
   }
 
   public void setVisibility(int visibility) {
-    //downloadProgressBar.setVisibility(visibility);
     videoView.setVisibility(visibility);
-    replayButton.setVisibility(visibility);
     super.setVisibility(visibility);
   }
 
   public void stopPlayback() {
     if (videoView.isPlaying()) {
       videoView.stopPlayback();
-      // This is necessary for the video view to play out a new video without displaying
-      // the stopped one.
       videoView.setVisibility(View.GONE);
       videoView.setVisibility(View.VISIBLE);
     }
@@ -126,6 +136,7 @@ public class VideoViewFragment extends BaseFragment implements
   }
 
   protected void replay() {
+    replayButton.setVisibility(View.GONE);
     if (videoView.isPlaying() && videoView.canSeekBackward()) {
       videoView.seekTo(0);
       return;
@@ -194,7 +205,7 @@ public class VideoViewFragment extends BaseFragment implements
     if (videoView.isPlaying()) {
       videoView.stopPlayback();
     }
-
+    replayButton.setVisibility(View.GONE);
     try {
       //copy to a const tmp file is to prevent videoView play a removed file,
       //when its visibility is changed.
@@ -208,4 +219,7 @@ public class VideoViewFragment extends BaseFragment implements
     videoView.start();
   }
 
+  public interface VideoPlayCompletionCallback {
+    void onVideoPlayCompletion();
+  }
 }
