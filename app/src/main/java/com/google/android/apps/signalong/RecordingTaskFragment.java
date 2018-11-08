@@ -11,10 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse;
 import com.google.android.apps.signalong.jsonentities.SignPromptBatchResponse.DataBean;
 import com.google.android.apps.signalong.utils.ActivityUtils;
+import com.google.android.apps.signalong.utils.ToastUtils;
 import com.google.android.apps.signalong.widget.PromptDataView;
 import com.google.android.apps.signalong.widget.PromptDataViewAdapter;
 import com.google.android.apps.signalong.widget.TaskView.TaskType;
@@ -31,6 +33,8 @@ public class RecordingTaskFragment extends BaseFragment implements
   private CameraViewModel cameraViewModel;
   private SignPromptBatchResponse promptList;
   private PromptDataViewAdapter taskViewAdapter;
+  private Button recordVideoButton;
+  private TextView recordTaskCountTextview;
 
   private OnClickListener taskViewOnClickListener;
 
@@ -60,12 +64,15 @@ public class RecordingTaskFragment extends BaseFragment implements
       }
     };
 
-    viewContainer.findViewById(R.id.record_video_button)
-        .setOnClickListener(
+    recordVideoButton = viewContainer.findViewById(R.id.record_video_button);
+    recordVideoButton.setOnClickListener(
             view -> {
               ActivityUtils.startCameraActivity(getActivity(), promptList);
             });
-
+    recordVideoButton.setEnabled(false);
+    recordTaskCountTextview = viewContainer.findViewById(R.id.recording_task_count_textview);
+    recordTaskCountTextview.setText(
+        String.format(getString(R.string.label_recording_task_count), 0));
     RecyclerView recyclerView = viewContainer.findViewById(R.id.recording_task_recyclerview);
     recyclerView.setLayoutManager(new GridLayoutManager(getActivity().getApplicationContext(), 1));
     recyclerView.setAdapter(taskViewAdapter);
@@ -84,11 +91,17 @@ public class RecordingTaskFragment extends BaseFragment implements
   public void onSuccessSignPromptBatchResponse(Response<SignPromptBatchResponse> response) {
     if (response.isSuccessful() && response.body().getCode() == 0) {
       this.promptList = response.body();
-      ((TextView) viewContainer.findViewById(R.id.recording_task_count_textview))
-          .setText(String.format(getString(R.string.label_recording_task_count),
+      recordTaskCountTextview.setText(
+          String.format(getString(R.string.label_recording_task_count),
               promptList.getData() == null ? 0 : promptList.getData().size()));
       Activity activity = getActivity();
       taskViewAdapter.setPromptList(this.getContext(), response.body(), taskViewOnClickListener);
+      recordVideoButton.setEnabled(true);
+    } else if (response.isSuccessful() && response.body().getCode() == 406) {
+      recordTaskCountTextview.setText(
+          String.format(getString(R.string.label_recording_task_count), 0)
+              + ", " + response.body().getMessage());
+      recordVideoButton.setEnabled(false);
     }
   }
 

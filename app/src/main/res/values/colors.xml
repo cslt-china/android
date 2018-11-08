@@ -14,6 +14,7 @@
     <color name="black">#000000</color>
     <color name="light_grey">#DCDCDC</color>
     <color name="disabled_green">#7F66AC5B</color>
+    <color name="disabled_highlight">#d3d2f2</color>
     <!-- The following colors are picked from https://www.sessions.edu/color-calculator/
          with the seed color "red" provided from UX fusong@, and the rest computed using
          tetradic harmony.

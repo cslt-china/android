@@ -21,14 +21,14 @@ public class MyVideoFragment extends BaseFragment {
     MyVideoPagerAdapter adapter = new MyVideoPagerAdapter(getChildFragmentManager());
     Resources resource = getResources();
     adapter.addFragment(
-        ResourceUtils.getVideoStatusPageTitle(resource, VideoStatus.APPROVED),
-        MyVideoPerStatusFragment.newInstance(VideoStatus.APPROVED));
-    adapter.addFragment(
         ResourceUtils.getVideoStatusPageTitle(resource, VideoStatus.PENDING_APPROVAL),
         MyVideoPerStatusFragment.newInstance(VideoStatus.PENDING_APPROVAL));
     adapter.addFragment(
         ResourceUtils.getVideoStatusPageTitle(resource, VideoStatus.REJECTED),
         MyVideoPerStatusFragment.newInstance(VideoStatus.REJECTED));
+    adapter.addFragment(
+        ResourceUtils.getVideoStatusPageTitle(resource, VideoStatus.APPROVED),
+        MyVideoPerStatusFragment.newInstance(VideoStatus.APPROVED));
 
     ViewPager viewPager = viewContainer.findViewById(R.id.my_video_viewpager);
     viewPager.setAdapter(adapter);
@@ -36,6 +36,11 @@ public class MyVideoFragment extends BaseFragment {
     ((TabLayout) viewContainer.findViewById(R.id.my_video_tabs)).setupWithViewPager(viewPager);
 
     return viewContainer;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
   }
 
 }
