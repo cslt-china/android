@@ -363,7 +363,9 @@ public class CameraActivity extends BaseActivity implements
     showTopicTimer.schedule(new TimerTask() {
       @Override
       public void run() {
-        runOnUiThread(()-> fireFsmEvent(FSMEvent.Learn) );
+        Boolean skipLearn = VideoRecordingSharedPreferences.getSkipReference(
+            getApplicationContext());
+        runOnUiThread(() -> fireFsmEvent( skipLearn ? FSMEvent.PrepareRecord : FSMEvent.Learn));
       }
     }, Config.TOPIC_SHOW_SECOND * 1000);
   }

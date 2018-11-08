@@ -3,6 +3,9 @@ package com.google.android.apps.signalong;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -81,6 +84,15 @@ public class SettingActivity extends BaseActivity implements
       .setOnClickListener(
         view -> startActivityForResult(new Intent(getApplicationContext(), ChangePasswordActivity.class), 0)
       );
+
+    findViewById(R.id.checkbox_skip_reference_play)
+        .setOnClickListener(new OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            VideoRecordingSharedPreferences.saveSkipReference(getApplicationContext(),
+                ((CheckBox) v).isChecked());
+          }
+        });
   }
 
   private void logout() {

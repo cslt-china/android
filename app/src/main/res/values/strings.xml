@@ -110,6 +110,7 @@
   <string name="label_new_password">新密码</string>
   <string name="label_confirm_password">确认密码</string>
   <string name="btn_dialog_help_ok">确定</string>
+  <string name="label_skip_reference_play">跳过参考视频</string>
 
   <!-- item_recording_data_view -->
   <string name="label_my_video_gloss_text">手语</string>

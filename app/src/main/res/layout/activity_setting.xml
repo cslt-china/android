@@ -103,6 +103,13 @@
       </LinearLayout>
     </RelativeLayout>
 
+    <CheckBox android:id="@+id/checkbox_skip_reference_play"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="10dp"
+        android:text="@string/label_skip_reference_play"
+        android:onClick="onCheckboxClicked"/>
+
     <View
         style="@style/Spacer"
         android:background="@color/light_grey" />

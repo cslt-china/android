@@ -14,6 +14,8 @@ public class VideoRecordingSharedPreferences {
     RECORD_TIME_SCALE,
   }
 
+  public static final String SKIP_REFERENCE_KEY = "SKIP_REFERENCE";
+
   private static final String PACKAGE_NAME = "RecordVideoConfig";
 
   private static SharedPreferences getSharedPreferences(Context context) {
@@ -32,4 +34,13 @@ public class VideoRecordingSharedPreferences {
       return getSharedPreferences(context).getInt(timingType.name(), 3);
     }
   }
+
+  public static void saveSkipReference(Context context, boolean value) {
+    getSharedPreferences(context).edit().putBoolean(SKIP_REFERENCE_KEY, value);
+  }
+
+  public static Boolean getSkipReference(Context context) {
+    return getSharedPreferences(context).getBoolean(SKIP_REFERENCE_KEY, false);
+  }
+
 }

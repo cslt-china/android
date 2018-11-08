@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse;
 import com.google.android.apps.signalong.jsonentities.VideoListResponse.DataBeanList.DataBean;
@@ -32,6 +33,8 @@ public class ReviewTaskFragment extends BaseFragment implements
   private RecordedDataViewAdapter taskViewAdapter;
   private List<DataBean> unreviewedVideoList;
   private VideoReviewViewModel videoReviewViewModel;
+  private Button startReviewButton;
+  private TextView reviewTaskCountTextview;
 
   private OnClickListener taskViewOnClickListener;
 
@@ -62,15 +65,18 @@ public class ReviewTaskFragment extends BaseFragment implements
       }
     };
 
-    viewContainer.findViewById(R.id.review_video_button)
-        .setOnClickListener(
+    startReviewButton = viewContainer.findViewById(R.id.review_video_button);
+    startReviewButton.setOnClickListener(
             view -> {
               ActivityUtils.startReviewActivity(getActivity(), unreviewedVideoList);
             }
         );
+    startReviewButton.setEnabled(false);
 
-    RecyclerView recyclerView = (RecyclerView) viewContainer.findViewById(
-        R.id.review_task_recyclerview);
+    reviewTaskCountTextview = viewContainer.findViewById(R.id.review_task_count_textview);
+    reviewTaskCountTextview.setText(String.format(getString(R.string.label_review_task_count), 0));
+
+    RecyclerView recyclerView = viewContainer.findViewById(R.id.review_task_recyclerview);
     recyclerView.setLayoutManager(new GridLayoutManager(getActivity().getApplicationContext(), 1));
     recyclerView.setAdapter(taskViewAdapter);
   }
@@ -87,11 +93,9 @@ public class ReviewTaskFragment extends BaseFragment implements
 
   public void onSuccessUnreviewedVideoListResponse(Response<VideoListResponse> response) {
     if (response.isSuccessful() && response.body().getCode() == 0) {
-      ((TextView) viewContainer.findViewById(R.id.review_task_count_textview))
-          .setText(
-              String.format(
-                  getString(R.string.label_review_task_count),
-                  response.body().getDataBeanList().getTotal()));
+      int taskCount = response.body().getDataBeanList().getTotal();
+      reviewTaskCountTextview.setText(String.format(getString(R.string.label_review_task_count), taskCount));
+      startReviewButton.setEnabled(taskCount > 0);
       this.unreviewedVideoList = response.body().getDataBeanList().getData();
       taskViewAdapter.setVideoList(
           getContext(), response.body().getDataBeanList(), TASK_TYPE, taskViewOnClickListener);
