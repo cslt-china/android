@@ -36,7 +36,7 @@ public class VideoRecordingSharedPreferences {
   }
 
   public static void saveSkipReference(Context context, boolean value) {
-    getSharedPreferences(context).edit().putBoolean(SKIP_REFERENCE_KEY, value);
+    getSharedPreferences(context).edit().putBoolean(SKIP_REFERENCE_KEY, value).commit();
   }
 
   public static Boolean getSkipReference(Context context) {

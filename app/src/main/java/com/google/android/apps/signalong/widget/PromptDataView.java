@@ -30,6 +30,12 @@ public class PromptDataView extends TaskView<DataBean> {
     this.taskType = TaskType.NEW_RECORDING;
     this.data = data;
     ((TextView) layout.findViewById(R.id.gloss_text_textview)).setText(data.getText());
+    ((TextView) layout.findViewById(R.id.approved_video_count_textview))
+        .setText(String.valueOf(data.getApprovedVideoCount()));
+    ((TextView) layout.findViewById(R.id.rejected_video_count_textview))
+        .setText(String.valueOf(data.getRejectedVideoCount()));
+    ((TextView) layout.findViewById(R.id.pending_video_count_textview))
+        .setText(String.valueOf(data.getPendingApprovalVideoCount()));
   }
 
 }
