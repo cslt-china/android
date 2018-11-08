@@ -108,6 +108,8 @@
         android:layout_height="wrap_content"
         android:paddingVertical="10dp"
         android:text="@string/label_skip_reference_play"
+        android:focusable="true"
+        android:clickable="true"
         android:onClick="onCheckboxClicked"/>
 
     <View

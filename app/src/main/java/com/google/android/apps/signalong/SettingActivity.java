@@ -85,8 +85,9 @@ public class SettingActivity extends BaseActivity implements
         view -> startActivityForResult(new Intent(getApplicationContext(), ChangePasswordActivity.class), 0)
       );
 
-    findViewById(R.id.checkbox_skip_reference_play)
-        .setOnClickListener(new OnClickListener() {
+    CheckBox checkBox = findViewById(R.id.checkbox_skip_reference_play);
+    checkBox.setChecked(VideoRecordingSharedPreferences.getSkipReference(getApplicationContext()));
+    checkBox.setOnClickListener(new OnClickListener() {
           @Override
           public void onClick(View v) {
             VideoRecordingSharedPreferences.saveSkipReference(getApplicationContext(),
