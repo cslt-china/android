@@ -309,6 +309,7 @@ public class CameraActivity extends BaseActivity implements
           .onEntry(this::entryShowingTopic)
           .onExit(this::exitShowingTopic)
           .permit(FSMEvent.Learn, FSMState.Learning)
+          .permit(FSMEvent.PrepareRecord, FSMState.Countdowning)
           .permit(FSMEvent.Stop, FSMState.Stopped);
 
     config.configure(FSMState.Learning)
@@ -365,6 +366,7 @@ public class CameraActivity extends BaseActivity implements
       public void run() {
         Boolean skipLearn = VideoRecordingSharedPreferences.getSkipReference(
             getApplicationContext());
+        Log.i(TAG, "skipLearn=" + skipLearn);
         runOnUiThread(() -> fireFsmEvent( skipLearn ? FSMEvent.PrepareRecord : FSMEvent.Learn));
       }
     }, Config.TOPIC_SHOW_SECOND * 1000);
