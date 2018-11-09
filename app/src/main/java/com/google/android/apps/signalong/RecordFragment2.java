@@ -652,7 +652,7 @@ public class RecordFragment2 extends BaseFragment {
                 });
               mMediaRecorder.start();
 
-              progressAnimator.setDuration(Math.min(2, recordingTime) * 1000);
+              progressAnimator.setDuration(Math.max(2, recordingTime) * 1000);
               progressAnimator.start();
 
               mIsRecordingVideo = true;
@@ -662,7 +662,7 @@ public class RecordFragment2 extends BaseFragment {
 
         @Override
         public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-          Log.e("wxg", "camera configre error");
+          Log.e("wxg", "camera configure error");
           mCameraCallback.onError("device configure failed");
         }
       }, mBackgroundHandler);
