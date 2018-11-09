@@ -101,6 +101,7 @@ public class RecordingTaskFragment extends BaseFragment implements
       recordTaskCountTextview.setText(
           String.format(getString(R.string.label_recording_task_count), 0)
               + ", " + response.body().getMessage());
+      taskViewAdapter.clearPromptList();
       recordVideoButton.setEnabled(false);
     }
   }

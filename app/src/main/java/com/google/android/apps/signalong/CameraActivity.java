@@ -337,7 +337,7 @@ public class CameraActivity extends BaseActivity implements
           .onExit(this::exitWaitingConfirm)
           .permitDynamic(FSMEvent.Retry, () -> {
             FileUtils.clearFile(videoFilePath);
-            return FSMState.Learning;
+            return skipLearning() ? FSMState.Countdowning : FSMState.Learning;
           })
           .permitDynamic(FSMEvent.Confirm, () -> {
             Log.i(fsmTag, String.format("dyamic Confirm: currsignIndex %d", currentSignIndex));
@@ -364,10 +364,7 @@ public class CameraActivity extends BaseActivity implements
     showTopicTimer.schedule(new TimerTask() {
       @Override
       public void run() {
-        Boolean skipLearn = VideoRecordingSharedPreferences.getSkipReference(
-            getApplicationContext());
-        Log.i(TAG, "skipLearn=" + skipLearn);
-        runOnUiThread(() -> fireFsmEvent( skipLearn ? FSMEvent.PrepareRecord : FSMEvent.Learn));
+        runOnUiThread(() -> fireFsmEvent( skipLearning() ? FSMEvent.PrepareRecord : FSMEvent.Learn));
       }
     }, Config.TOPIC_SHOW_SECOND * 1000);
   }
@@ -462,4 +459,9 @@ public class CameraActivity extends BaseActivity implements
     upperFragment.setVisibility(View.VISIBLE);
     upperFragment.getView().bringToFront();
   }
+
+  private boolean skipLearning() {
+    return VideoRecordingSharedPreferences.getSkipReference(getApplicationContext());
+  }
+
 }

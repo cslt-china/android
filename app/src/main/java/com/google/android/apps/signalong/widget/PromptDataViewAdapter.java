@@ -33,6 +33,11 @@ public class PromptDataViewAdapter extends
     promptList = null;
   }
 
+  public void clearPromptList() {
+    this.promptList.getData().clear();
+    notifyDataSetChanged();
+  }
+
   public void setPromptList(Context context, SignPromptBatchResponse promptList,
       @Nullable  OnClickListener listener) {
     this.context = context;
