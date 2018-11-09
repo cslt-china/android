@@ -2,14 +2,14 @@ package com.google.android.apps.signalong;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.apps.signalong.api.ApiHelper;
+import com.google.android.apps.signalong.api.VideoApi;
+import com.google.android.apps.signalong.service.DownloadImageTask;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import com.google.android.apps.signalong.utils.ToastUtils;
 
@@ -17,7 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class AgreementActivity extends BaseActivity {
+public class AgreementActivity extends BaseActivity implements DownloadImageTask.DownloadImageCallbacks {
 
   @BindView(R.id.agreementPdf)
   ImageView pdfView;
@@ -53,11 +53,7 @@ public class AgreementActivity extends BaseActivity {
 
     String pdfUrl = String.format("%s/%s-agreement.png", ApiHelper.AGREEMENTS_BASE_URL, username);
 
-    RequestOptions requestOptions = new RequestOptions()
-      .diskCacheStrategy(DiskCacheStrategy.NONE) // because file name is always same
-      .skipMemoryCache(true);
-
-    Glide.with(this).load(pdfUrl).apply(requestOptions).into(pdfView);
+    new DownloadImageTask(ApiHelper.getRetrofit().create(VideoApi.class), this).execute(pdfUrl);
 
     toggleConfirmEnabled(false);
 
@@ -75,6 +71,16 @@ public class AgreementActivity extends BaseActivity {
         }
       });
     });
+  }
+
+  @Override
+  public void onImageDownloaded(Bitmap bitmap) {
+    pdfView.setImageBitmap(bitmap);
+  }
+
+  @Override
+  public void onDownloadFailure(String error) {
+    ToastUtils.show(getApplicationContext(), error);
   }
 
   @Override

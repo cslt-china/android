@@ -160,7 +160,7 @@ public class VideoViewFragment extends BaseFragment implements
       if (FileUtils.isFileExist(localPath)) {
         videoView.setBackground(Drawable.createFromPath(localPath));
       } else {
-        new DownloadImageTask(this).execute(uri.toString());
+        new DownloadImageTask(ApiHelper.getRetrofit().create(VideoApi.class), this).execute(uri.toString());
       }
       }
   }
