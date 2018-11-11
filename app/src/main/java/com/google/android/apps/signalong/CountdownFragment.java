@@ -12,7 +12,7 @@ import android.widget.TextView;
 public class CountdownFragment extends BaseFragment {
   private final String TAG = "CountdownFragment";
 
-  private static final int DISPLAY_START_TIME = 1000;
+  private static final int DISPLAY_START_TIME_MILLISECOND = 200;
 
   private TextView titleTextView;
   private TextView textView;
@@ -25,11 +25,11 @@ public class CountdownFragment extends BaseFragment {
       long leftTime = totalTime - currentTime;
       //Log.i(TAG, String.format("countdowning %d", leftTime / 1000));
 
-      if (leftTime <= DISPLAY_START_TIME) {
+      if (leftTime <= DISPLAY_START_TIME_MILLISECOND) {
         textView.setText(getString(R.string.start));
       } else {
         textView.setText(
-            String.valueOf((leftTime - DISPLAY_START_TIME) / 1000 + 1));
+            String.valueOf((leftTime - DISPLAY_START_TIME_MILLISECOND) / 1000 + 1));
       }
     });
   }
@@ -53,7 +53,7 @@ public class CountdownFragment extends BaseFragment {
 
   public void startCountdown(int countDownSecond, String text) {
     titleTextView.setText(String.format(getString(R.string.please_sign), text));
-    int totalTime = countDownSecond * 1000 + DISPLAY_START_TIME;
+    int totalTime = countDownSecond * 1000 + DISPLAY_START_TIME_MILLISECOND;
     animator.setIntValues(totalTime / 100, 0);
     animator.setDuration(totalTime);
     animator.start();

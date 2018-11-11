@@ -13,7 +13,6 @@
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:layout_alignParentTop="true"
-    android:alpha="0.7"
     android:background="@color/video_name_bg"
     android:gravity="center"
     android:textColor="@color/white"

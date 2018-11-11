@@ -45,7 +45,7 @@ public class DownloadImageTask extends AsyncTask<String, Void, String> {
                       bmp = BitmapFactory.decodeStream(inputStream);
                       inputStream.close();
                       callbacks.onImageDownloaded(bmp);
-                  } catch (IOException e) {
+                  } catch (Exception e) {
                       callbacks.onDownloadFailure(e.toString());
                   }
               }

@@ -51,7 +51,7 @@
         <Button
             android:id="@+id/review_result_approve_button"
             android:layout_alignParentRight="true"
-            android:layout_margin="10dp"
+            android:layout_marginRight="20dp"
             android:gravity="center"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
@@ -62,7 +62,7 @@
         <Button
             android:id="@+id/review_result_reject_button"
             android:layout_alignParentLeft="true"
-            android:layout_margin="10dp"
+            android:layout_marginLeft="20dp"
             android:gravity="center"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
