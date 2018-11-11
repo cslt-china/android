@@ -22,13 +22,14 @@ public class PromptDataView extends TaskView<DataBean> {
     }
   }
 
-  public void setData(DataBean data, TaskType taskType) {
+  public void setData(DataBean data, TaskType taskType, int position) {
     if (taskType != TaskType.NEW_RECORDING) {
       throw new InvalidParameterException(
           "task type must be NEW_RECORDING for SignPromptBatchResponse.DataBean!!");
     }
     this.taskType = TaskType.NEW_RECORDING;
     this.data = data;
+    this.position = position;
     ((TextView) layout.findViewById(R.id.gloss_text_textview)).setText(data.getText());
     ((TextView) layout.findViewById(R.id.approved_video_count_textview))
         .setText(String.valueOf(data.getApprovedVideoCount()));

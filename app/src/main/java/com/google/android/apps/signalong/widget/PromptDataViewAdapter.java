@@ -34,8 +34,10 @@ public class PromptDataViewAdapter extends
   }
 
   public void clearPromptList() {
-    this.promptList.getData().clear();
-    notifyDataSetChanged();
+    if (promptList != null && promptList.getData() != null ) {
+      this.promptList.getData().clear();
+      notifyDataSetChanged();
+    }
   }
 
   public void setPromptList(Context context, SignPromptBatchResponse promptList,
@@ -55,7 +57,7 @@ public class PromptDataViewAdapter extends
 
   @Override
   public void onBindViewHolder(ViewHolder viewHolder, int position) {
-    viewHolder.view.setData(promptList.getData().get(position), TaskType.NEW_RECORDING);
+    viewHolder.view.setData(promptList.getData().get(position), TaskType.NEW_RECORDING, position);
     if (this.listener != null) {
       viewHolder.view.setOnClickListener(this.listener);
     }

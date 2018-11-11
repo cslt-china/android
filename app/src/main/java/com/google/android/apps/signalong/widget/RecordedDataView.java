@@ -29,10 +29,11 @@ public class RecordedDataView extends TaskView<DataBean> {
     }
   }
 
-  public void setData(DataBean data, TaskType taskType) {
+  public void setData(DataBean data, TaskType taskType, int position) {
     Log.i(TAG, "setData with task type " + taskType);
     this.data = data;
     this.taskType = taskType;
+    this.position = position;
     ((TextView) layout.findViewById(R.id.gloss_text_textview)).setText(data.getGlossText());
     ((TextView) layout.findViewById(R.id.gloss_creation_time_textview))
         .setText(TimerUtils.convertTimestamp(data.getCreatedTime()));

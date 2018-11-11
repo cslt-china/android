@@ -34,11 +34,13 @@ public abstract class TaskView<T> extends LinearLayoutCompat {
   protected T data;
   protected TaskType taskType;
   protected LinearLayoutCompat layout;
+  protected int position;
 
   public TaskView(Context context, AttributeSet attrs) {
     super(context, attrs);
     data = null;
     taskType = null;
+    position = -1;
     layout = null;
   }
 
@@ -49,6 +51,8 @@ public abstract class TaskView<T> extends LinearLayoutCompat {
 
   abstract public T getData();
 
-  abstract public void setData(T data, TaskType taskType);
+  public int getPosition() {return position;}
+
+  abstract public void setData(T data, TaskType taskType, int position);
 
 }

@@ -69,7 +69,10 @@ public class RecordingTaskFragment extends BaseFragment implements
       @Override
       public void onClick(View v) {
         DataBean data = ((PromptDataView) v).getData();
-        ActivityUtils.startCameraActivity(getActivity(), new SignPromptBatchResponse(data));
+        for(int i = ((PromptDataView) v).getPosition()-1; i >= 0; i--) {
+          promptList.getData().remove(i);
+        }
+        ActivityUtils.startCameraActivity(getActivity(), promptList);
       }
     };
 

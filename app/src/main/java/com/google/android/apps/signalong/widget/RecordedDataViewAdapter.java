@@ -98,7 +98,7 @@ public class RecordedDataViewAdapter extends
   @Override
   public void onBindViewHolder(ViewHolder viewHolder, int position) {
     if (taskType == TaskType.MY_RECORDING || taskType == TaskType.NEW_REVIEW){
-      viewHolder.view.setData(videoList.getData().get(position), taskType);
+      viewHolder.view.setData(videoList.getData().get(position), taskType, position);
     } else {
       throw new InvalidParameterException(
           "task type " + taskType  + " cannot be binded with view holder!!!");
