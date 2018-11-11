@@ -481,6 +481,8 @@ public class RecordFragment2 extends BaseFragment {
     }
   }
 
+  Runnable runnableAfterSessionClosed;
+
   /**
    * Start the camera preview.
    */
@@ -488,8 +490,18 @@ public class RecordFragment2 extends BaseFragment {
     if (null == mCameraDevice || !mTextureView.isAvailable() || null == mPreviewSize) {
       return;
     }
-    try {
+
+    if (mPreviewSession != null) {
+      //capture session is closed in an async process, so startPreview should be called
+      //on StateCallback.onClosed
+      runnableAfterSessionClosed = ()->this.startPreview();
       closePreviewSession();
+      return;
+    }
+    runnableAfterSessionClosed = null;
+
+    Log.i(TAG, "start preview");
+    try {
       SurfaceTexture texture = mTextureView.getSurfaceTexture();
       assert texture != null;
       texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
@@ -497,6 +509,7 @@ public class RecordFragment2 extends BaseFragment {
 
       Surface previewSurface = new Surface(texture);
       mPreviewBuilder.addTarget(previewSurface);
+
 
       mCameraDevice.createCaptureSession(Collections.singletonList(previewSurface),
                                          new CameraCaptureSession.StateCallback() {
@@ -510,6 +523,14 @@ public class RecordFragment2 extends BaseFragment {
                                            @Override
                                            public void onConfigureFailed(@NonNull CameraCaptureSession session) {
                                              mCameraCallback.onError("device configure failed");
+                                           }
+
+                                           @Override
+                                           public void onClosed(@NonNull CameraCaptureSession session) {
+                                             Log.i(TAG, "onClosed preview");
+                                             if (runnableAfterSessionClosed != null) {
+                                               runnableAfterSessionClosed.run();
+                                             }
                                            }
                                          }, mBackgroundHandler);
     } catch (CameraAccessException e) {
@@ -614,7 +635,17 @@ public class RecordFragment2 extends BaseFragment {
     }
 
     try {
-      closePreviewSession();
+      if (mPreviewSession != null) {
+        //capture session is closed in an async process, so startRecordingVideo should be called
+        //on StateCallback.onClosed
+        runnableAfterSessionClosed = ()->this.startRecordingVideo(videoFilePath, recordingTime);
+        closePreviewSession();
+        return;
+      }
+
+      Log.i(TAG, "start recording");
+      runnableAfterSessionClosed = null;
+
       setUpMediaRecorder(videoFilePath);
       SurfaceTexture texture = mTextureView.getSurfaceTexture();
       assert texture != null;
@@ -662,14 +693,21 @@ public class RecordFragment2 extends BaseFragment {
 
         @Override
         public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-          Log.e("wxg", "camera configure error");
+          Log.e(TAG, "camera configure error");
           mCameraCallback.onError("device configure failed");
+        }
+
+        @Override
+        public void onClosed(@NonNull CameraCaptureSession session) {
+          Log.i(TAG, "onClosed recording");
+          if (runnableAfterSessionClosed != null) {
+            runnableAfterSessionClosed.run();
+          }
         }
       }, mBackgroundHandler);
     } catch (CameraAccessException | IOException e) {
       e.printStackTrace();
     }
-
   }
 
   private void closePreviewSession() {
