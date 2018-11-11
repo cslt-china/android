@@ -53,7 +53,7 @@ public class CameraViewModel extends AndroidViewModel {
   private static final int UPLOAD_CONCURRENT = 3;
 
   private Semaphore semaphore = new Semaphore(UPLOAD_CONCURRENT);
-  private volatile boolean threadExitFlag = false;
+  private volatile boolean threadExitFlag = true;
 
   public CameraViewModel(@NonNull Application application) {
     super(application);
@@ -146,6 +146,12 @@ public class CameraViewModel extends AndroidViewModel {
    * LinkedBlockingDeque to continue uploading.
    */
   public void startUploadThread() {
+    if (threadExitFlag == false) {
+      return;
+    }
+
+    Log.i(TAG, "start uploading thread");
+
     threadExitFlag = false;
     new Thread(
         () -> {

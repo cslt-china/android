@@ -61,7 +61,6 @@ public class SignAlongActivity extends BaseActivity {
             });
 
     cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel.class);
-    cameraViewModel.startUploadThread();
   }
 
   @Override
@@ -162,6 +161,7 @@ public class SignAlongActivity extends BaseActivity {
         .observe(
             this,
             currentPointAndUsername -> {
+              cameraViewModel.startUploadThread();
               if (currentPointAndUsername == null) {
                 ((TextView) findViewById(R.id.app_title_textview))
                     .setText(getString(R.string.label_loading));
