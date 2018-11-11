@@ -10,6 +10,7 @@
     <color name="video_name_bg">#000000</color>
     <color name="video_name_bg_in_recording">#880000</color>
     <color name="white">#ffffff</color>
+    <color name="disabled_white_foreground">#555555</color>
     <color name="dialogBackground">#F2F3F4</color>
     <color name="dark">#797D7F </color>
     <color name="black">#000000</color>
@@ -21,8 +22,9 @@
          tetradic harmony.
      -->
     <color name="red">#C43F38</color>
-    <color name="disabled_red">#fc7f77</color>
+    <color name="disabled_red_background">#452320</color>
     <color name="green">#38C454</color>
+    <color name="disabled_green_background">#244a2b</color>
     <color name="yellow">#C48538</color>
     <color name="blue">#4638c4</color>
 </resources>
