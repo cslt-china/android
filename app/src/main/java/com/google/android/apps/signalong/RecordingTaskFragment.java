@@ -108,20 +108,25 @@ public class RecordingTaskFragment extends BaseFragment implements
   // The solution here is to check remaining uploading gloss entries in VideoUploadTaskDao, and
   // remove them from the server response of prompt list.
   public void onUnfinishedVideoUploadFetched(Set<Integer> uploadUnfinishedPromptIds) {
-    for (int i = promptList.getData().size()-1; i >= 0; i--) {
-      SignPromptBatchResponse.DataBean prompt = promptList.getData().get(i);
-      if (uploadUnfinishedPromptIds.contains(prompt.getId())) {
-        Log.i(TAG, String.format(
-            "Removing prompt %d: %s because it was recorded and is not uploaded to server yet.",
-            i, prompt.getText()));
-        promptList.getData().remove(i);
+    if (promptList.getData() != null && promptList.getData().size() > 0) {
+      for (int i = promptList.getData().size() - 1; i >= 0; i--) {
+        SignPromptBatchResponse.DataBean prompt = promptList.getData().get(i);
+        if (uploadUnfinishedPromptIds.contains(prompt.getId())) {
+          Log.i(TAG, String.format(
+                  "Removing prompt %d: %s because it was recorded and is not uploaded to server yet.",
+                  i, prompt.getText()));
+          promptList.getData().remove(i);
+        }
       }
     }
     recordTaskCountTextview.setText(
         String.format(getString(R.string.label_recording_task_count),
             promptList.getData() == null ? 0 : promptList.getData().size()));
-    taskViewAdapter.setPromptList(this.getContext(), promptList, taskViewOnClickListener);
-    recordVideoButton.setEnabled(true);
+
+    if (promptList.getData() != null && promptList.getData().size() > 0) {
+      taskViewAdapter.setPromptList(this.getContext(), promptList, taskViewOnClickListener);
+      recordVideoButton.setEnabled(true);
+    }
   }
 
   public void onSuccessSignPromptBatchResponse(Response<SignPromptBatchResponse> response) {
