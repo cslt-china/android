@@ -13,11 +13,11 @@ public class ConfigUtils {
   private static final String PROTOCOL_HTTPS = "https";
   private static final String PROTOCOL_HTTP = "http";
 
-  private static final String PROD_DOMAIN_NAME = "62.234.198.54";
-  private static final String STAGING_DOMAIN_NAME = "cslt-211408.appspot.com";
-  private static final String DEV_DOMAIN_NAME = "cslt-211408.appspot.com";
+  private static final String PROD_DOMAIN_NAME = "www.lyquant.com";
+  private static final String STAGING_DOMAIN_NAME = "www.lyquant.com";
+  private static final String DEV_DOMAIN_NAME = "www.lyquant.com";
 
-  private static final String PROD_UPDATE_APK_BASE_URL = "https://62.234.198.54/";
+  private static final String PROD_UPDATE_APK_BASE_URL = "http://www.lyquant.com/";
   private static final String PROD_UPDATE_APK_CHECK_VERSION_URL = "/media/apk/signalong-release-version.txt";
   private static final String PROD_UPDATE_APK_DOWNLOAD_APK_URL = "/media/apk/signalong-release.apk";
 
@@ -26,11 +26,12 @@ public class ConfigUtils {
   private static final String DEV_UPDATE_APK_DOWNLOAD_APK_URL = "v0/b/cslt-211408.appspot.com/o/staging-apk%2Fsignalong-staging.apk?alt=media";
 
   public static String getProtocol() {
-    if (BuildConfig.DEBUG) {
-      return PROTOCOL_HTTP;
-    } else {
-      return PROTOCOL_HTTPS;
-    }
+    return  PROTOCOL_HTTP;
+//    if (BuildConfig.DEBUG) {
+//      return PROTOCOL_HTTP;
+//    } else {
+//      return PROTOCOL_HTTPS;
+//    }
   }
 
   public static String getDomainName() {
