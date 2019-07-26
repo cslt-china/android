@@ -28,7 +28,7 @@ public class PromptDataViewAdapter extends
     }
   }
 
-  public PromptDataViewAdapter() {
+  public  PromptDataViewAdapter() {
     context = null;
     promptList = null;
   }

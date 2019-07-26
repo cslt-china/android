@@ -52,7 +52,7 @@ public class ConfigUtils {
       // "https://storage.googleapis.com/cslt-211408.appspot.com/static/agreements"
       return String.format("%s://storage.googleapis.com/%s/static/agreements", getProtocol(), getDomainName());
     } else {
-      return String.format("%s://storage.googleapis.com/%s/static/agreements", getProtocol(), getDomainName());
+      return String.format("%s://%s/media/static/agreements", getProtocol(), getDomainName());
     }
   }
 

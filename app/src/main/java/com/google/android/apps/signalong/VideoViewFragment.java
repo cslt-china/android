@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.media.MediaPlayer;
+import android.os.StrictMode;
 import android.provider.MediaStore.Video;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -181,7 +182,7 @@ public class VideoViewFragment extends BaseFragment implements
       downloadProgressBar.bringToFront();
 
       new DownloadFileTask(ApiHelper.getRetrofit().create(VideoApi.class), this)
-          .execute(uri.toString(), localPath);
+              .execute(uri.toString(), localPath);
     }
   }
 

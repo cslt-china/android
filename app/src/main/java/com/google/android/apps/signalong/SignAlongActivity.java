@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.TextView;
 import com.google.android.apps.signalong.upgrade.UpgradeManager;
 import com.google.android.apps.signalong.utils.ActivityUtils;
@@ -67,8 +68,7 @@ public class SignAlongActivity extends BaseActivity {
   public void initViews() {
     Toolbar toolbar = findViewById(R.id.home_toolbar);
     setSupportActionBar(toolbar);
-    findViewById(R.id.btn_setting)
-        .setOnClickListener(
+    findViewById(R.id.btn_setting).setOnClickListener(
             view -> {
               startActivityForResult(new Intent(getApplicationContext(), SettingActivity.class), 0);
             });
