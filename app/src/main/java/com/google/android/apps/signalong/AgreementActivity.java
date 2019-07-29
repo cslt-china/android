@@ -1,8 +1,10 @@
 package com.google.android.apps.signalong;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
