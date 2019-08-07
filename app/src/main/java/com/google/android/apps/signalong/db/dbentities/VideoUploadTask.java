@@ -24,6 +24,17 @@ public class VideoUploadTask {
   @ColumnInfo(name = "image_path")
   private String imagePath;
 
+  @ColumnInfo(name = "video_key")
+  private String uploadKey;
+
+  public String getUploadKey() {
+    return uploadKey;
+  }
+
+  public void setUploadKey(String uploadKey) {
+    this.uploadKey = uploadKey;
+  }
+
   public Integer getId() {
     return id;
   }

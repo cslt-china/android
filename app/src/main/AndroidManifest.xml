@@ -69,6 +69,8 @@
             android:label="@string/title_activity_agreement"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"></activity>
+        <activity android:name=".WebActivity"
+            android:screenOrientation="portrait"/>
 
         <provider
             android:name="android.support.v4.content.FileProvider"

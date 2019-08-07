@@ -1,10 +1,8 @@
 package com.google.android.apps.signalong;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -22,18 +20,18 @@ import butterknife.ButterKnife;
 public class AgreementActivity extends BaseActivity implements DownloadImageTask.DownloadImageCallbacks {
 
   @BindView(R.id.agreementPdf)
-  ImageView pdfView;
+  ImageView pdfView; //合同显示
 
   @BindView(R.id.btn_reject_agreement)
-  Button btnReject;
+  Button btnReject; //退出
 
   @BindView(R.id.btn_confirm_agreement)
-  Button btnConfirm;
+  Button btnConfirm; //下一步
 
   @BindView(R.id.cb_agree)
-  CheckBox cbAgree;
+  CheckBox cbAgree; //已确认合同是本人签署
 
-  private String username;
+  private String username;//用户登录账号（即用户名）
 
 
   private LoginViewModel loginViewModel;
@@ -58,7 +56,6 @@ public class AgreementActivity extends BaseActivity implements DownloadImageTask
     new DownloadImageTask(ApiHelper.getRetrofit().create(VideoApi.class), this).execute(pdfUrl);
 
     toggleConfirmEnabled(false);
-
     cbAgree.setOnCheckedChangeListener((compoundButton, b) -> toggleConfirmEnabled(b));
 
     btnReject.setOnClickListener(view -> onBackPressed());
@@ -75,12 +72,12 @@ public class AgreementActivity extends BaseActivity implements DownloadImageTask
     });
   }
 
-  @Override
+  @Override //合同下载成功
   public void onImageDownloaded(Bitmap bitmap) {
     pdfView.setImageBitmap(bitmap);
   }
 
-  @Override
+  @Override //合同下载失败
   public void onDownloadFailure(String error) {
     ToastUtils.show(getApplicationContext(), error);
   }
@@ -88,9 +85,12 @@ public class AgreementActivity extends BaseActivity implements DownloadImageTask
   @Override
   public void onBackPressed() {
     LoginSharedPreferences.clearUserData(getApplicationContext());
-    this.sendBroadcast(new Intent(EXIT_ACTION));
+    this.sendBroadcast(new Intent(EXIT_ACTION));//发送退出应用广播
   }
 
+  /**
+   * 是否已确认合同
+   */
   private void toggleConfirmEnabled(boolean b) {
     btnConfirm.setEnabled(b);
     btnConfirm.setBackgroundColor(getColor(b ? R.color.green : R.color.disabled_green));

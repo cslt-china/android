@@ -123,8 +123,10 @@ public class VideoViewFragment extends BaseFragment implements
   }
 
   public void onDownloadFailure(String errorMessage) {
-    ToastUtils.show(getContext(),
-        getString(R.string.tip_video_download_failure) + errorMessage);
+    if (this.isAdded()){
+      ToastUtils.show(getContext(),
+              getString(R.string.tip_video_download_failure) + errorMessage);
+    }
   }
 
   public void onProgressUpdate(int progress) {

@@ -9,7 +9,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/** VideoScreenUtils used to take a screenshot from the video. */
+/**
+ * VideoScreenUtils used to take a screenshot from the video.
+ * 获取视频第一帧图片并保存到指定路径
+ */
 public class VideoScreenUtils {
 
   private static final String TAG = "VideoScreenUtils";

@@ -80,6 +80,7 @@ public class DownloadFileTask extends AsyncTask<String, Integer, String> {
     }
 
     private void downloadFile(String downloadUrl, String outputFilepath) {
+        Log.e("xiaoyuu","task downloadFile  ==>  downloadUrl:"+downloadUrl);
         videoApi
                 .downloadFile(downloadUrl)
                 .enqueue(

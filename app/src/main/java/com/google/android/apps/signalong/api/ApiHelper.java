@@ -1,5 +1,7 @@
 package com.google.android.apps.signalong.api;
 
+import android.util.Log;
+
 import com.google.android.apps.signalong.BuildConfig;
 import com.google.android.apps.signalong.utils.ConfigUtils;
 
@@ -29,7 +31,7 @@ public class ApiHelper {
 
   // Change to  String.format("%s://%s/%s", PROTOCOL, DOMAIN_NAME, "agreements"); once
   // Qcloud https host is setup;
-  public static final String AGREEMENTS_BASE_URL = ConfigUtils.getAgreementsUrl();
+  public static final String AGREEMENTS_BASE_URL = ConfigUtils.getAgreementsUrl();//合同获取接口
 
   static {
     new ApiHelper();
@@ -38,8 +40,9 @@ public class ApiHelper {
   private static Retrofit retrofit;
 
   {
-    HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-    logging.setLevel(Level.BASIC);
+    HttpLoggingInterceptor logging = new HttpLoggingInterceptor(message -> Log.e("jk","retrofitBack = "+message));
+    logging.setLevel(Level.BODY);
+
 
     OkHttpClient.Builder builder = getHttpClientBuilder(!BuildConfig.DEBUG);
     builder.addInterceptor(logging);

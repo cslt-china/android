@@ -36,6 +36,6 @@ public interface UserApi {
   @PUT("/api/account/password")
   Call<BaseResponse> changePassword(@Header("Authorization") String authorization, @Body ChangePasswords passwords);
 
-  @POST("/api/account/agreement")
+  @POST("/api/account/agreement") //用户确认合同接口
   Call<BaseResponse> confirmAgreement(@Header("Authorization") String authorization);
 }

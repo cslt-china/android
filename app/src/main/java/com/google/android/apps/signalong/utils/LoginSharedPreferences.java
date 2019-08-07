@@ -92,6 +92,10 @@ public class LoginSharedPreferences {
   }
 
 
+  /**
+   * 保存在该设备上确认过合同的所有用户
+   * @param value 用户账号（即用户名）
+   */
   public static void saveConfirmedAgreement(Context context, String value) {
     // Note that you must not modify the set instance returned by this call: getStringSet().
     Set<String> agreements = getSharedPreferences(context).getStringSet(CONFIRMED_AGREEMENT, new HashSet<>());

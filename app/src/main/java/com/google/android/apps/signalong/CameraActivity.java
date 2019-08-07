@@ -253,6 +253,9 @@ public class CameraActivity extends BaseActivity implements
   }
 
   private void uploadVideo() {
+    Log.e("xiaoxue","uploadVideo 上传视频 id: "+signPromptList.get(currentSignIndex).getId()
+            +"\ntext: "+signPromptList.get(currentSignIndex).getText()
+            +"\nvideofilepath: "+videoFilePath);
     cameraViewModel.saveVideoUploadTask(videoFilePath,
         signPromptList.get(currentSignIndex).getId());
   }
@@ -374,11 +377,12 @@ public class CameraActivity extends BaseActivity implements
   }
 
   public void entryLearning() {
-    Log.i(fsmTag, "entryLearning");
     showFragment(referenceFragment);
 
     SignPromptBatchResponse.DataBean current =
         signPromptList.get(currentSignIndex);
+    Log.i("xiaoyuu", "entryLearning text: "+current.getText()+"\nvideopath: "+current.getSampleVideo().getVideoPath()
+    +"\nthumbnailpath: "+current.getSampleVideo().getThumbnailPath());
 
     referenceFragment.playReference(
         current.getText(),
