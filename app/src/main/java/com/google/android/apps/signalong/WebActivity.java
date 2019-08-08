@@ -5,8 +5,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
+import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
@@ -28,6 +33,8 @@ public class WebActivity extends BaseActivity {
 
     @Override
     public void initViews() {
+//        mWebView.loadUrl("file:////android_asset/html/register.html");
+//        mWebView.loadUrl("http://114.115.205.129:8081/register/register.html?v=1.0");
         mWebView.loadUrl("http://114.115.205.129:8081/register/register.html");
     }
 
@@ -35,56 +42,65 @@ public class WebActivity extends BaseActivity {
 
     private void initWebView() {
         WebSettings webSettings = mWebView.getSettings();
-        //支持缩放，默认为true。
-        webSettings.setSupportZoom(false);
-        //调整图片至适合webview的大小
-        webSettings.setUseWideViewPort(true);
-        // 缩放至屏幕的大小
-        webSettings.setLoadWithOverviewMode(true);
-        //设置默认编码
-        webSettings.setDefaultTextEncodingName("utf-8");
         webSettings.setJavaScriptEnabled(true);
-        //设置自动加载图片
-        webSettings.setLoadsImagesAutomatically(true);
-        webSettings.setJavaScriptEnabled(true);
-        mWebView.setWebViewClient(new WebViewClient(){
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Log.i("TAG", "shouldOverrideUrlLoading ==> request: "+request.toString());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    view.loadUrl(String.valueOf(request.getUrl()));
-                } else {
-                    view.loadUrl(request.toString());
-                }
-                return true;
-            }
-        });
+        webSettings.setAllowContentAccess(true);
+        webSettings.setAllowFileAccessFromFileURLs(true);
+        webSettings.setLoadsImagesAutomatically(true);//支持自动加载图片
+        webSettings.setDomStorageEnabled(true);
+        mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.setWebViewClient(new BaseWebViewClient());
+        mWebView.canGoBack();
+        mWebView.canGoForward();
     }
 
     class BaseWebViewClient extends WebViewClient {
 
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            return super.shouldOverrideUrlLoading(view, url);
+        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+            Log.i("xiaoyu", "shouldOverrideUrlLoading ==> request: "+request.toString());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                view.loadUrl(String.valueOf(request.getUrl()));
+            } else {
+                view.loadUrl(request.toString());
+            }
+            return true;
         }
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
+            Log.i("xiaoyu","onPageStarted  ==>  url: "+url+"    favicon: "+favicon);
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            Log.i("TAG","onPageFinished  ==>  url: "+url);
+            Log.i("xiaoyu","onPageFinished  ==>  url: "+url);
         }
 
         @Override
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            super.onReceivedError(view, errorCode, description, failingUrl);
-            Log.i("TAG","onReceivedError    code = "+errorCode+"    descri: "+description);
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            super.onReceivedError(view, request, error);
+            Log.i("xiaoyu","onReceivedError    code = "+error+"    request: "+request.toString());
         }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i("xiaoyu","------------onDestroy----------------");
+//        mWebView.clearCache(true);
+//        mWebView.clearHistory();
+//        mWebView.clearFormData();
+//        WebStorage.getInstance().deleteAllData(); //清空WebView的localStorage
+        mWebView.destroy();
     }
 }
 

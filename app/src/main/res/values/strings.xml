@@ -23,12 +23,13 @@
 
   <!-- activity_login -->
   <string name="title_login">登录</string>
-  <string name="tv_username">用户名</string>
+  <string name="tv_username">手机号</string>
+  <string name="tv_phone">手机号</string>
   <string name="tv_password">密码</string>
   <string name="btn_login">登录</string>
   <string name="btn_register">注册</string>
   <string name="tip_password_empty">密码为空</string>
-  <string name="tip_username_empty">用户为空</string>
+  <string name="tip_username_empty">手机号为空</string>
   <string name="tip_login_fail">登陆失败</string>
   <string name="tip_login_success">登陆成功</string>
   <string name="tip_network_error">网络错误</string>

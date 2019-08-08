@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no">
+    <title>用户协议</title>
+    <!-- 引入 FrozenUI -->
+    <link rel="stylesheet" href="http://i.gtimg.cn/vipstyle/frozenui/2.0.0/css/frozen.css"/>
+</head>
+<style>
+    p{
+        text-indent:2em;
+        font-size: 0.16rem !important;
+        color: #454444 !important;
+    }
+</style>
+<body>
+<div>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+    <div class="ui-btn-wrap">
+        <h1><span><strong>同意函</strong></span></h1>
+    </div>
+    <div>
+        <p>
+            本人<u><span id="name" style="padding: 10px;content: 'center';"></span></u>，确认并同意参与本手语数据收集项目，本人确认本人参与此项目是完全自愿的。项目目的和宗旨：手语数据收集项目的宗旨是帮助全世界社会公众了解、关注中国聋哑人群，研究，分析，开发和改进手语机器翻译及相关产品和服务（“项目目的”）。为此项目收集的数据将用于进行技术研究、未来产品和服务开发。
+        </p>
+        <p>
+            项目程序：本项目会需要您进行手语交流，根据程序提示给予反馈、建议、数据和其他信息（“项目反馈”）。您的影像、动作、声音和其他活动都会被程序记录，包括您与任何产品，应用程序或样品的交互都会被记录，此类记录也将被视为“项目反馈”。
+        </p>
+        <p>
+            许可：根据知识共享署名 4.0 国际公共许可（Creative Commons Attribution 4.0 InternationalPublic License）的条款和条件，本人特此授予社会公众全球免版税、不可再授权、非独占、不可撤销的权利许可：(a) 允许社会公众在与项目目的相符的情况下永久存储，复制和以其他方式使用项目反馈；(b)许可任何版权、肖像权、宣传权和任何其他合法权利，以便他人在本同意函允许的范围内使用项目反馈。
+        </p>
+
+        <p>
+            本人明确放弃任何潜在的限制社会公众使用项目反馈的知识产权、肖像权、公开权或隐私权。保密：本人认可本人收到或提供的与本项目相关的所有信息将被视为保密信息（“保密信息”）：(a)任何一方仅可以根据项目目的使用保密信息；(b) 接收方将使用合理谨慎的程序来保护保密信息，并防止未经授权使用或泄露保密信息。为避免歧义，本人提供的项目反馈不属于保密信息并且可被公开许可。
+        </p>
+        <p>
+            参与和退出：本人确认可以在项目反馈被公开之前，本人可撤销本人的同意。一旦本人退出项目，除非适用法律或法律程序另有禁止，任何包含或与本人个人身份信息相关的数据都将在合理可行的范围内尽快地被删除。但若在本项目反馈根据知识共享署名 4.0 国际公共许可（Creative Commons Attribution4.0 International Public License）的条款和条件被许可之后，项目反馈会进入共有领域，本人不能再撤销本人的同意。
+        </p>
+        <p>
+            数据保留：包含您本人的影像、动作、声音和其他个人身份信息的项目反馈将在项目目的所需的时间内被保留。
+        </p>
+        <p>
+            本人声明本人拥有签署本同意函的全部权利和权限，包括但不限于授予与本人参与和提供项目反馈相关的所有权利和权限。本人充分理解本项目的程序。本人的问题都得到了满意的答复，本人同意参加本项目。本人理解并同意，作为该项目的一部分，本人的影像、动作、声音和其他活动将被记录，包括本人与任何产品、应用程序或样品的交互都会被记录。
+        </p>
+        <div class="ui-btn-wrap">
+            <button id="submit" class="ui-btn-lg ui-btn-primary" style="background-color: #2E409F">
+                同意
+            </button>
+        </div>
+        <div class="ui-dialog show" id="tips" style="display: none">
+            <div class="ui-dialog-cnt">
+                <div class="ui-dialog-bd">
+                    <p id="errormsg"></p>
+                </div>
+                <div class="ui-dialog-ft">
+                    <button type="button" class="goback" data-role="button">取消</button>
+                    <button type="button" class="goback" data-role="button">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        var name =localStorage.getItem("name")
+        var mobile =localStorage.getItem("mobile")
+        var password =localStorage.getItem("password")
+        $("#name").text(name);
+        $('#submit').on('click' , function () {
+            $.ajax({
+                url:'http://114.115.205.129:8081/api/main/register',
+                data:{name:name,mobile:mobile,password:password},
+                dataType:'json',
+                type:'post',
+                success:function(res){
+                    console.log(res.status)
+                    if(res.status == 1){
+                        window.location.href = './agree.html';
+                    }else {
+                        $('#tips').show();
+                        $("#errormsg").text(res.msg);
+                        console.log(res.msg)
+                    }
+                }
+            });
+
+        });
+
+        $('.goback').on('click' , function () {
+            window.location.href = './register.html?v='+Math.random();
+        });
+
+    })
+</script>
+</body>
+</html>

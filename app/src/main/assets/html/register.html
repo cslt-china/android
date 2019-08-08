@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no">
+    <title>注册</title>
+    <!-- 引入 FrozenUI -->
+    <link rel="stylesheet" href="http://i.gtimg.cn/vipstyle/frozenui/2.0.0/css/frozen.css"/>
+</head>
+<!--<style>-->
+    <!--.start_span{-->
+        <!--width: 90px;-->
+    <!--}-->
+<!--</style>-->
+
+<body>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+<!--#2E409F-->
+<!-- 使用 -->
+<div class="ui-btn-wrap" style="margin-top: 40%">
+    <h1><span><strong>注册</strong></span></h1>
+</div>
+<div class="ui-form ui-border-t" style="margin-top: 20px">
+    <form action="">
+        <div class="ui-form-item ui-border-b">
+            <label class="start_span">
+                姓名：
+            </label>
+            <input type="text" name="name" placeholder="请填写姓名">
+        </div>
+        <div class="ui-form-item ui-border-b">
+            <label class="start_span">
+                用户名：
+            </label>
+            <input type="text" name="mobile" placeholder="请填写手机号">
+        </div>
+        <div class="ui-form-item ui-border-b">
+            <label class="start_span">
+                密码：
+            </label>
+            <input type="password" name="password" placeholder="请填写密码6-20位">
+        </div>
+        <div class="ui-form-item ui-border-b">
+            <label class="start_span">
+                确认密码：
+            </label>
+            <input type="password" name="repassword" placeholder="请重新填写密码">
+        </div>
+        <div class="ui-btn-wrap">
+            <button id="submit" class="ui-btn-lg ui-btn-primary" style="background-color: #2E409F">
+                确定
+            </button>
+        </div>
+        <div class="ui-tooltips ui-tooltips-warn" id="warn" style="display: none">
+            <div class="ui-tooltips-cnt ui-border-b">
+                <i></i><b id="warn_msg"></b><a class="ui-icon-close"></a>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $(function () {
+        // 验证手机号
+        function isPhoneNo(phone) {
+            var pattern = /^1[345678]\d{9}$/;
+            return pattern.test(phone);
+        }
+
+        function isPassword(password) {
+            var pattern = /^.{6,20}$/;
+            return pattern.test(password);
+        }
+
+        $('#submit').on('click' , function () {
+            var name = $("*[name='name']").val()
+            if (name=='null'||name==''){
+                $('#warn_msg').text('姓名不能为空！')
+                $('#warn').show()
+                return false
+            }
+            var mobile = $("*[name='mobile']").val()
+            if (mobile=='null'||mobile==''){
+                $('#warn_msg').text('用户名不能为空！')
+                $('#warn').show()
+                return false
+            }
+            if (isPhoneNo(mobile)==false){
+                $('#warn_msg').text('手机号格式不正确！')
+                $('#warn').show()
+                return false
+            }
+            var password = $("*[name='password']").val()
+            if (password=='null'||password==''){
+                $('#warn_msg').text('密码不能为空！')
+                $('#warn').show()
+                return false
+            }
+            if (isPassword(password)==false){
+                $('#warn_msg').text('请输入6-20位密码！')
+                $('#warn').show()
+                return false
+            }
+            var repassword = $("*[name='repassword']").val()
+            if (repassword=='null'||repassword==''){
+                $('#warn_msg').text('确认密码不能为空！')
+                $('#warn').show()
+                return false
+            }
+            if (repassword!=password){
+                $('#warn_msg').text('两次密码不一致！')
+                $('#warn').show()
+                return false
+            }
+            localStorage.setItem("name", name);
+            localStorage.setItem("mobile", mobile);
+            localStorage.setItem("password", password);
+            window.location.href = './agreement.html?v='+Math.random();
+            return false
+        });
+
+        $('.ui-icon-close').on('click' , function () {
+            $('#warn').hide()
+        });
+
+    })
+</script>
+</body>
+</html>

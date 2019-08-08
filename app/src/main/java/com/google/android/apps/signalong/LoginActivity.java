@@ -3,6 +3,7 @@ package com.google.android.apps.signalong;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
@@ -87,6 +88,9 @@ public class LoginActivity extends BaseActivity {
     private void register() {
         Intent intent = new Intent(getApplicationContext(), WebActivity.class);
         startActivity(intent);
+//        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://114.115.205.129:8081/register/register.html?v=1.0"));
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        startActivity(intent);
     }
 
     @Override
