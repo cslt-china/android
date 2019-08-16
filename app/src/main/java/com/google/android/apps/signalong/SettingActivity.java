@@ -75,11 +75,11 @@ public class SettingActivity extends BaseActivity implements
           ()->logout(), null);
     });
 
-    findViewById(R.id.help_button)
+    /*findViewById(R.id.help_button)
         .setOnClickListener(
             view -> {
               showHelpDialog();
-            });
+            });*/
     findViewById(R.id.change_password_button)
       .setOnClickListener(
         view -> startActivityForResult(new Intent(getApplicationContext(), ChangePasswordActivity.class), 0)

@@ -2,19 +2,13 @@ package com.google.android.apps.signalong;
 
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
-import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.TextView;
 
 
 public class WebActivity extends BaseActivity {
@@ -33,9 +27,12 @@ public class WebActivity extends BaseActivity {
 
     @Override
     public void initViews() {
-//        mWebView.loadUrl("file:////android_asset/html/register.html");
-//        mWebView.loadUrl("http://114.115.205.129:8081/register/register.html?v=1.0");
-        mWebView.loadUrl("http://114.115.205.129:8081/register/register.html");
+        int from = getIntent().getIntExtra("from",-1);
+        if (from == 1){
+            mWebView.loadUrl("http://114.115.205.129:8081/help/help.html");
+        } else {
+            mWebView.loadUrl("http://114.115.205.129:8081/register/register.html");
+        }
     }
 
 

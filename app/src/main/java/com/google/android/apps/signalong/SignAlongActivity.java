@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.google.android.apps.signalong.upgrade.UpgradeManager;
 import com.google.android.apps.signalong.utils.ActivityUtils;
+import com.google.android.apps.signalong.utils.FileLogUtil;
+import com.google.android.apps.signalong.utils.FileUtils;
 import com.google.android.apps.signalong.utils.IntroSharedPreferences.IntroType;
 import com.google.android.apps.signalong.utils.LoginSharedPreferences;
 import com.google.android.apps.signalong.utils.NetworkUtils;

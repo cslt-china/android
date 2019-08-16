@@ -123,13 +123,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/highLight"/>
-    <Button
-        android:id="@+id/help_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:text="@string/btn_help" />
 
     <Button
         android:id="@+id/change_password_button"
@@ -138,6 +131,26 @@
         android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:text="@string/btn_change_password" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+      <Button
+          android:id="@+id/help_button"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:background="@android:color/transparent"
+          android:gravity="center_vertical"
+          android:text="@string/btn_help"
+          />
+      <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textColor="#000"
+          android:text="lk@figbot.com.cn"/>
+    </LinearLayout>
 
     <View
         style="@style/Spacer"

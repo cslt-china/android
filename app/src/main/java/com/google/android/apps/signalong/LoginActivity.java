@@ -3,6 +3,7 @@ package com.google.android.apps.signalong;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -47,6 +48,7 @@ public class LoginActivity extends BaseActivity {
             ToastUtils.show(getApplicationContext(), getString(R.string.tip_password_empty));
             return;
         }
+
         loginViewModel
                 .login(new User(username.trim(), password.trim()))
                 .observe(
@@ -70,6 +72,7 @@ public class LoginActivity extends BaseActivity {
     public void initViews() {
         findViewById(R.id.login_button).setOnClickListener(view -> login());
         findViewById(R.id.register_btn).setOnClickListener(v -> register());
+        findViewById(R.id.help_doc_btn).setOnClickListener(v -> showDoc());
 
         ((TextView) findViewById(R.id.password_edit_text)).setOnEditorActionListener(
                 (TextView textView, int actionId, KeyEvent keyEvent) -> {
@@ -87,10 +90,18 @@ public class LoginActivity extends BaseActivity {
      */
     private void register() {
         Intent intent = new Intent(getApplicationContext(), WebActivity.class);
+        intent.putExtra("from",0);
         startActivity(intent);
-//        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://114.115.205.129:8081/register/register.html?v=1.0"));
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        startActivity(intent);
+    }
+
+
+    /**
+     * app使用说明
+     */
+    private void showDoc() {
+        Intent intent = new Intent(getApplicationContext(), WebActivity.class);
+        intent.putExtra("from",1);
+        startActivity(intent);
     }
 
     @Override

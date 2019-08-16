@@ -98,7 +98,7 @@
   <string name="tv_prepare_time">录制准备时长</string>
   <string name="tv_record_time">录制时长调整</string>
   <string name="label_other_setting_title">其他设置</string>
-  <string name="btn_help"> 积分规则介绍</string>
+  <string name="btn_help">联系我们:</string>
   <string name="btn_change_password">修改密码</string>
   <string name="btn_logout">退出帐号</string>
   <string name="title_activity_help">帮助</string>
